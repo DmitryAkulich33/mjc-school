@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'maven-publish'
+}
+
+group 'com.epam'
+version '1.3.5'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.epam'
+            artifactId = 'utils'
+            from components.java
+        }
+    }
+}
+sourceCompatibility = 1.8
+
+jar {
+    manifest {
+        attributes("Implementation-Title": "utils",
+                "Implementation-Version": archiveVersion)
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.apache.commons:commons-lang3:3.10'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+}
+
+test {
+    useJUnitPlatform()
+}
