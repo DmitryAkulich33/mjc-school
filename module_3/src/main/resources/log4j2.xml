@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="patternfull">
+            %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{5} - %msg%n
+        </Property>
+        <Property name="patternshort">
+            %d{HH:mm:ss.SSS} [%t] %-5level %logger{1} - %msg%n
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${patternshort}" />
+        </Console>
+        <File name="TxtFile" fileName="logs/text.log" bufferedIO="true">
+            <PatternLayout pattern="${patternfull}" />
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.epam.esm" level="debug"
+                additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="TxtFile" />
+        </Logger>
+
+        <!-- Root Logger -->
+        <Root level="error">
+            <!--<AppenderRef ref="Console" />-->
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="TxtFile" />
+        </Root>
+    </Loggers>
+</Configuration>
