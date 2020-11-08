@@ -1,5 +1,7 @@
 package com.epam.esm.domain;
 
+import com.epam.esm.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,14 +26,16 @@ import java.util.List;
 })
 public class Tag {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_tag", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_tag", updatable = false, nullable = false)
+    @JsonView(View.V1.class)
     private Long id;
 
+    @JsonView(View.V1.class)
     @Column(name = "name_tag", unique = true, nullable = false)
     private String name;
 
-
+    @JsonView(View.V1.class)
     @Column(name = "lock_tag")
     private Integer lock;
 

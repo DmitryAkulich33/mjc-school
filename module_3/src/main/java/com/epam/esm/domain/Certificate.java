@@ -1,6 +1,8 @@
 package com.epam.esm.domain;
 
+import com.epam.esm.view.View;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,38 +24,43 @@ import java.util.List;
 })
 public class Certificate {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_certificate", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_certificate", updatable = false, nullable = false)
+    @JsonView(View.V1.class)
     private Long id;
 
+    @JsonView(View.V1.class)
     @Column(name = "name_certificate", unique = true)
     private String name;
 
-    @Column(name = "description")
+    @JsonView(View.V1.class)
+    @Column
     private String description;
 
-    @Column(name = "price")
+    @JsonView(View.V1.class)
+    @Column
     private Double price;
 
+    @JsonView(View.V1.class)
     @Column(name = "creation_date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
 
+    @JsonView(View.V1.class)
     @Column(name = "update_date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdateDate;
 
+    @JsonView(View.V1.class)
     @Column(name = "lock_certificate")
     private Integer lock;
 
+    @JsonView(View.V1.class)
     @Column(name = "duration")
     private Integer duration;
 
+    @JsonView(View.V1.class)
     @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(name = "tag_certificate",
-//            joinColumns = @JoinColumn(name = "certificate_id", referencedColumnName = "id_certificate"),
-//            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id_tag"))
     private List<Tag> tags;
 
     public static final class QueryNames {
@@ -63,5 +70,4 @@ public class Certificate {
         public QueryNames() {
         }
     }
-
 }

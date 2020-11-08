@@ -76,7 +76,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate createCertificate(Certificate certificate) {
         log.debug("Service: creation certificate.");
-//        certificateValidator.validateCertificate(certificate);
+        certificateValidator.validateCertificate(certificate);
 //        Certificate createdCertificate = certificateDao.createCertificate(certificate);
 //        List<Tag> tagsForCertificate = new ArrayList<>();
 //        Long id = createdCertificate.getId();
