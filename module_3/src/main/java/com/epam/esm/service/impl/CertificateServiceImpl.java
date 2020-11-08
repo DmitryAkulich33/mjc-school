@@ -4,6 +4,8 @@ import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
+import com.epam.esm.exceptions.CertificateDaoException;
+import com.epam.esm.exceptions.TagDaoException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
@@ -74,32 +76,33 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate createCertificate(Certificate certificate) {
         log.debug("Service: creation certificate.");
-        certificateValidator.validateCertificate(certificate);
-        Certificate createdCertificate = certificateDao.createCertificate(certificate);
-        List<Tag> tagsForCertificate = new ArrayList<>();
-        Long id = createdCertificate.getId();
-        List<Tag> tagsFromDB = tagDao.getAllTags();
-        Set<Tag> uniqueTags = new HashSet<>(certificate.getTags());
-
-        for (Tag tag : uniqueTags) {
-            String nameTag = tag.getName();
-            if (tagService.isNewTag(tagsFromDB, nameTag)) {
-                Tag tagToCreate = new Tag();
-                tagToCreate.setName(nameTag);
-                Tag createdTag = tagDao.createTag(tagToCreate);
-                tagsForCertificate.add(createdTag);
-                Long idTag = createdTag.getId();
-                tagDao.createTagCertificate(idTag, id);
-            } else {
-                Tag currentTag = tagDao.getTagByName(nameTag);
-                Long idTag = currentTag.getId();
-                tagDao.createTagCertificate(idTag, id);
-                tagsForCertificate.add(currentTag);
-            }
-        }
-
-        createdCertificate.setTags(tagsForCertificate);
-        return createdCertificate;
+//        certificateValidator.validateCertificate(certificate);
+//        Certificate createdCertificate = certificateDao.createCertificate(certificate);
+//        List<Tag> tagsForCertificate = new ArrayList<>();
+//        Long id = createdCertificate.getId();
+//        List<Tag> tagsFromDB = tagDao.getAllTags();
+//        Set<Tag> uniqueTags = new HashSet<>(certificate.getTags());
+//
+//        for (Tag tag : uniqueTags) {
+//            String nameTag = tag.getName();
+//            if (tagService.isNewTag(tagsFromDB, nameTag)) {
+//                Tag tagToCreate = new Tag();
+//                tagToCreate.setName(nameTag);
+//                Tag createdTag = tagDao.createTag(tagToCreate);
+//                tagsForCertificate.add(createdTag);
+//                Long idTag = createdTag.getId();
+//                tagDao.createTagCertificate(idTag, id);
+//            } else {
+//                Tag currentTag = tagDao.getTagByName(nameTag);
+//                Long idTag = currentTag.getId();
+//                tagDao.createTagCertificate(idTag, id);
+//                tagsForCertificate.add(currentTag);
+//            }
+//        }
+//
+//        createdCertificate.setTags(tagsForCertificate);
+//        return createdCertificate;
+        return certificateDao.createCertificate(certificate);
     }
 
     /**
@@ -174,7 +177,10 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug(String.format("Service: deletion certificate with id %d", idCertificate));
         certificateValidator.validateCertificateId(idCertificate);
         certificateDao.getCertificateById(idCertificate);
-        certificateDao.deleteCertificate(idCertificate);
+        int result = certificateDao.deleteCertificate(idCertificate);
+        if(result == 0){
+            throw new CertificateDaoException("message.dao.exception");
+        }
     }
 
     /**
@@ -189,8 +195,8 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug(String.format("Service: search certificate by id %d", idCertificate));
         certificateValidator.validateCertificateId(idCertificate);
         Certificate certificate = certificateDao.getCertificateById(idCertificate);
-        List<Tag> tags = tagDao.getCertificateTags(idCertificate);
-        certificate.setTags(tags);
+//        List<Tag> tags = tagDao.getCertificateTags(idCertificate);
+//        certificate.setTags(tags);
         return certificate;
     }
 
@@ -205,9 +211,9 @@ public class CertificateServiceImpl implements CertificateService {
     @Transactional(readOnly = true)
     @Override
     public List<Certificate> getCertificates(String name, String search, String sort) {
-        log.debug("Service: search certificate by params.");
+        log.debug("Service: search certificates.");
         List<Certificate> certificates = certificateDao.getCertificates(name, search, sort);
-        certificates.forEach(s -> s.setTags(tagDao.getCertificateTags(s.getId())));
+//        certificates.forEach(s -> s.setTags(tagDao.getCertificateTags(s.getId())));
         return certificates;
     }
 }

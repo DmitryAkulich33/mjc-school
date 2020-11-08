@@ -2,6 +2,7 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
+import com.epam.esm.exceptions.TagDaoException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.TagValidator;
 import org.apache.logging.log4j.LogManager;
@@ -68,7 +69,10 @@ public class TagServiceImpl implements TagService {
         log.debug(String.format("Service: deletion tag by id  %d", idTag));
         tagValidator.validateTagId(idTag);
         tagDao.getTagById(idTag);
-        tagDao.deleteTag(idTag);
+        int result = tagDao.deleteTag(idTag);
+        if(result == 0){
+            throw new TagDaoException("message.dao.exception");
+        }
     }
 
     /**

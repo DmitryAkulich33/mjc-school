@@ -7,7 +7,7 @@ import java.util.List;
 public interface CertificateDao {
     Certificate createCertificate(Certificate certificate);
 
-    void deleteCertificate(Long idCertificate);
+    int deleteCertificate(Long idCertificate);
 
     Certificate getCertificateById(Long idCertificate);
 

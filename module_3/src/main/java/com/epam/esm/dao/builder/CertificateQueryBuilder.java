@@ -7,13 +7,16 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
 public class CertificateQueryBuilder {
-    private static final String FIND_TAG_BY_NAME = " JOIN tag_certificate ON certificate.id_certificate=tag_certificate.certificate_id " +
-            "JOIN tag ON tag_certificate.tag_id=tag.id_tag WHERE tag.";
+    private static final String FIND_DISTINCT_FROM_CERTIFICATES = "SELECT DISTINCT c.id_certificate, c.name_certificate, " +
+            "c.description, c.price, c.creation_date, c.update_date, c.lock_certificate, c.duration FROM certificate c";
+    private static final String CERTIFICATE_UNLOCK = " c.lock_certificate=0";
+    private static final String FIND_TAG_BY_NAME = " JOIN tag_certificate t_c ON c.id_certificate=t_c.certificate_id " +
+            "JOIN tag t ON t_c.tag_id=t.id_tag WHERE t.";
     private static final String FIELD_NAME_TAG = "name_tag=";
     private static final String AND = " AND ";
-    private static final String TAG_UNLOCK = "tag.lock_tag=0";
+    private static final String TAG_UNLOCK = "t.lock_tag=0";
     private static final String WHERE = " WHERE ";
-    private static final String CERTIFICATE = " certificate.";
+    private static final String CERTIFICATE = " c.";
     private static final String LIKE = " LIKE '%";
     private static final String ORDER_BY = " ORDER BY ";
     private static final String NAME_CERTIFICATE = "name_certificate";
@@ -25,6 +28,15 @@ public class CertificateQueryBuilder {
     private static final String BRACKET_RIGHT = ")";
     private static final String PERCENT_SIGN = "%";
 
+
+    public String buildCertificatesQuery(String name, String search, String sort){
+        StringBuilder certificatesQuery = new StringBuilder(FIND_DISTINCT_FROM_CERTIFICATES)
+                .append(buildTagNameQuery(name))
+                .append(buildSearchQuery(search))
+                .append(CERTIFICATE_UNLOCK)
+                .append(buildSortQuery(sort));
+        return certificatesQuery.toString();
+    }
 
     public StringBuilder buildTagNameQuery(String name) {
         StringBuilder tagNameQuery = new StringBuilder();
@@ -79,7 +91,7 @@ public class CertificateQueryBuilder {
             String sortType = fields[fields.length - 1].toUpperCase();
             orderQuery.append(ORDER_BY)
                     .append(CERTIFICATE)
-                    .append(sort.trim().replace(String.format("%s%s", UNDERSCORES, sortType.toLowerCase()), StringUtils.EMPTY))
+                    .append(sort.trim().replace(UNDERSCORES + sortType.toLowerCase(), StringUtils.EMPTY))
                     .append(StringUtils.SPACE)
                     .append(sortType);
         }

@@ -23,6 +23,7 @@ public class TagController {
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Tag> getTagById(@PathVariable Long id) {
         Tag tag = tagService.getTagById(id);
+
         return new ResponseEntity<>(tag, HttpStatus.OK);
     }
 

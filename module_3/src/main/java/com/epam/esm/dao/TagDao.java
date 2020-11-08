@@ -9,7 +9,7 @@ public interface TagDao {
 
     void createTagCertificate(Long idTag, Long idCertificate);
 
-    void deleteTag(Long idTag);
+    int deleteTag(Long idTag);
 
     Tag getTagById(Long idTag);
 

@@ -80,7 +80,10 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAnotherException(Exception exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
                 ErrorCode.DAO_ERROR_CODE.getErrorCode());
-        return getResponseEntity(exception, errorCode, HttpStatus.INTERNAL_SERVER_ERROR);
+        String message = exception.getMessage();
+        ExceptionResponse error = new ExceptionResponse(message, errorCode);
+        logger.error(message, exception);
+        return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<Object> getResponseEntity(Exception exception, String errorCode, HttpStatus httpStatus) {
