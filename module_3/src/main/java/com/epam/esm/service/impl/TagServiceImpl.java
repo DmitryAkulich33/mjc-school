@@ -55,6 +55,7 @@ public class TagServiceImpl implements TagService {
     public Tag createTag(Tag tag) {
         log.debug("Service: creation tag.");
         tagValidator.validateTagName(tag.getName());
+
         return tagDao.createTag(tag);
     }
 
@@ -70,7 +71,7 @@ public class TagServiceImpl implements TagService {
         tagValidator.validateTagId(idTag);
         tagDao.getTagById(idTag);
         int result = tagDao.deleteTag(idTag);
-        if(result == 0){
+        if (result == 0) {
             throw new TagDaoException("message.dao.exception");
         }
     }
@@ -142,10 +143,12 @@ public class TagServiceImpl implements TagService {
         List<Tag> list = tags.stream()
                 .filter(x -> x.getName().equals(nameTag))
                 .collect(Collectors.toList());
+
         return list.size() == 0;
     }
 
     private boolean isTagBelongToCertificate(List<Tag> tags, Long idTag) {
+
         return tags.stream().anyMatch(tag -> tag.getId().equals(idTag));
     }
 }

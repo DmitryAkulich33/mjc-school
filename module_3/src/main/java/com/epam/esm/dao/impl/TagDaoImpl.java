@@ -10,7 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -18,10 +17,10 @@ public class TagDaoImpl implements TagDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
-//    private static final String ADD_TAG_CERTIFICATE = "INSERT INTO tag_certificate " +
-//            "(tag_id, certificate_id) VALUES(?,?)";
-//    private static final String FIND_TAGS_CERTIFICATE = "SELECT id_tag, name_tag, lock_tag FROM tag " +
-//            "JOIN tag_certificate ON tag.id_tag=tag_certificate.tag_id WHERE certificate_id=?";
+    private static final String ADD_TAG_CERTIFICATE = "INSERT INTO tag_certificate " +
+            "(tag_id, certificate_id) VALUES(?,?)";
+    private static final String FIND_TAGS_CERTIFICATE = "SELECT id_tag, name_tag, lock_tag FROM tag " +
+            "JOIN tag_certificate ON tag.id_tag=tag_certificate.tag_id WHERE certificate_id=?";
     private static final Integer LOCK = 0;
 
     @Autowired
@@ -39,11 +38,10 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public void createTagCertificate(Long idTag, Long idCertificate) {
-//        try {
-//            template.update(ADD_TAG_CERTIFICATE, idTag, idCertificate);
-//        } catch (DataAccessException e) {
-//            throw new CertificateNotFoundException("message.wrong_certificate_id");
-//        }
+        entityManager.createNativeQuery(ADD_TAG_CERTIFICATE)
+                .setParameter(1, idTag)
+                .setParameter(2, idCertificate)
+                .executeUpdate();
     }
 
     @Override
@@ -78,11 +76,9 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public List<Tag> getCertificateTags(Long idCertificate) {
-//        try {
-//            return template.query(FIND_TAGS_CERTIFICATE, rowMapper, idCertificate);
-//        } catch (DataAccessException e) {
-//            throw new TagDaoException("message.dao.exception");
-//        }
-        return new ArrayList<>();
+        Query tagQuery = entityManager.createNativeQuery(FIND_TAGS_CERTIFICATE, Tag.class);
+        tagQuery.setParameter(1, idCertificate);
+        List<Tag> tags = tagQuery.getResultList();
+        return tags;
     }
 }
