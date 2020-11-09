@@ -2,7 +2,8 @@ package com.epam.esm.controller;
 
 import com.epam.esm.domain.Tag;
 import com.epam.esm.service.TagService;
-import com.epam.esm.view.View;
+import com.epam.esm.view.CreateTagView;
+import com.epam.esm.view.TagView;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,31 +23,38 @@ public class TagController {
         this.tagService = tagService;
     }
 
-    @JsonView(View.V1.class)
+    @JsonView(TagView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tag> getTagById(@PathVariable Long id) {
+    public ResponseEntity<TagView> getTagById(@PathVariable Long id) {
         Tag tag = tagService.getTagById(id);
+        TagView tagView = TagView.createForm(tag);
 
-        return new ResponseEntity<>(tag, HttpStatus.OK);
+        return new ResponseEntity<>(tagView, HttpStatus.OK);
     }
 
-    @JsonView(View.V1.class)
+    @JsonView(TagView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Tag>> getAllTags() {
+    public ResponseEntity<List<TagView>> getAllTags() {
         List<Tag> tags = tagService.getAllTags();
-        return new ResponseEntity<>(tags, HttpStatus.OK);
+        List<TagView> tagViews = TagView.createListFrom(tags);
+
+        return new ResponseEntity<>(tagViews, HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<Tag> deleteTag(@PathVariable Long id) {
         tagService.deleteTag(id);
+
         return ResponseEntity.ok().build();
     }
 
-    @JsonView(View.V1.class)
+    @JsonView(TagView.Views.V1.class)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tag> createTag(@RequestBody Tag tag) {
+    public ResponseEntity<TagView> createTag(@RequestBody @JsonView(CreateTagView.Views.V1.class) CreateTagView tagView) {
+        Tag tag = CreateTagView.createForm(tagView);
         Tag createdTag = tagService.createTag(tag);
-        return new ResponseEntity<>(createdTag, HttpStatus.CREATED);
+        TagView view = TagView.createForm(createdTag);
+
+        return new ResponseEntity<>(view, HttpStatus.CREATED);
     }
 }

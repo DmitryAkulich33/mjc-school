@@ -1,7 +1,5 @@
 package com.epam.esm.domain;
 
-import com.epam.esm.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
@@ -9,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
+@ToString(of = {"id", "name", "surname", "lock"})
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor

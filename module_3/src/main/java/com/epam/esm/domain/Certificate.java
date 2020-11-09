@@ -1,8 +1,6 @@
 package com.epam.esm.domain;
 
-import com.epam.esm.view.View;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
+@ToString(of = {"id", "name", "description", "price", "duration", "createDate"})
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,40 +24,31 @@ public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_certificate", updatable = false, nullable = false)
-    @JsonView(View.V1.class)
     private Long id;
 
-    @JsonView(View.V1.class)
     @Column(name = "name_certificate", unique = true)
     private String name;
 
-    @JsonView(View.V1.class)
     @Column
     private String description;
 
-    @JsonView(View.V1.class)
     @Column
     private Double price;
 
-    @JsonView(View.V1.class)
     @Column(name = "creation_date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
 
-    @JsonView(View.V1.class)
     @Column(name = "update_date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdateDate;
 
-    @JsonView(View.V1.class)
     @Column(name = "lock_certificate")
     private Integer lock;
 
-    @JsonView(View.V1.class)
     @Column(name = "duration")
     private Integer duration;
 
-    @JsonView(View.V1.class)
     @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)
     private List<Tag> tags;
 

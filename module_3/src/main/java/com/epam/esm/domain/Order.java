@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
+@ToString(of = {"id", "purchaseDate", "total", "user"})
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,11 +28,11 @@ public class Order {
     private Double total;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name="id_user")
+    @JoinColumn(name = "id_user")
     private User user;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable (name = "certificate_order",
+    @JoinTable(name = "certificate_order",
             joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id_order")},
             inverseJoinColumns = {@JoinColumn(name = "certificate_id", referencedColumnName = "id_certificate")})
     private List<Certificate> certificates;
