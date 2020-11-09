@@ -35,11 +35,11 @@ public class CertificateController {
         return new ResponseEntity<>(createdCertificate, HttpStatus.CREATED);
     }
 
-    @JsonView(View.V1.class)
+    @JsonView(CertificateView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Certificate> getCertificateById(@PathVariable Long id) {
+    public ResponseEntity<CertificateView> getCertificateById(@PathVariable Long id) {
         Certificate certificate = certificateService.getCertificateById(id);
-        return new ResponseEntity<>(certificate, HttpStatus.OK);
+        return new ResponseEntity<>(CertificateView.createFrom(certificate), HttpStatus.OK);
     }
 
     @JsonView(View.V1.class)
