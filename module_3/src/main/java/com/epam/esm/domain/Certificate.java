@@ -63,6 +63,9 @@ public class Certificate {
     @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)
     private List<Tag> tags;
 
+    @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)
+    private List<Order> orders;
+
     public static final class QueryNames {
         public static final String FIND_BY_ID = "Certificate.getById";
         public static final String LOCK_BY_ID = "Certificate.deleteTag";
