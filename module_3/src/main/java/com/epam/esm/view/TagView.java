@@ -12,7 +12,7 @@ public class TagView {
     @JsonView({TagView.Views.V1.class, CertificateView.Views.V1.class})
     private Long id;
 
-    @JsonView({TagView.Views.V1.class, CertificateView.Views.V1.class})
+    @JsonView({TagView.Views.V1.class, CertificateView.Views.V1.class, CreateCertificateView.Views.V1.class, UpdateCertificateView.Views.V1.class})
     private String name;
 
     public class Views {

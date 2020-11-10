@@ -26,9 +26,13 @@ public class CreateTagView {
         return tag;
     }
 
-    public static List<Tag> createListForm(List<CreateTagView> tagsView) {
-
-        return tagsView.stream().map(CreateTagView::createForm).collect(Collectors.toList());
+    public static Tag createForm(TagView tagView) {
+        Tag tag = new Tag();
+        tag.setName(tagView.getName());
+        return tag;
     }
 
+    public static List<Tag> createListForm(List<TagView> tagsView) {
+        return tagsView.stream().map(CreateTagView::createForm).collect(Collectors.toList());
+    }
 }

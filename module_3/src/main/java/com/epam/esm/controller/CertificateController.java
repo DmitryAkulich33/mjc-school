@@ -3,6 +3,8 @@ package com.epam.esm.controller;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.view.CertificateView;
+import com.epam.esm.view.CreateCertificateView;
+import com.epam.esm.view.UpdateCertificateView;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,10 +31,15 @@ public class CertificateController {
         return ResponseEntity.ok().build();
     }
 
+    @JsonView(CertificateView.Views.V1.class)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Certificate> createCertificate(@RequestBody Certificate certificate) {
+    public ResponseEntity<CertificateView> createCertificate(@RequestBody @JsonView(CreateCertificateView.Views.V1.class)
+                                                                     CreateCertificateView createCertificateView) {
+        Certificate certificate = CreateCertificateView.createForm(createCertificateView);
         Certificate createdCertificate = certificateService.createCertificate(certificate);
-        return new ResponseEntity<>(createdCertificate, HttpStatus.CREATED);
+        CertificateView certificateView = CertificateView.createForm(createdCertificate);
+
+        return new ResponseEntity<>(certificateView, HttpStatus.CREATED);
     }
 
     @JsonView(CertificateView.Views.V1.class)
@@ -44,11 +51,15 @@ public class CertificateController {
         return new ResponseEntity<>(certificateView, HttpStatus.OK);
     }
 
+    @JsonView(CertificateView.Views.V1.class)
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Certificate> updateCertificate(@RequestBody Certificate certificate,
-                                                         @PathVariable Long id) {
-        Certificate certificateToUpdate = certificateService.updateCertificate(certificate, id);
-        return new ResponseEntity<>(certificateToUpdate, HttpStatus.OK);
+    public ResponseEntity<CertificateView> updateCertificate(@RequestBody @JsonView(UpdateCertificateView.Views.V1.class) UpdateCertificateView updateCertificateView,
+                                                             @PathVariable Long id) {
+        Certificate certificateFromQuery = UpdateCertificateView.createForm(updateCertificateView);
+        Certificate certificateToUpdate = certificateService.updateCertificate(certificateFromQuery, id);
+        CertificateView certificateView = CertificateView.createForm(certificateToUpdate);
+
+        return new ResponseEntity<>(certificateView, HttpStatus.OK);
     }
 
     @JsonView(CertificateView.Views.V1.class)

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class CreateCertificateView {
+public class UpdateCertificateView {
     @JsonView(Views.V1.class)
     private Long id;
 
@@ -41,17 +41,21 @@ public class CreateCertificateView {
         }
     }
 
-    public static Certificate createForm(CreateCertificateView createCertificateView) {
+    public static Certificate createForm(UpdateCertificateView updateCertificateView) {
         Certificate certificate = new Certificate();
-        certificate.setId(createCertificateView.getId());
-        certificate.setName(createCertificateView.getName());
-        certificate.setDescription(createCertificateView.getName());
-        certificate.setPrice(createCertificateView.getPrice());
-        certificate.setCreateDate(createCertificateView.getCreateDate());
-        certificate.setLastUpdateDate(createCertificateView.getLastUpdateDate());
-        certificate.setDuration(createCertificateView.getDuration());
-        certificate.setTags(CreateTagView.createListForm(createCertificateView.getTags()));
-
+        certificate.setId(updateCertificateView.getId());
+        certificate.setName(updateCertificateView.getName());
+        certificate.setDescription(updateCertificateView.getName());
+        certificate.setPrice(updateCertificateView.getPrice());
+        certificate.setCreateDate(updateCertificateView.getCreateDate());
+        certificate.setLastUpdateDate(updateCertificateView.getLastUpdateDate());
+        certificate.setDuration(updateCertificateView.getDuration());
+        List<TagView> tagsView = updateCertificateView.getTags();
+        if (tagsView != null) {
+            certificate.setTags(CreateTagView.createListForm(tagsView));
+        } else {
+            certificate.setTags(null);
+        }
         return certificate;
     }
 }
