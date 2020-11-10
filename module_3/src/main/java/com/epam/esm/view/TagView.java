@@ -27,7 +27,7 @@ public class TagView {
         return view;
     }
 
-    public static List<TagView> createListFrom(List<Tag> tags) {
+    public static List<TagView> createListForm(List<Tag> tags) {
         return tags.stream().map(TagView::createForm).collect(Collectors.toList());
     }
 }

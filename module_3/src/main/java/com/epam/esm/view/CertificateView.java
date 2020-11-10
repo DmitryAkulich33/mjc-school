@@ -51,7 +51,7 @@ public class CertificateView {
         certificateView.setCreateDate(certificate.getCreateDate());
         certificateView.setLastUpdateDate(certificate.getLastUpdateDate());
         certificateView.setDuration(certificate.getDuration());
-        certificateView.setTags(TagView.createListFrom(certificate.getTags()));
+        certificateView.setTags(TagView.createListForm(certificate.getTags()));
 
         return certificateView;
     }

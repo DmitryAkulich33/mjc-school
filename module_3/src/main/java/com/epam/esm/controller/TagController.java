@@ -36,7 +36,7 @@ public class TagController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TagView>> getAllTags() {
         List<Tag> tags = tagService.getAllTags();
-        List<TagView> tagViews = TagView.createListFrom(tags);
+        List<TagView> tagViews = TagView.createListForm(tags);
 
         return new ResponseEntity<>(tagViews, HttpStatus.OK);
     }

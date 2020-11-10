@@ -44,7 +44,7 @@ VALUES (1, 1),
        (8, 6);
 
 INSERT INTO user
-    (name_user, surname_user, lock_user)
+    (name_user, surname, lock_user)
 VALUES ("Ivan", "Ivanov", 0),
        ("Petr", "Petrov", 0),
        ("Denis", "Denisov", 0);

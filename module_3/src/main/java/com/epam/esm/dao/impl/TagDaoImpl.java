@@ -71,6 +71,7 @@ public class TagDaoImpl implements TagDao {
     @Override
     public List<Tag> getAllTags() {
         TypedQuery<Tag> tagQuery = entityManager.createNamedQuery(Tag.QueryNames.FIND_ALL, Tag.class);
+
         return tagQuery.getResultList();
     }
 
@@ -79,6 +80,7 @@ public class TagDaoImpl implements TagDao {
         Query tagQuery = entityManager.createNativeQuery(FIND_TAGS_CERTIFICATE, Tag.class);
         tagQuery.setParameter(1, idCertificate);
         List<Tag> tags = tagQuery.getResultList();
+
         return tags;
     }
 }
