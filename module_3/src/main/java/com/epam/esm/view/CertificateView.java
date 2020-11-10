@@ -11,30 +11,30 @@ import java.util.stream.Collectors;
 
 @Data
 public class CertificateView {
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private Long id;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private String name;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private String description;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private Double price;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdateDate;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private Integer duration;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private List<TagView> tags;
 
     public class Views {

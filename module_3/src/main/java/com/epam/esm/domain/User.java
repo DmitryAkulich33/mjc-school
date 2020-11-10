@@ -37,8 +37,8 @@ public class User {
     private List<Order> orders;
 
     public static final class QueryNames {
-        public static final String FIND_BY_ID = "User.findById";
-        public static final String FIND_ALL = "User.findAll";
+        public static final String FIND_BY_ID = "User.getById";
+        public static final String FIND_ALL = "User.getAll";
 
         public QueryNames() {
         }

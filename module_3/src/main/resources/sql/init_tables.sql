@@ -49,13 +49,13 @@ VALUES ("Ivan", "Ivanov", 0),
        ("Petr", "Petrov", 0),
        ("Denis", "Denisov", 0);
 
-INSERT INTO `order`
-    (purchase_date, total, id_user)
-VALUES ("2020-11-01T10:00:09", 525.00, 1),
-       ("2020-11-02T11:00:10", 290.00, 2),
-       ("2020-11-02T12:00:12", 825.00, 3),
-       ("2020-11-03T12:00:12", 100.00, 1),
-       ("2020-11-03T13:00:10", 80.00,  2);
+INSERT INTO `orders`
+    (purchase_date, total, id_user, lock_order)
+VALUES ("2020-11-01T10:00:09", 525.00, 1, 0),
+       ("2020-11-02T11:00:10", 290.00, 2, 0),
+       ("2020-11-02T12:00:12", 825.00, 3, 0),
+       ("2020-11-03T12:00:12", 100.00, 1, 0),
+       ("2020-11-03T13:00:10", 80.00, 2, 0);
 
 INSERT INTO certificate_order
     (order_id, certificate_id)

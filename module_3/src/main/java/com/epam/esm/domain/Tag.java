@@ -43,8 +43,8 @@ public class Tag {
     public static final class QueryNames {
         public static final String FIND_BY_ID = "Tag.getById";
         public static final String FIND_BY_NAME = "Tag.getByName";
-        public static final String FIND_ALL = "Tag.getAllTags";
-        public static final String LOCK_BY_ID = "Tag.deleteTag";
+        public static final String FIND_ALL = "Tag.getAll";
+        public static final String LOCK_BY_ID = "Tag.delete";
 
         public QueryNames() {
         }

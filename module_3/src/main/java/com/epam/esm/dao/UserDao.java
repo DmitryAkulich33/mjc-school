@@ -5,6 +5,7 @@ import com.epam.esm.domain.User;
 import java.util.List;
 
 public interface UserDao {
-    User getUserById (Long idUser);
+    User getUserById(Long idUser);
+
     List<User> getAllUsers();
 }

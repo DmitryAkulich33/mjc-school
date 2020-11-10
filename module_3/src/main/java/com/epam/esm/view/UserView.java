@@ -9,13 +9,13 @@ import java.util.stream.Collectors;
 
 @Data
 public class UserView {
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private Long id;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private String name;
 
-    @JsonView(Views.V1.class)
+    @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private String surname;
 
     public class Views {
@@ -33,7 +33,6 @@ public class UserView {
     }
 
     public static List<UserView> createListForm(List<User> users) {
-
         return users.stream().map(UserView::createForm).collect(Collectors.toList());
     }
 }

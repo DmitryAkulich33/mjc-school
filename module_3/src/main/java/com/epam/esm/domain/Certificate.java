@@ -57,7 +57,7 @@ public class Certificate {
 
     public static final class QueryNames {
         public static final String FIND_BY_ID = "Certificate.getById";
-        public static final String LOCK_BY_ID = "Certificate.deleteTag";
+        public static final String LOCK_BY_ID = "Certificate.delete";
 
         public QueryNames() {
         }

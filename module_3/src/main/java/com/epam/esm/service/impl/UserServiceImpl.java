@@ -14,7 +14,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
 
-    private static Logger log = LogManager.getLogger(TagServiceImpl.class);
+    private static Logger log = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
     public UserServiceImpl(UserDao userDao) {

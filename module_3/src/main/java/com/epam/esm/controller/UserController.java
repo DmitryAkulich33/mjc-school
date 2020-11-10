@@ -27,7 +27,7 @@ public class UserController {
 
     @JsonView(UserView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserView> getTagById(@PathVariable Long id) {
+    public ResponseEntity<UserView> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         UserView userView = UserView.createForm(user);
 
@@ -36,7 +36,7 @@ public class UserController {
 
     @JsonView(UserView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserView>> getAllTags() {
+    public ResponseEntity<List<UserView>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         List<UserView> usersView = UserView.createListForm(users);
 
