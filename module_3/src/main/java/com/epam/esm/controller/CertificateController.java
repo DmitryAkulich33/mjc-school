@@ -52,9 +52,20 @@ public class CertificateController {
     }
 
     @JsonView(CertificateView.Views.V1.class)
+    @PatchMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CertificateView> updatePartCertificate(@RequestBody @JsonView(UpdateCertificateView.Views.V1.class) UpdateCertificateView updateCertificateView,
+                                                             @PathVariable Long id) {
+        Certificate certificateFromQuery = UpdateCertificateView.createForm(updateCertificateView);
+        Certificate certificateToUpdate = certificateService.updatePartCertificate(certificateFromQuery, id);
+        CertificateView certificateView = CertificateView.createForm(certificateToUpdate);
+
+        return new ResponseEntity<>(certificateView, HttpStatus.OK);
+    }
+
+    @JsonView(CertificateView.Views.V1.class)
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificateView> updateCertificate(@RequestBody @JsonView(UpdateCertificateView.Views.V1.class) UpdateCertificateView updateCertificateView,
-                                                             @PathVariable Long id) {
+                                                                 @PathVariable Long id) {
         Certificate certificateFromQuery = UpdateCertificateView.createForm(updateCertificateView);
         Certificate certificateToUpdate = certificateService.updateCertificate(certificateFromQuery, id);
         CertificateView certificateView = CertificateView.createForm(certificateToUpdate);

@@ -112,8 +112,8 @@ public class CertificateServiceImpl implements CertificateService {
      */
     @Transactional
     @Override
-    public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
-        log.debug(String.format("Service: update certificate with id %d", idCertificate));
+    public Certificate updatePartCertificate(Certificate certificate, Long idCertificate) {
+        log.debug(String.format("Service: update part certificate with id %d", idCertificate));
         certificateValidator.validateCertificateId(idCertificate);
 
         Certificate certificateToUpdate = certificateDao.getCertificateById(idCertificate);
@@ -129,7 +129,24 @@ public class CertificateServiceImpl implements CertificateService {
         certificateToUpdate.setDuration(duration);
         certificateToUpdate.setTags(tags);
 
-        return certificateDao.updateCertificate(certificateToUpdate);
+        return certificateDao.updateCertificate(certificateToUpdate, idCertificate);
+    }
+
+    @Transactional
+    @Override
+    public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
+        log.debug(String.format("Service: update certificate with id %d", idCertificate));
+        certificateValidator.validateCertificateId(idCertificate);
+        certificateValidator.validateCertificate(certificate);
+        Certificate certificateToUpdate = certificateDao.getCertificateById(idCertificate);
+        tagService.updateTags(certificate.getTags(), idCertificate);
+        List<Tag> tagsAfterUpdate = tagDao.getCertificateTags(idCertificate);
+
+        certificate.setId(certificateToUpdate.getId());
+        certificate.setCreateDate(certificateToUpdate.getCreateDate());
+        certificate.setTags(tagsAfterUpdate);
+
+        return certificateDao.updateCertificate(certificate, idCertificate);
     }
 
     private String composeCertificateName(Certificate certificateFromQuery, Certificate certificateToUpdate) {

@@ -45,7 +45,7 @@ public class UpdateCertificateView {
         Certificate certificate = new Certificate();
         certificate.setId(updateCertificateView.getId());
         certificate.setName(updateCertificateView.getName());
-        certificate.setDescription(updateCertificateView.getName());
+        certificate.setDescription(updateCertificateView.getDescription());
         certificate.setPrice(updateCertificateView.getPrice());
         certificate.setCreateDate(updateCertificateView.getCreateDate());
         certificate.setLastUpdateDate(updateCertificateView.getLastUpdateDate());

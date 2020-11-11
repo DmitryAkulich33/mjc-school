@@ -7,6 +7,8 @@ import java.util.List;
 public interface CertificateService {
     Certificate createCertificate(Certificate certificate);
 
+    Certificate updatePartCertificate(Certificate certificate, Long idCertificate);
+
     Certificate updateCertificate(Certificate certificate, Long idCertificate);
 
     void deleteCertificate(Long idCertificate);

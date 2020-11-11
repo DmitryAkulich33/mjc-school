@@ -57,8 +57,7 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Transactional
     @Override
-    public Certificate updateCertificate(Certificate certificate) {
-        Long id = certificate.getId();
+    public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
         String name = certificate.getName();
         String description = certificate.getDescription();
         double price = certificate.getPrice();
@@ -70,7 +69,7 @@ public class CertificateDaoImpl implements CertificateDao {
                 .setParameter(3, price)
                 .setParameter(4, updateDate)
                 .setParameter(5, duration)
-                .setParameter(6, id);
+                .setParameter(6, idCertificate);
 
         certificate.setLastUpdateDate(updateDate);
         return certificate;
