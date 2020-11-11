@@ -16,6 +16,7 @@ public class TagView {
             CertificateView.Views.V1.class,
             CreateCertificateView.Views.V1.class,
             UpdateCertificateView.Views.V1.class,
+            UpdatePartCertificateView.Views.V1.class,
             OrderView.Views.V1.class})
     private String name;
 

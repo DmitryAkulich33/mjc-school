@@ -10,4 +10,6 @@ public interface OrderDao {
     List<Order> getOrders();
 
     List<Order> getOrdersByUserId(Long idUser);
+
+    Order getDataByUserId(Long idUser, Long idOrder);
 }

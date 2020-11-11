@@ -16,6 +16,7 @@ public class OrderDaoImpl implements OrderDao {
     private static final String FIND_ALL = "SELECT o FROM orders o WHERE lock_order=0";
     private static final String FIND_BY_ID = "SELECT o FROM orders o WHERE lock_order=0 AND id_order=?1";
     private static final String FIND_ALL_BY_USER_ID = "SELECT o FROM orders o WHERE lock_order=0 AND id_user=?1";
+    private static final String FIND_BY_USER_ID_AND_ORDER_ID = "SELECT o FROM orders o WHERE id_user=?1 AND id_order=?2";
 
     public OrderDaoImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -38,5 +39,13 @@ public class OrderDaoImpl implements OrderDao {
         return entityManager.createQuery(FIND_ALL_BY_USER_ID, Order.class)
                 .setParameter(1, idUser)
                 .getResultList();
+    }
+
+    @Override
+    public Order getDataByUserId(Long idUser, Long idOrder) {
+        return entityManager.createQuery(FIND_BY_USER_ID_AND_ORDER_ID, Order.class)
+                .setParameter(1, idUser)
+                .setParameter(2, idOrder)
+                .getSingleResult();
     }
 }

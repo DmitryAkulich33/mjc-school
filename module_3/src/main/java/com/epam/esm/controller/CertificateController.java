@@ -5,6 +5,7 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.view.CertificateView;
 import com.epam.esm.view.CreateCertificateView;
 import com.epam.esm.view.UpdateCertificateView;
+import com.epam.esm.view.UpdatePartCertificateView;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,9 +54,10 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @PatchMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CertificateView> updatePartCertificate(@RequestBody @JsonView(UpdateCertificateView.Views.V1.class) UpdateCertificateView updateCertificateView,
-                                                             @PathVariable Long id) {
-        Certificate certificateFromQuery = UpdateCertificateView.createForm(updateCertificateView);
+    public ResponseEntity<CertificateView> updatePartCertificate(@RequestBody @JsonView(UpdatePartCertificateView.Views.V1.class)
+                                                                         UpdatePartCertificateView updatePartCertificateView,
+                                                                 @PathVariable Long id) {
+        Certificate certificateFromQuery = UpdatePartCertificateView.createForm(updatePartCertificateView);
         Certificate certificateToUpdate = certificateService.updatePartCertificate(certificateFromQuery, id);
         CertificateView certificateView = CertificateView.createForm(certificateToUpdate);
 
@@ -65,7 +67,7 @@ public class CertificateController {
     @JsonView(CertificateView.Views.V1.class)
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificateView> updateCertificate(@RequestBody @JsonView(UpdateCertificateView.Views.V1.class) UpdateCertificateView updateCertificateView,
-                                                                 @PathVariable Long id) {
+                                                             @PathVariable Long id) {
         Certificate certificateFromQuery = UpdateCertificateView.createForm(updateCertificateView);
         Certificate certificateToUpdate = certificateService.updateCertificate(certificateFromQuery, id);
         CertificateView certificateView = CertificateView.createForm(certificateToUpdate);

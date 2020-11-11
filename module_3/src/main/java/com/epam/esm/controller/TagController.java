@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class TagController {
 
     @JsonView(TagView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TagView> getTagById(@PathVariable Long id) {
+    public ResponseEntity<TagView> getTagById(@PathVariable @NonNull Long id) {
         Tag tag = tagService.getTagById(id);
         TagView tagView = TagView.createForm(tag);
 
@@ -42,7 +43,7 @@ public class TagController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Tag> deleteTag(@PathVariable Long id) {
+    public ResponseEntity<Tag> deleteTag(@PathVariable @NonNull Long id) {
         tagService.deleteTag(id);
 
         return ResponseEntity.ok().build();
