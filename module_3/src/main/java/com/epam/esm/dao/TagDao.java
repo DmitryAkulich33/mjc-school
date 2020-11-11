@@ -9,13 +9,13 @@ public interface TagDao {
 
     void createTagCertificate(Long idTag, Long idCertificate);
 
-    int deleteTag(Long idTag);
+    void deleteTag(Long idTag);
 
     Tag getTagById(Long idTag);
 
     Tag getTagByName(String nameTag);
 
-    List<Tag> getAllTags();
+    List<Tag> getTags();
 
     List<Tag> getCertificateTags(Long idCertificate);
 }

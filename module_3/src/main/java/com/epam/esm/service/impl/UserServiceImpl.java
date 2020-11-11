@@ -28,8 +28,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getUsers() {
         log.debug("Service: search all users.");
-        return userDao.getAllUsers();
+        return userDao.getUsers();
     }
 }

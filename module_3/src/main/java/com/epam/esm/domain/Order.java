@@ -14,14 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "orders")
-@NamedQueries({
-        @NamedQuery(name = Order.QueryNames.FIND_ALL,
-                query = "SELECT o FROM orders o WHERE lock_order=0"),
-        @NamedQuery(name = Order.QueryNames.FIND_BY_ID,
-                query = "SELECT o FROM orders o WHERE lock_order=0 AND id_order=:idOrder"),
-        @NamedQuery(name = Order.QueryNames.FIND_ALL_BY_USER_ID,
-                query = "SELECT o FROM orders o WHERE lock_order=0 AND id_user=:idUser")
-})
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,13 +39,4 @@ public class Order {
             joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id_order")},
             inverseJoinColumns = {@JoinColumn(name = "certificate_id", referencedColumnName = "id_certificate")})
     private List<Certificate> certificates;
-
-    public static final class QueryNames {
-        public static final String FIND_BY_ID = "Order.getById";
-        public static final String FIND_ALL = "Order.getAll";
-        public static final String FIND_ALL_BY_USER_ID = "Order.getAllByUserId";
-
-        public QueryNames() {
-        }
-    }
 }

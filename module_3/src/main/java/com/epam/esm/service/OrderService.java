@@ -7,7 +7,7 @@ import java.util.List;
 public interface OrderService {
     Order getOrderById(Long idOrder);
 
-    List<Order> getAllOrders();
+    List<Order> getOrders();
 
-    List<Order> getAllOrdersByUserId(Long idUser);
+    List<Order> getOrdersByUserId(Long idUser);
 }

@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
@@ -14,30 +13,30 @@ public class OrderDaoImpl implements OrderDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    private static final String FIND_ALL = "SELECT o FROM orders o WHERE lock_order=0";
+    private static final String FIND_BY_ID = "SELECT o FROM orders o WHERE lock_order=0 AND id_order=?1";
+    private static final String FIND_ALL_BY_USER_ID = "SELECT o FROM orders o WHERE lock_order=0 AND id_user=?1";
+
     public OrderDaoImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     @Override
     public Order getOrderById(Long idOrder) {
-        TypedQuery<Order> orderQuery = entityManager.createNamedQuery(Order.QueryNames.FIND_BY_ID, Order.class);
-        orderQuery.setParameter("idOrder", idOrder);
-
-        return orderQuery.getSingleResult();
+        return entityManager.createQuery(FIND_BY_ID, Order.class)
+                .setParameter(1, idOrder)
+                .getSingleResult();
     }
 
     @Override
-    public List<Order> getAllOrders() {
-        TypedQuery<Order> orderQuery = entityManager.createNamedQuery(Order.QueryNames.FIND_ALL, Order.class);
-
-        return orderQuery.getResultList();
+    public List<Order> getOrders() {
+        return entityManager.createQuery(FIND_ALL, Order.class).getResultList();
     }
 
     @Override
-    public List<Order> getAllOrdersByUserId(Long idUser) {
-        TypedQuery<Order> orderQuery = entityManager.createNamedQuery(Order.QueryNames.FIND_ALL_BY_USER_ID, Order.class);
-        orderQuery.setParameter("idUser", idUser);
-
-        return orderQuery.getResultList();
+    public List<Order> getOrdersByUserId(Long idUser) {
+        return entityManager.createQuery(FIND_ALL_BY_USER_ID, Order.class)
+                .setParameter(1, idUser)
+                .getResultList();
     }
 }

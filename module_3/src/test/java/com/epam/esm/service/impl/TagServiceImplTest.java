@@ -100,9 +100,9 @@ class TagServiceImplTest {
 
     @Test
     public void testGetAllTags() {
-        when(mockTagDao.getAllTags()).thenReturn(mockTags);
+        when(mockTagDao.getTags()).thenReturn(mockTags);
 
-        List<Tag> actual = tagServiceImpl.getAllTags();
+        List<Tag> actual = tagServiceImpl.getTags();
 
         assertEquals(mockTags, actual);
     }

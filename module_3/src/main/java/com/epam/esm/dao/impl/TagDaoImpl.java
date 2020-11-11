@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
@@ -17,6 +16,10 @@ public class TagDaoImpl implements TagDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    private static final String FIND_BY_NAME = "SELECT t FROM tag t WHERE lock_tag=0 AND name_tag=?1";
+    private static final String LOCK_BY_ID = "UPDATE tag SET lock_tag=1 WHERE id_tag=?";
+    private static final String FIND_BY_ID = "SELECT t FROM tag t WHERE lock_tag=0 AND id_tag=?1";
+    private static final String FIND_ALL = "SELECT t FROM tag t WHERE lock_tag=0";
     private static final String ADD_TAG_CERTIFICATE = "INSERT INTO tag_certificate " +
             "(tag_id, certificate_id) VALUES(?,?)";
     private static final String FIND_TAGS_CERTIFICATE = "SELECT id_tag, name_tag, lock_tag FROM tag " +
@@ -45,42 +48,36 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public int deleteTag(Long id) {
-        Query tagQuery = entityManager.createNamedQuery(Tag.QueryNames.LOCK_BY_ID);
-        tagQuery.setParameter("idTag", id);
-
-        return tagQuery.executeUpdate();
+    public void deleteTag(Long id) {
+        entityManager.createNativeQuery(LOCK_BY_ID)
+                .setParameter(1, id)
+                .executeUpdate();
     }
 
     @Override
     public Tag getTagById(Long id) {
-        TypedQuery<Tag> tagQuery = entityManager.createNamedQuery(Tag.QueryNames.FIND_BY_ID, Tag.class);
-        tagQuery.setParameter("idTag", id);
-
-        return tagQuery.getSingleResult();
+        return entityManager.createQuery(FIND_BY_ID, Tag.class)
+                .setParameter(1, id)
+                .getSingleResult();
     }
 
     @Override
     public Tag getTagByName(String name) {
-        TypedQuery<Tag> tagQuery = entityManager.createNamedQuery(Tag.QueryNames.FIND_BY_NAME, Tag.class);
-        tagQuery.setParameter("nameTag", name);
-
-        return tagQuery.getSingleResult();
+        return entityManager.createQuery(FIND_BY_NAME, Tag.class)
+                .setParameter(1, name)
+                .getSingleResult();
     }
 
     @Override
-    public List<Tag> getAllTags() {
-        TypedQuery<Tag> tagQuery = entityManager.createNamedQuery(Tag.QueryNames.FIND_ALL, Tag.class);
-
-        return tagQuery.getResultList();
+    public List<Tag> getTags() {
+        return entityManager.createQuery(FIND_ALL, Tag.class).getResultList();
     }
 
     @Override
     public List<Tag> getCertificateTags(Long idCertificate) {
         Query tagQuery = entityManager.createNativeQuery(FIND_TAGS_CERTIFICATE, Tag.class);
         tagQuery.setParameter(1, idCertificate);
-        List<Tag> tags = tagQuery.getResultList();
 
-        return tags;
+        return tagQuery.getResultList();
     }
 }

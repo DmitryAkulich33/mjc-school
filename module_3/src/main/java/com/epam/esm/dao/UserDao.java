@@ -7,5 +7,5 @@ import java.util.List;
 public interface UserDao {
     User getUserById(Long idUser);
 
-    List<User> getAllUsers();
+    List<User> getUsers();
 }

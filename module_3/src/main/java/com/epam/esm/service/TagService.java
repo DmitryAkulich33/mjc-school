@@ -11,7 +11,7 @@ public interface TagService {
 
     Tag getTagById(Long idTag);
 
-    List<Tag> getAllTags();
+    List<Tag> getTags();
 
     void updateTags(List<Tag> tags, Long idCertificate);
 

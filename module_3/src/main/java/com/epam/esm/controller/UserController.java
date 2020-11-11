@@ -36,8 +36,8 @@ public class UserController {
 
     @JsonView(UserView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserView>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserView>> getUsers() {
+        List<User> users = userService.getUsers();
         List<UserView> usersView = UserView.createListForm(users);
 
         return new ResponseEntity<>(usersView, HttpStatus.OK);

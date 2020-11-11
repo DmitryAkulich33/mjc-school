@@ -4,7 +4,6 @@ import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
@@ -79,7 +78,7 @@ public class CertificateServiceImpl implements CertificateService {
         Certificate createdCertificate = certificateDao.createCertificate(certificate);
         List<Tag> tagsForCertificate = new ArrayList<>();
         Long id = createdCertificate.getId();
-        List<Tag> tagsFromDB = tagDao.getAllTags();
+        List<Tag> tagsFromDB = tagDao.getTags();
         Set<Tag> uniqueTags = new HashSet<>(certificate.getTags());
 
         for (Tag tag : uniqueTags) {
@@ -181,10 +180,7 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug(String.format("Service: deletion certificate with id %d", idCertificate));
         certificateValidator.validateCertificateId(idCertificate);
         certificateDao.getCertificateById(idCertificate);
-        int result = certificateDao.deleteCertificate(idCertificate);
-        if (result == 0) {
-            throw new CertificateDaoException("message.dao.exception");
-        }
+        certificateDao.deleteCertificate(idCertificate);
     }
 
     /**

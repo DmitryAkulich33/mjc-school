@@ -2,7 +2,6 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.exceptions.TagDaoException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.TagValidator;
 import org.apache.logging.log4j.LogManager;
@@ -70,10 +69,7 @@ public class TagServiceImpl implements TagService {
         log.debug(String.format("Service: deletion tag by id  %d", idTag));
         tagValidator.validateTagId(idTag);
         tagDao.getTagById(idTag);
-        int result = tagDao.deleteTag(idTag);
-        if (result == 0) {
-            throw new TagDaoException("message.dao.exception");
-        }
+        tagDao.deleteTag(idTag);
     }
 
     /**
@@ -95,9 +91,9 @@ public class TagServiceImpl implements TagService {
      * @return list of tags
      */
     @Override
-    public List<Tag> getAllTags() {
+    public List<Tag> getTags() {
         log.debug("Service: search all tags.");
-        return tagDao.getAllTags();
+        return tagDao.getTags();
     }
 
     /**
@@ -110,7 +106,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public void updateTags(List<Tag> tags, Long idCertificate) {
         log.debug(String.format("Service: update tags in certificate with %d", idCertificate));
-        List<Tag> tagsFromDB = tagDao.getAllTags();
+        List<Tag> tagsFromDB = tagDao.getTags();
         Set<Tag> uniqueTags = new HashSet<>(tags);
         for (Tag tag : uniqueTags) {
             String nameTag = tag.getName();

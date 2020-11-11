@@ -28,14 +28,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllOrders() {
+    public List<Order> getOrders() {
         log.debug("Service: search all orders.");
-        return orderDao.getAllOrders();
+        return orderDao.getOrders();
     }
 
     @Override
-    public List<Order> getAllOrdersByUserId(Long idUser) {
+    public List<Order> getOrdersByUserId(Long idUser) {
         log.debug("Service: search all users.");
-        return orderDao.getAllOrdersByUserId(idUser);
+        return orderDao.getOrdersByUserId(idUser);
     }
 }

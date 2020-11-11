@@ -35,7 +35,7 @@ public class TagController {
     @JsonView(TagView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TagView>> getAllTags() {
-        List<Tag> tags = tagService.getAllTags();
+        List<Tag> tags = tagService.getTags();
         List<TagView> tagViews = TagView.createListForm(tags);
 
         return new ResponseEntity<>(tagViews, HttpStatus.OK);

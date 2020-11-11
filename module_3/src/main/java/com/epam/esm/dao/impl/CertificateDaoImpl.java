@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,6 +19,8 @@ public class CertificateDaoImpl implements CertificateDao {
     private final EntityManager entityManager;
     private final CertificateQueryBuilder certificateQueryBuilder;
 
+    private static final String LOCK_BY_ID = "UPDATE certificate SET lock_certificate=1 WHERE id_certificate=?";
+    private static final String FIND_BY_ID = "SELECT c FROM certificate c WHERE lock_certificate=0 AND id_certificate=?1";
     private static final String UPDATE_CERTIFICATE = "UPDATE certificate SET name_certificate=?, description=?, " +
             "price=?, update_date=?, duration=? WHERE id_certificate=?";
     private static final Integer LOCK = 0;
@@ -41,19 +42,17 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Override
-    public int deleteCertificate(Long id) {
-        Query certificateQuery = entityManager.createNamedQuery(Certificate.QueryNames.LOCK_BY_ID);
-        certificateQuery.setParameter("idCertificate", id);
-
-        return certificateQuery.executeUpdate();
+    public void deleteCertificate(Long id) {
+        entityManager.createNativeQuery(LOCK_BY_ID)
+                .setParameter(1, id)
+                .executeUpdate();
     }
 
     @Override
     public Certificate getCertificateById(Long id) {
-        TypedQuery<Certificate> certificateQuery = entityManager.createNamedQuery(Certificate.QueryNames.FIND_BY_ID, Certificate.class);
-        certificateQuery.setParameter("idCertificate", id);
-
-        return certificateQuery.getSingleResult();
+        return entityManager.createQuery(FIND_BY_ID, Certificate.class)
+                .setParameter(1, id)
+                .getSingleResult();
     }
 
     @Transactional

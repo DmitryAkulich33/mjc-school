@@ -36,8 +36,8 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<OrderView>> getAllOrders() {
-        List<Order> orders = orderService.getAllOrders();
+    public ResponseEntity<List<OrderView>> getOrders() {
+        List<Order> orders = orderService.getOrders();
         List<OrderView> ordersView = OrderView.createListForm(orders);
 
         return new ResponseEntity<>(ordersView, HttpStatus.OK);
@@ -45,8 +45,8 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @GetMapping(path = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<OrderView>> getAllOrdersByUserId(@PathVariable Long id) {
-        List<Order> orders = orderService.getAllOrdersByUserId(id);
+    public ResponseEntity<List<OrderView>> getOrdersByUserId(@PathVariable Long id) {
+        List<Order> orders = orderService.getOrdersByUserId(id);
         List<OrderView> ordersView = OrderView.createListForm(orders);
 
         return new ResponseEntity<>(ordersView, HttpStatus.OK);
