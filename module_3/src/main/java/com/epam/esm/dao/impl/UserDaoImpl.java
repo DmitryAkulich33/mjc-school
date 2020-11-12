@@ -7,6 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Repository
@@ -14,8 +18,9 @@ public class UserDaoImpl implements UserDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    private static final String FIND_ALL = "SELECT u FROM user u WHERE lock_user=0";
-    private static final String FIND_BY_ID = "SELECT u FROM user u WHERE lock_user=0 AND id_user=?1";
+    private static final String ID = "id";
+    private static final String LOCK = "lock";
+    private static final Integer LOCK_VALUE_0 = 0;
 
     @Autowired
     public UserDaoImpl(EntityManager entityManager) {
@@ -24,13 +29,23 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserById(Long idUser) {
-        return entityManager.createQuery(FIND_BY_ID, User.class)
-                .setParameter(1, idUser)
-                .getSingleResult();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(ID), idUser));
+        TypedQuery<User> typed = entityManager.createQuery(criteriaQuery);
+
+        return typed.getSingleResult();
     }
 
     @Override
     public List<User> getUsers() {
-        return entityManager.createQuery(FIND_ALL, User.class).getResultList();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(LOCK), LOCK_VALUE_0));
+        TypedQuery<User> typed = entityManager.createQuery(criteriaQuery);
+
+        return typed.getResultList();
     }
 }
