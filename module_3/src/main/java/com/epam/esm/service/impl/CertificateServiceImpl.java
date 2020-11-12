@@ -7,6 +7,7 @@ import com.epam.esm.domain.Tag;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.swapCase;
 
 @Service
 public class CertificateServiceImpl implements CertificateService {
@@ -44,6 +48,10 @@ public class CertificateServiceImpl implements CertificateService {
      * Logger for this service
      */
     private static Logger log = LogManager.getLogger(CertificateServiceImpl.class);
+
+    private static final String UNDERSCORES = "_";
+    private static final String ASC = "ASC";
+    private static final String DESC = "DESC";
 
     /**
      * Constructor - creating a new object
@@ -228,8 +236,38 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<Certificate> getCertificates(String name, String search, String sort) {
         log.debug("Service: search certificates.");
-        List<Certificate> certificates = certificateDao.getCertificates(name, search, sort);
 
-        return certificates;
+        Boolean sortAsc = isSortAsc(sort);
+        String sortField = getSortField(sort);
+
+        return certificateDao.getCertificates(name, search, sortAsc, sortField);
+    }
+
+    private Boolean isSortAsc(String sort) {
+        if (isNotBlank(sort)) {
+            String[] fields = sort.trim().split(UNDERSCORES);
+            String sortType = fields[fields.length - 1].toUpperCase();
+            switch (sortType) {
+                case ASC:
+                    return true;
+                case DESC:
+                    return false;
+                default:
+                    return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private String getSortField(String sort) {
+        if (isNotBlank(sort)) {
+            String[] fields = sort.trim().split(UNDERSCORES);
+            String sortType = fields[fields.length - 1];
+            return sort.trim().replace(UNDERSCORES + sortType.toLowerCase(), StringUtils.EMPTY);
+
+        } else {
+            return null;
+        }
     }
 }

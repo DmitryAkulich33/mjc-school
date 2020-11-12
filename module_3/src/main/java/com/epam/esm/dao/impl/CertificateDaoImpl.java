@@ -1,27 +1,24 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.CertificateDao;
-import com.epam.esm.dao.builder.CertificateQueryBuilder;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class CertificateDaoImpl implements CertificateDao {
     @PersistenceContext
     private final EntityManager entityManager;
-    private final CertificateQueryBuilder certificateQueryBuilder;
 
     private static final String LOCK = "lock";
     private static final String ID = "id";
@@ -34,9 +31,8 @@ public class CertificateDaoImpl implements CertificateDao {
     private static final Integer LOCK_VALUE_1 = 1;
 
     @Autowired
-    public CertificateDaoImpl(EntityManager entityManager, CertificateQueryBuilder certificateQueryBuilder) {
+    public CertificateDaoImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
-        this.certificateQueryBuilder = certificateQueryBuilder;
     }
 
     @Transactional
@@ -91,10 +87,64 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Override
-    public List<Certificate> getCertificates(String name, String search, String sort) {
-        String query = certificateQueryBuilder.buildCertificatesQuery(name, search, sort);
-        Query certificatesQuery = entityManager.createNativeQuery(query, Certificate.class);
-        List<Certificate> certificates = certificatesQuery.getResultList();
-        return certificates;
+    public List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
+        Root<Certificate> root = criteriaQuery.from(Certificate.class);
+        List<Predicate> conditions = new ArrayList<>();
+        System.out.println(name);
+        if (name != null) {
+            Join<Certificate, Tag> join = root.join("tags", JoinType.INNER);
+            Predicate tagPredicate = criteriaBuilder.equal(join.get("name"), name);
+            conditions.add(tagPredicate);
+        }
+
+        if (search != null) {
+            Predicate searchCondition = criteriaBuilder.or(criteriaBuilder.like(root.get("description"), "%" + search + "%"),
+                    criteriaBuilder.like(root.get("name"), "%" + search + "%"));
+            conditions.add(searchCondition);
+        }
+
+        TypedQuery<Certificate> typed = entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery,
+                root, criteriaBuilder, sortField, sortAsc));
+
+        return typed.getResultList();
+    }
+
+    private CriteriaQuery<Certificate> getCertificateCriteriaQuery(List<Predicate> conditions, CriteriaQuery<Certificate> criteriaQuery,
+                                                                   Root<Certificate> root, CriteriaBuilder criteriaBuilder,
+                                                                   String sortField, Boolean sortAsc) {
+        if (conditions.isEmpty()) {
+            if (sortAsc == null) {
+                System.out.println(1);
+                criteriaQuery.select(root);
+            } else if (sortAsc) {
+                System.out.println(2);
+                criteriaQuery.select(root).orderBy(criteriaBuilder.asc(root.get(sortField)));
+            } else {
+                System.out.println(3);
+                criteriaQuery.select(root).orderBy(criteriaBuilder.desc(root.get(sortField)));
+            }
+        } else {
+            if (sortAsc == null) {
+                System.out.println(4);
+                criteriaQuery.select(root)
+                        .distinct(true)
+                        .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])));
+            } else if (sortAsc) {
+                System.out.println(5);
+                criteriaQuery.select(root)
+                        .distinct(true)
+                        .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
+                        .orderBy(criteriaBuilder.asc(root.get(sortField)));
+            } else {
+                System.out.println(6);
+                criteriaQuery.select(root)
+                        .distinct(true)
+                        .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
+                        .orderBy(criteriaBuilder.desc(root.get(sortField)));
+            }
+        }
+        return criteriaQuery;
     }
 }
