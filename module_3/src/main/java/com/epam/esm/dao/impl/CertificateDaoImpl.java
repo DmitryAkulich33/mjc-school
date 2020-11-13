@@ -95,13 +95,13 @@ public class CertificateDaoImpl implements CertificateDao {
         System.out.println(name);
         if (name != null) {
             Join<Certificate, Tag> join = root.join("tags", JoinType.INNER);
-            Predicate tagPredicate = criteriaBuilder.equal(join.get("name"), name);
+            Predicate tagPredicate = criteriaBuilder.equal(join.get(NAME), name);
             conditions.add(tagPredicate);
         }
 
         if (search != null) {
-            Predicate searchCondition = criteriaBuilder.or(criteriaBuilder.like(root.get("description"), "%" + search + "%"),
-                    criteriaBuilder.like(root.get("name"), "%" + search + "%"));
+            Predicate searchCondition = criteriaBuilder.or(criteriaBuilder.like(root.get(DESCRIPTION), "%" + search + "%"),
+                    criteriaBuilder.like(root.get(NAME), "%" + search + "%"));
             conditions.add(searchCondition);
         }
 
@@ -116,29 +116,23 @@ public class CertificateDaoImpl implements CertificateDao {
                                                                    String sortField, Boolean sortAsc) {
         if (conditions.isEmpty()) {
             if (sortAsc == null) {
-                System.out.println(1);
                 criteriaQuery.select(root);
             } else if (sortAsc) {
-                System.out.println(2);
                 criteriaQuery.select(root).orderBy(criteriaBuilder.asc(root.get(sortField)));
             } else {
-                System.out.println(3);
                 criteriaQuery.select(root).orderBy(criteriaBuilder.desc(root.get(sortField)));
             }
         } else {
             if (sortAsc == null) {
-                System.out.println(4);
                 criteriaQuery.select(root)
                         .distinct(true)
                         .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])));
             } else if (sortAsc) {
-                System.out.println(5);
                 criteriaQuery.select(root)
                         .distinct(true)
                         .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
                         .orderBy(criteriaBuilder.asc(root.get(sortField)));
             } else {
-                System.out.println(6);
                 criteriaQuery.select(root)
                         .distinct(true)
                         .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
