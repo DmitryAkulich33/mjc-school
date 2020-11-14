@@ -243,6 +243,12 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateDao.getCertificates(name, search, sortAsc, sortField);
     }
 
+    @Override
+    public List<Certificate> getCertificatesByTags(List<String> tagNames) {
+        log.debug("Service: search certificates by tags' names.");
+        return certificateDao.getCertificatesByTags(tagNames);
+    }
+
     private Boolean isSortAsc(String sort) {
         if (isNotBlank(sort)) {
             String[] fields = sort.trim().split(UNDERSCORES);

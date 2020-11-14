@@ -16,4 +16,6 @@ public interface CertificateService {
     Certificate getCertificateById(Long idCertificate);
 
     List<Certificate> getCertificates(String name, String search, String sort);
+
+    public List<Certificate> getCertificatesByTags(List<String> tagNames);
 }

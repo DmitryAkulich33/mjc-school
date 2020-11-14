@@ -144,7 +144,6 @@ public class TagServiceImpl implements TagService {
     }
 
     private boolean isTagBelongToCertificate(List<Tag> tags, Long idTag) {
-
         return tags.stream().anyMatch(tag -> tag.getId().equals(idTag));
     }
 }

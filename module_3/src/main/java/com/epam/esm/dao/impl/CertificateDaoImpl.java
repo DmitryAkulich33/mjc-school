@@ -141,4 +141,21 @@ public class CertificateDaoImpl implements CertificateDao {
         }
         return criteriaQuery;
     }
+
+    @Override
+    public List<Certificate> getCertificatesByTags(List<String> tagNames) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
+        Root<Certificate> root = criteriaQuery.from(Certificate.class);
+
+        Join<Certificate, Tag> join = root.join("tags", JoinType.INNER);
+        Expression<String> tagNamesFromDb = join.get("name");
+
+        criteriaQuery.select(root).distinct(true).where(tagNamesFromDb.in(tagNames),
+                criteriaBuilder.equal(root.get(LOCK), LOCK_VALUE_0));
+
+        TypedQuery<Certificate> typed = entityManager.createQuery(criteriaQuery);
+
+        return typed.getResultList();
+    }
 }

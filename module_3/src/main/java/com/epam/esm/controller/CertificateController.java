@@ -85,4 +85,13 @@ public class CertificateController {
 
         return new ResponseEntity<>(certificateView, HttpStatus.OK);
     }
+
+    @JsonView(CertificateView.Views.V1.class)
+    @GetMapping(path = "/search",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CertificateView>> getCertificatesByTags(@RequestParam List<String> names) {
+        List<Certificate> certificates = certificateService.getCertificatesByTags(names);
+        List<CertificateView> certificateView = CertificateView.createListForm(certificates);
+
+        return new ResponseEntity<>(certificateView, HttpStatus.OK);
+    }
 }
