@@ -26,6 +26,8 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
+    implementation 'org.hibernate:hibernate-jpamodelgen:6.0.0.Alpha6'
+    annotationProcessor('org.hibernate:hibernate-jpamodelgen:6.0.0.Alpha6')
 //    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
 
 //    testCompile group: 'org.springframework', name: 'spring-test', version: '5.2.9.RELEASE'
@@ -53,4 +55,17 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.annotationProcessorGeneratedSourcesDirectory = file("src/generated/java")
+}
+
+
+sourceSets {
+    generated {
+        java {
+            srcDirs = ['src/generated/java']
+        }
+    }
 }

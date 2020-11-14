@@ -3,13 +3,13 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
+import com.epam.esm.domain.Tag_;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.List;
@@ -19,9 +19,6 @@ public class TagDaoImpl implements TagDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    private static final String LOCK = "lock";
-    private static final String ID = "id";
-    private static final String NAME = "name";
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
     private static final String ADD_TAG_CERTIFICATE = "INSERT INTO tag_certificate " +
@@ -53,8 +50,8 @@ public class TagDaoImpl implements TagDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaUpdate<Tag> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(Tag.class);
         Root<Tag> root = criteriaUpdate.from(Tag.class);
-        criteriaUpdate.set(LOCK, LOCK_VALUE_1);
-        criteriaUpdate.where(criteriaBuilder.equal(root.get(ID), id));
+        criteriaUpdate.set(Tag_.lock, LOCK_VALUE_1);
+        criteriaUpdate.where(criteriaBuilder.equal(root.get(Tag_.id), id));
         entityManager.createQuery(criteriaUpdate).executeUpdate();
     }
 
@@ -63,8 +60,8 @@ public class TagDaoImpl implements TagDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
-        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(ID), id),
-                criteriaBuilder.equal(root.get(LOCK), LOCK_VALUE_0));
+        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Tag_.id), id),
+                criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
         TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
 
         return typed.getSingleResult();
@@ -75,8 +72,8 @@ public class TagDaoImpl implements TagDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
-        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(NAME), name),
-                criteriaBuilder.equal(root.get(LOCK), LOCK_VALUE_0));
+        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Tag_.name), name),
+                criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
         TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
 
         return typed.getSingleResult();
@@ -87,7 +84,7 @@ public class TagDaoImpl implements TagDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
-        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(LOCK), LOCK_VALUE_0));
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
         TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
 
         return typed.getResultList();
@@ -99,15 +96,10 @@ public class TagDaoImpl implements TagDao {
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
         Join<Tag, Certificate> join = root.join("certificates", JoinType.INNER);
-        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(LOCK), LOCK_VALUE_0),
-                criteriaBuilder.equal(join.get(ID), idCertificate));
+        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0),
+                criteriaBuilder.equal(join.get(Tag_.ID), idCertificate));
         TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
 
         return typed.getResultList();
-
-//        Query tagQuery = entityManager.createNativeQuery(FIND_TAGS_CERTIFICATE, Tag.class);
-//        tagQuery.setParameter(1, idCertificate);
-//
-//        return tagQuery.getResultList();
     }
 }

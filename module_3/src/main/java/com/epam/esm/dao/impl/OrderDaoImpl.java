@@ -2,7 +2,9 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.OrderDao;
 import com.epam.esm.domain.Order;
+import com.epam.esm.domain.Order_;
 import com.epam.esm.domain.User;
+import com.epam.esm.domain.User_;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -19,9 +21,6 @@ public class OrderDaoImpl implements OrderDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    private static final String ID = "id";
-    private static final String LOCK = "lock";
-    private static final String USER = "user";
     private static final Integer LOCK_VALUE_0 = 0;
 
     public OrderDaoImpl(EntityManager entityManager) {
@@ -33,7 +32,7 @@ public class OrderDaoImpl implements OrderDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
-        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(ID), idOrder));
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Order_.id), idOrder));
         TypedQuery<Order> typed = entityManager.createQuery(criteriaQuery);
         return typed.getSingleResult();
     }
@@ -43,7 +42,7 @@ public class OrderDaoImpl implements OrderDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
-        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(LOCK), LOCK_VALUE_0));
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Order_.lock), LOCK_VALUE_0));
         TypedQuery<Order> typed = entityManager.createQuery(criteriaQuery);
 
         return typed.getResultList();
@@ -54,12 +53,12 @@ public class OrderDaoImpl implements OrderDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> rootOrder = criteriaQuery.from(Order.class);
-        criteriaQuery.select(rootOrder).where(criteriaBuilder.equal(rootOrder.get(LOCK), LOCK_VALUE_0));
+        criteriaQuery.select(rootOrder).where(criteriaBuilder.equal(rootOrder.get(Order_.lock), LOCK_VALUE_0));
 
         Subquery<User> userSubquery = criteriaQuery.subquery(User.class);
         Root<User> userRoot = userSubquery.from(User.class);
-        userSubquery.select(userRoot).where(criteriaBuilder.equal(userRoot.get(ID), idUser));
-        criteriaQuery.select(rootOrder).where(criteriaBuilder.in(rootOrder.get(USER)).value(userSubquery));
+        userSubquery.select(userRoot).where(criteriaBuilder.equal(userRoot.get(User_.id), idUser));
+        criteriaQuery.select(rootOrder).where(criteriaBuilder.in(rootOrder.get(Order_.user)).value(userSubquery));
 
         TypedQuery<Order> typed = entityManager.createQuery(criteriaQuery);
 
@@ -74,10 +73,10 @@ public class OrderDaoImpl implements OrderDao {
 
         Subquery<User> userSubquery = criteriaQuery.subquery(User.class);
         Root<User> userRoot = userSubquery.from(User.class);
-        userSubquery.select(userRoot).where(criteriaBuilder.equal(userRoot.get(ID), idUser));
+        userSubquery.select(userRoot).where(criteriaBuilder.equal(userRoot.get(User_.id), idUser));
 
-        criteriaQuery.select(rootOrder).where(criteriaBuilder.equal(rootOrder.get("id"), idOrder),
-                criteriaBuilder.in(rootOrder.get(USER)).value(userSubquery));
+        criteriaQuery.select(rootOrder).where(criteriaBuilder.equal(rootOrder.get(Order_.id), idOrder),
+                criteriaBuilder.in(rootOrder.get(Order_.user)).value(userSubquery));
 
         TypedQuery<Order> typed = entityManager.createQuery(criteriaQuery);
 

@@ -2,7 +2,9 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.domain.Certificate;
+import com.epam.esm.domain.Certificate_;
 import com.epam.esm.domain.Tag;
+import com.epam.esm.domain.Tag_;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,8 +52,8 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaUpdate<Certificate> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(Certificate.class);
         Root<Certificate> root = criteriaUpdate.from(Certificate.class);
-        criteriaUpdate.set(LOCK, LOCK_VALUE_1);
-        criteriaUpdate.where(criteriaBuilder.equal(root.get(ID), id));
+        criteriaUpdate.set(Certificate_.lock, LOCK_VALUE_1);
+        criteriaUpdate.where(criteriaBuilder.equal(root.get(Certificate_.id), id));
         entityManager.createQuery(criteriaUpdate).executeUpdate();
     }
 
@@ -60,7 +62,8 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(ID), id));
+        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Certificate_.id), id),
+                criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
         TypedQuery<Certificate> typed = entityManager.createQuery(criteriaQuery);
 
         return typed.getSingleResult();
@@ -74,12 +77,12 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaUpdate<Certificate> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(Certificate.class);
         Root<Certificate> root = criteriaUpdate.from(Certificate.class);
-        criteriaUpdate.set(NAME, certificate.getName());
-        criteriaUpdate.set(DESCRIPTION, certificate.getDescription());
-        criteriaUpdate.set(PRICE, certificate.getPrice());
-        criteriaUpdate.set(UPDATE_DATE, updateDate);
-        criteriaUpdate.set(DURATION, certificate.getDuration());
-        criteriaUpdate.where(criteriaBuilder.equal(root.get(ID), idCertificate));
+        criteriaUpdate.set(Certificate_.name, certificate.getName());
+        criteriaUpdate.set(Certificate_.description, certificate.getDescription());
+        criteriaUpdate.set(Certificate_.price, certificate.getPrice());
+        criteriaUpdate.set(Certificate_.lastUpdateDate, updateDate);
+        criteriaUpdate.set(Certificate_.duration, certificate.getDuration());
+        criteriaUpdate.where(criteriaBuilder.equal(root.get(Certificate_.id), idCertificate));
         entityManager.createQuery(criteriaUpdate).executeUpdate();
 
         certificate.setLastUpdateDate(updateDate);
@@ -91,19 +94,25 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        List<Predicate> conditions = new ArrayList<>();
-        System.out.println(name);
+
+        List<Predicate> conditions = new ArrayList<>(); // вызвать метод
+
+        // вынести в 1 метод
         if (name != null) {
-            Join<Certificate, Tag> join = root.join("tags", JoinType.INNER);
-            Predicate tagPredicate = criteriaBuilder.equal(join.get(NAME), name);
+            Join<Certificate, Tag> join = root.join(Certificate_.tags, JoinType.INNER);
+            Predicate tagPredicate = criteriaBuilder.equal(join.get(Tag_.name), name);
             conditions.add(tagPredicate);
         }
 
         if (search != null) {
-            Predicate searchCondition = criteriaBuilder.or(criteriaBuilder.like(root.get(DESCRIPTION), "%" + search + "%"),
-                    criteriaBuilder.like(root.get(NAME), "%" + search + "%"));
+            Predicate searchCondition = criteriaBuilder.or(criteriaBuilder.like(root.get(Certificate_.description), "%" + search + "%"),
+                    criteriaBuilder.like(root.get(Certificate_.name), "%" + search + "%"));
             conditions.add(searchCondition);
         }
+
+        Predicate notLock = criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0);
+        conditions.add(notLock);
+        // конец
 
         TypedQuery<Certificate> typed = entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery,
                 root, criteriaBuilder, sortField, sortAsc));
@@ -114,15 +123,6 @@ public class CertificateDaoImpl implements CertificateDao {
     private CriteriaQuery<Certificate> getCertificateCriteriaQuery(List<Predicate> conditions, CriteriaQuery<Certificate> criteriaQuery,
                                                                    Root<Certificate> root, CriteriaBuilder criteriaBuilder,
                                                                    String sortField, Boolean sortAsc) {
-        if (conditions.isEmpty()) {
-            if (sortAsc == null) {
-                criteriaQuery.select(root);
-            } else if (sortAsc) {
-                criteriaQuery.select(root).orderBy(criteriaBuilder.asc(root.get(sortField)));
-            } else {
-                criteriaQuery.select(root).orderBy(criteriaBuilder.desc(root.get(sortField)));
-            }
-        } else {
             if (sortAsc == null) {
                 criteriaQuery.select(root)
                         .distinct(true)
@@ -138,7 +138,7 @@ public class CertificateDaoImpl implements CertificateDao {
                         .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
                         .orderBy(criteriaBuilder.desc(root.get(sortField)));
             }
-        }
+
         return criteriaQuery;
     }
 
@@ -148,11 +148,11 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
 
-        Join<Certificate, Tag> join = root.join("tags", JoinType.INNER);
-        Expression<String> tagNamesFromDb = join.get("name");
+        Join<Certificate, Tag> join = root.join(Certificate_.tags, JoinType.INNER);
+        Expression<String> tagNamesFromDb = join.get(Tag_.name);
 
         criteriaQuery.select(root).distinct(true).where(tagNamesFromDb.in(tagNames),
-                criteriaBuilder.equal(root.get(LOCK), LOCK_VALUE_0));
+                criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
 
         TypedQuery<Certificate> typed = entityManager.createQuery(criteriaQuery);
 
