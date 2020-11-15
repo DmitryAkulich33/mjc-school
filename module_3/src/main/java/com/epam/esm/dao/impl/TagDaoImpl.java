@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PrePersist;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -30,9 +31,9 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Transactional
+    @PrePersist
     @Override
     public Tag createTag(Tag tag) {
-        tag.setLock(LOCK_VALUE_0);
         entityManager.persist(tag);
         return tag;
     }

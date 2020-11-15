@@ -10,12 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PrePersist;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -86,12 +86,9 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Transactional
+    @PrePersist
     @Override
     public Order createOrder(Order order) {
-        LocalDateTime purchaseDate = LocalDateTime.now();
-        order.setPurchaseDate(purchaseDate);
-        order.setLock(LOCK_VALUE_0);
-
         entityManager.persist(order);
         return order;
     }

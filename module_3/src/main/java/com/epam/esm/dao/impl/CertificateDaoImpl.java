@@ -9,11 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,11 +28,9 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Transactional
+    @PrePersist
     @Override
     public Certificate createCertificate(Certificate certificate) {
-        LocalDateTime creationDate = LocalDateTime.now();
-        certificate.setLock(LOCK_VALUE_0);
-        certificate.setCreateDate(creationDate);
         entityManager.persist(certificate);
         return certificate;
     }
@@ -63,11 +58,9 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Transactional
+    @PreUpdate
     @Override
     public Certificate updateCertificate(Certificate certificate) {
-        LocalDateTime updateDate = LocalDateTime.now();
-        certificate.setLastUpdateDate(updateDate);
-
         return entityManager.merge(certificate);
     }
 

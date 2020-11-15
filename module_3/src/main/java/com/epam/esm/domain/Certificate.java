@@ -1,5 +1,6 @@
 package com.epam.esm.domain;
 
+import com.epam.esm.dao.audit.AuditCertificateListener;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -7,6 +8,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@EntityListeners(AuditCertificateListener.class)
 @Getter
 @Setter
 @ToString(of = {"id", "name", "description", "price", "duration", "createDate"})

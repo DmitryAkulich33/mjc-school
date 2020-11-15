@@ -1,10 +1,12 @@
 package com.epam.esm.domain;
 
+import com.epam.esm.dao.audit.AuditTagListener;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
 
+@EntityListeners(AuditTagListener.class)
 @Getter
 @Setter
 @ToString(of = {"id", "name", "lock"})
