@@ -42,13 +42,6 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return getResponseEntity(exception, errorCode, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ParseLocalDateTimeException.class)
-    public ResponseEntity<Object> handleParseLocalDateTimeException(ParseLocalDateTimeException exception) {
-        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.CERTIFICATE_ERROR_CODE.getErrorCode(),
-                ErrorCode.PARSE_ERROR_CODE.getErrorCode());
-        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(CertificateDaoException.class)
     public ResponseEntity<Object> handleCertificateDaoException(CertificateDaoException exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.CERTIFICATE_ERROR_CODE.getErrorCode(),
@@ -74,6 +67,48 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleCertificateDuplicateException(CertificateDuplicateException exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.CERTIFICATE_ERROR_CODE.getErrorCode(),
                 ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Object> handleOrderNotFoundException(OrderNotFoundException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.NOT_FOUND.value(), ErrorCode.ORDER_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OrderDaoException.class)
+    public ResponseEntity<Object> handleOrderDaoException(OrderDaoException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.ORDER_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(OrderValidatorException.class)
+    public ResponseEntity<Object> handleOrderValidatorException(OrderValidatorException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.ORDER_ERROR_CODE.getErrorCode(),
+                ErrorCode.VALIDATE_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.NOT_FOUND.value(), ErrorCode.USER_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UserDaoException.class)
+    public ResponseEntity<Object> handleUserDaoException(UserDaoException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.USER_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(UserValidatorException.class)
+    public ResponseEntity<Object> handleUserValidatorException(UserValidatorException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.USER_ERROR_CODE.getErrorCode(),
+                ErrorCode.VALIDATE_ERROR_CODE.getErrorCode());
         return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
     }
 

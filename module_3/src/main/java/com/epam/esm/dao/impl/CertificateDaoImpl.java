@@ -5,6 +5,9 @@ import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Certificate_;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.domain.Tag_;
+import com.epam.esm.exceptions.CertificateDaoException;
+import com.epam.esm.exceptions.CertificateDuplicateException;
+import com.epam.esm.exceptions.CertificateNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +34,13 @@ public class CertificateDaoImpl implements CertificateDao {
     @PrePersist
     @Override
     public Certificate createCertificate(Certificate certificate) {
-        entityManager.persist(certificate);
+        try {
+            entityManager.persist(certificate);
+        } catch (IllegalArgumentException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new CertificateDuplicateException("message.certificate.exists", e);
+        }
         return certificate;
     }
 
@@ -43,6 +52,13 @@ public class CertificateDaoImpl implements CertificateDao {
         criteriaUpdate.set(Certificate_.lock, LOCK_VALUE_1);
         criteriaUpdate.where(criteriaBuilder.equal(root.get(Certificate_.id), id));
         entityManager.createQuery(criteriaUpdate).executeUpdate();
+        try {
+            entityManager.createQuery(criteriaUpdate).executeUpdate();
+        } catch (IllegalArgumentException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new CertificateNotFoundException("message.wrong_certificate_id", e);
+        }
     }
 
     @Override
@@ -52,16 +68,27 @@ public class CertificateDaoImpl implements CertificateDao {
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
         criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Certificate_.id), id),
                 criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
-        TypedQuery<Certificate> typed = entityManager.createQuery(criteriaQuery);
 
-        return typed.getSingleResult();
+        try {
+            return entityManager.createQuery(criteriaQuery).getSingleResult();
+        } catch (IllegalArgumentException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new CertificateNotFoundException("message.wrong_certificate_id", e);
+        }
     }
 
     @Transactional
     @PreUpdate
     @Override
     public Certificate updateCertificate(Certificate certificate) {
-        return entityManager.merge(certificate);
+        try {
+            return entityManager.merge(certificate);
+        } catch (IllegalArgumentException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new CertificateNotFoundException("message.certificate.exists", e);
+        }
     }
 
     @Override
@@ -69,12 +96,16 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
-
         List<Predicate> conditions = getPredicates(name, search, root, criteriaBuilder);
-        TypedQuery<Certificate> typed = entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery,
-                root, criteriaBuilder, sortField, sortAsc));
 
-        return typed.getResultList();
+        try {
+            return entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery,
+                    root, criteriaBuilder, sortField, sortAsc)).getResultList();
+        } catch (IllegalArgumentException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new CertificateNotFoundException("message.wrong_data", e);
+        }
     }
 
     private List<Predicate> getPredicates(String name, String search, Root<Certificate> root, CriteriaBuilder criteriaBuilder) {
@@ -146,8 +177,12 @@ public class CertificateDaoImpl implements CertificateDao {
         criteriaQuery.select(root).distinct(true).where(tagNamesFromDb.in(tagNames),
                 criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
 
-        TypedQuery<Certificate> typed = entityManager.createQuery(criteriaQuery);
-
-        return typed.getResultList();
+        try {
+            return entityManager.createQuery(criteriaQuery).getResultList();
+        } catch (IllegalArgumentException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new CertificateNotFoundException("message.wrong_data", e);
+        }
     }
 }

@@ -1,14 +1,29 @@
 package com.epam.esm.view;
 
 import com.epam.esm.domain.Tag;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class TagView {
+public class TagView extends RepresentationModel<TagView> {
+//    @JsonView({TagView.Views.V1.class, CertificateView.Views.V1.class, OrderView.Views.V1.class})
+//    private final String content;
+//
+//    @JsonCreator
+//    public TagView(@JsonProperty("content") String content) {
+//        this.content = content;
+//    }
+//
+//    public String getContent() {
+//        return content;
+//    }
+
     @JsonView({TagView.Views.V1.class, CertificateView.Views.V1.class, OrderView.Views.V1.class})
     private Long id;
 

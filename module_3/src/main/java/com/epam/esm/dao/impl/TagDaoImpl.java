@@ -3,14 +3,17 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.domain.Tag_;
+import com.epam.esm.exceptions.TagDaoException;
+import com.epam.esm.exceptions.TagDuplicateException;
+import com.epam.esm.exceptions.TagNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.PrePersist;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
@@ -34,7 +37,13 @@ public class TagDaoImpl implements TagDao {
     @PrePersist
     @Override
     public Tag createTag(Tag tag) {
-        entityManager.persist(tag);
+        try {
+            entityManager.persist(tag);
+        } catch (IllegalArgumentException e) {
+            throw new TagDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new TagDuplicateException("message.tag.exists", e);
+        }
         return tag;
     }
 
@@ -45,7 +54,13 @@ public class TagDaoImpl implements TagDao {
         Root<Tag> root = criteriaUpdate.from(Tag.class);
         criteriaUpdate.set(Tag_.lock, LOCK_VALUE_1);
         criteriaUpdate.where(criteriaBuilder.equal(root.get(Tag_.id), id));
-        entityManager.createQuery(criteriaUpdate).executeUpdate();
+        try {
+            entityManager.createQuery(criteriaUpdate).executeUpdate();
+        } catch (IllegalArgumentException e) {
+            throw new TagDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new TagNotFoundException("message.wrong_tag_id", e);
+        }
     }
 
     @Override
@@ -55,9 +70,14 @@ public class TagDaoImpl implements TagDao {
         Root<Tag> root = criteriaQuery.from(Tag.class);
         criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Tag_.id), id),
                 criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
-        TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
 
-        return typed.getSingleResult();
+        try {
+            return entityManager.createQuery(criteriaQuery).getSingleResult();
+        } catch (IllegalArgumentException e) {
+            throw new TagDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new TagNotFoundException("message.wrong_tag_id", e);
+        }
     }
 
     @Override
@@ -67,9 +87,13 @@ public class TagDaoImpl implements TagDao {
         Root<Tag> root = criteriaQuery.from(Tag.class);
         criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Tag_.name), name),
                 criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
-        TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
-
-        return typed.getSingleResult();
+        try {
+            return entityManager.createQuery(criteriaQuery).getSingleResult();
+        } catch (IllegalArgumentException e) {
+            throw new TagDaoException("message.wrong_data", e);
+        } catch (PersistenceException e) {
+            throw new TagNotFoundException("message.wrong_tag_name", e);
+        }
     }
 
     @Override
@@ -78,8 +102,10 @@ public class TagDaoImpl implements TagDao {
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
         criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
-        TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
-
-        return typed.getResultList();
+        try {
+            return entityManager.createQuery(criteriaQuery).getResultList();
+        } catch (IllegalArgumentException e) {
+            throw new TagDaoException("message.wrong_data", e);
+        }
     }
 }
