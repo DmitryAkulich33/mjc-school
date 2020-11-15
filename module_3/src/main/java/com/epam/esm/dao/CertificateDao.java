@@ -11,9 +11,9 @@ public interface CertificateDao {
 
     Certificate getCertificateById(Long idCertificate);
 
-    Certificate updateCertificate(Certificate certificate, Long idCertificate);
+    Certificate updateCertificate(Certificate certificate);
 
     List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField);
 
-    public List<Certificate> getCertificatesByTags(List<String> tagNames);
+    List<Certificate> getCertificatesByTags(List<String> tagNames);
 }

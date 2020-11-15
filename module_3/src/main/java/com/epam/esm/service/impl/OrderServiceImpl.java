@@ -1,7 +1,11 @@
 package com.epam.esm.service.impl;
 
+import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.OrderDao;
+import com.epam.esm.dao.UserDao;
+import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Order;
+import com.epam.esm.domain.User;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.util.OrderValidator;
 import com.epam.esm.util.UserValidator;
@@ -11,18 +15,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderDao orderDao;
+    private final UserDao userDao;
+    private final CertificateDao certificateDao;
     private final OrderValidator orderValidator;
     private final UserValidator userValidator;
 
     private static Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    public OrderServiceImpl(OrderDao orderDao, OrderValidator orderValidator, UserValidator userValidator) {
+    public OrderServiceImpl(OrderDao orderDao, UserDao userDao, CertificateDao certificateDao, OrderValidator orderValidator, UserValidator userValidator) {
         this.orderDao = orderDao;
+        this.userDao = userDao;
+        this.certificateDao = certificateDao;
         this.orderValidator = orderValidator;
         this.userValidator = userValidator;
     }
@@ -53,5 +62,27 @@ public class OrderServiceImpl implements OrderService {
         orderValidator.validateOrderId(idOrder);
         userValidator.validateUserId(idUser);
         return orderDao.getDataByUserId(idUser, idOrder);
+    }
+
+    @Override
+    public Order makeOrder(Long idUser, List<Certificate> certificatesFromQuery) {
+        List<Certificate> certificates = getCertificates(certificatesFromQuery);
+        double total = getTotal(certificates);
+        Order order = new Order();
+        User user = userDao.getUserById(idUser);
+        order.setCertificates(certificates);
+        order.setTotal(total);
+        order.setUser(user);
+        return orderDao.createOrder(order);
+    }
+
+    private List<Certificate> getCertificates(List<Certificate> certificatesFromQuery) {
+        return certificatesFromQuery.stream()
+                .map(certificate -> certificateDao.getCertificateById(certificate.getId()))
+                .collect(Collectors.toList());
+    }
+
+    private double getTotal(List<Certificate> certificates) {
+        return certificates.stream().mapToDouble(Certificate::getPrice).sum();
     }
 }

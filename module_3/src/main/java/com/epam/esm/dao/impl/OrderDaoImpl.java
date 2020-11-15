@@ -6,6 +6,7 @@ import com.epam.esm.domain.Order_;
 import com.epam.esm.domain.User;
 import com.epam.esm.domain.User_;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -14,6 +15,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -53,12 +55,12 @@ public class OrderDaoImpl implements OrderDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> rootOrder = criteriaQuery.from(Order.class);
-        criteriaQuery.select(rootOrder).where(criteriaBuilder.equal(rootOrder.get(Order_.lock), LOCK_VALUE_0));
 
         Subquery<User> userSubquery = criteriaQuery.subquery(User.class);
         Root<User> userRoot = userSubquery.from(User.class);
         userSubquery.select(userRoot).where(criteriaBuilder.equal(userRoot.get(User_.id), idUser));
-        criteriaQuery.select(rootOrder).where(criteriaBuilder.in(rootOrder.get(Order_.user)).value(userSubquery));
+        criteriaQuery.select(rootOrder).where(criteriaBuilder.equal(rootOrder.get(Order_.lock), LOCK_VALUE_0),
+                criteriaBuilder.in(rootOrder.get(Order_.user)));
 
         TypedQuery<Order> typed = entityManager.createQuery(criteriaQuery);
 
@@ -81,5 +83,16 @@ public class OrderDaoImpl implements OrderDao {
         TypedQuery<Order> typed = entityManager.createQuery(criteriaQuery);
 
         return typed.getSingleResult();
+    }
+
+    @Transactional
+    @Override
+    public Order createOrder(Order order) {
+        LocalDateTime purchaseDate = LocalDateTime.now();
+        order.setPurchaseDate(purchaseDate);
+        order.setLock(LOCK_VALUE_0);
+
+        entityManager.persist(order);
+        return order;
     }
 }

@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.swapCase;
 
 @Service
 public class CertificateServiceImpl implements CertificateService {
@@ -85,7 +84,6 @@ public class CertificateServiceImpl implements CertificateService {
         certificateValidator.validateCertificate(certificate);
         Certificate createdCertificate = certificateDao.createCertificate(certificate);
         List<Tag> tagsForCertificate = new ArrayList<>();
-        Long id = createdCertificate.getId();
         List<Tag> tagsFromDB = tagDao.getTags();
         Set<Tag> uniqueTags = new HashSet<>(certificate.getTags());
 
@@ -96,12 +94,8 @@ public class CertificateServiceImpl implements CertificateService {
                 tagToCreate.setName(nameTag);
                 Tag createdTag = tagDao.createTag(tagToCreate);
                 tagsForCertificate.add(createdTag);
-                Long idTag = createdTag.getId();
-                tagDao.createTagCertificate(idTag, id);
             } else {
                 Tag currentTag = tagDao.getTagByName(nameTag);
-                Long idTag = currentTag.getId();
-                tagDao.createTagCertificate(idTag, id);
                 tagsForCertificate.add(currentTag);
             }
         }
@@ -137,7 +131,7 @@ public class CertificateServiceImpl implements CertificateService {
         certificateToUpdate.setDuration(duration);
         certificateToUpdate.setTags(tags);
 
-        return certificateDao.updateCertificate(certificateToUpdate, idCertificate);
+        return certificateDao.updateCertificate(certificateToUpdate);
     }
 
     @Transactional
@@ -146,15 +140,15 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug(String.format("Service: update certificate with id %d", idCertificate));
         certificateValidator.validateCertificateId(idCertificate);
         certificateValidator.validateCertificate(certificate);
-        Certificate certificateToUpdate = certificateDao.getCertificateById(idCertificate);
-        tagService.updateTags(certificate.getTags(), idCertificate);
-        List<Tag> tagsAfterUpdate = tagDao.getCertificateTags(idCertificate);
+        Certificate certificateFromDb = certificateDao.getCertificateById(idCertificate);
+        List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags(), idCertificate);
 
-        certificate.setId(certificateToUpdate.getId());
-        certificate.setCreateDate(certificateToUpdate.getCreateDate());
+        certificate.setId(certificateFromDb.getId());
+        certificate.setCreateDate(certificateFromDb.getCreateDate());
         certificate.setTags(tagsAfterUpdate);
+        certificate.setLock(certificateFromDb.getLock());
 
-        return certificateDao.updateCertificate(certificate, idCertificate);
+        return certificateDao.updateCertificate(certificate);
     }
 
     private String composeCertificateName(Certificate certificateFromQuery, Certificate certificateToUpdate) {
@@ -185,13 +179,8 @@ public class CertificateServiceImpl implements CertificateService {
                                              Certificate certificateToUpdate,
                                              Long idCertificate) {
         List<Tag> tags = certificateFromQuery.getTags();
-        List<Tag> tagsAfterUpdate = null;
-        if (tags != null) {
-            tagService.updateTags(tags, idCertificate);
-            tagsAfterUpdate = tagDao.getCertificateTags(idCertificate);
-        }
 
-        return tags == null ? certificateToUpdate.getTags() : tagsAfterUpdate;
+        return tags == null ? certificateToUpdate.getTags() : tagService.updateTags(tags, idCertificate);
     }
 
     /**

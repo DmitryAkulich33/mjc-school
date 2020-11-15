@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class TagServiceImpl implements TagService {
     /**
      * Constructor - creating a new object
      *
-     * @param tagDao       dao for this server
+     * @param tagDao       dao for this service
      * @param tagValidator validator for this service
      */
     @Autowired
@@ -104,8 +105,9 @@ public class TagServiceImpl implements TagService {
      */
     @Transactional
     @Override
-    public void updateTags(List<Tag> tags, Long idCertificate) {
+    public List<Tag> updateTags(List<Tag> tags, Long idCertificate) {
         log.debug(String.format("Service: update tags in certificate with %d", idCertificate));
+        List<Tag> tagsToUpdate = new ArrayList<>();
         List<Tag> tagsFromDB = tagDao.getTags();
         Set<Tag> uniqueTags = new HashSet<>(tags);
         for (Tag tag : uniqueTags) {
@@ -114,17 +116,13 @@ public class TagServiceImpl implements TagService {
                 Tag tagToCreate = new Tag();
                 tagToCreate.setName(nameTag);
                 Tag createdTag = tagDao.createTag(tagToCreate);
-                Long idTag = createdTag.getId();
-                tagDao.createTagCertificate(idTag, idCertificate);
+                tagsToUpdate.add(createdTag);
             } else {
                 Tag currentTag = tagDao.getTagByName(nameTag);
-                Long idTag = currentTag.getId();
-                List<Tag> tagsCertificateFromDB = tagDao.getCertificateTags(idCertificate);
-                if (!isTagBelongToCertificate(tagsCertificateFromDB, idTag)) {
-                    tagDao.createTagCertificate(idTag, idCertificate);
-                }
+                tagsToUpdate.add(currentTag);
             }
         }
+        return tagsToUpdate;
     }
 
     /**
@@ -141,9 +139,5 @@ public class TagServiceImpl implements TagService {
                 .collect(Collectors.toList());
 
         return list.size() == 0;
-    }
-
-    private boolean isTagBelongToCertificate(List<Tag> tags, Long idTag) {
-        return tags.stream().anyMatch(tag -> tag.getId().equals(idTag));
     }
 }

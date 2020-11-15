@@ -22,13 +22,6 @@ public class CertificateDaoImpl implements CertificateDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    private static final String LOCK = "lock";
-    private static final String ID = "id";
-    private static final String NAME = "name";
-    private static final String DESCRIPTION = "description";
-    private static final String PRICE = "price";
-    private static final String UPDATE_DATE = "lastUpdateDate";
-    private static final String DURATION = "duration";
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
 
@@ -71,22 +64,11 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Transactional
     @Override
-    public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
+    public Certificate updateCertificate(Certificate certificate) {
         LocalDateTime updateDate = LocalDateTime.now();
-
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaUpdate<Certificate> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(Certificate.class);
-        Root<Certificate> root = criteriaUpdate.from(Certificate.class);
-        criteriaUpdate.set(Certificate_.name, certificate.getName());
-        criteriaUpdate.set(Certificate_.description, certificate.getDescription());
-        criteriaUpdate.set(Certificate_.price, certificate.getPrice());
-        criteriaUpdate.set(Certificate_.lastUpdateDate, updateDate);
-        criteriaUpdate.set(Certificate_.duration, certificate.getDuration());
-        criteriaUpdate.where(criteriaBuilder.equal(root.get(Certificate_.id), idCertificate));
-        entityManager.createQuery(criteriaUpdate).executeUpdate();
-
         certificate.setLastUpdateDate(updateDate);
-        return certificate;
+
+        return entityManager.merge(certificate);
     }
 
     @Override
@@ -95,9 +77,15 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
 
-        List<Predicate> conditions = new ArrayList<>(); // вызвать метод
+        List<Predicate> conditions = getPredicates(name, search, root, criteriaBuilder);
+        TypedQuery<Certificate> typed = entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery,
+                root, criteriaBuilder, sortField, sortAsc));
 
-        // вынести в 1 метод
+        return typed.getResultList();
+    }
+
+    private List<Predicate> getPredicates(String name, String search, Root<Certificate> root, CriteriaBuilder criteriaBuilder) {
+        List<Predicate> conditions = new ArrayList<>();
         if (name != null) {
             Join<Certificate, Tag> join = root.join(Certificate_.tags, JoinType.INNER);
             Predicate tagPredicate = criteriaBuilder.equal(join.get(Tag_.name), name);
@@ -112,34 +100,45 @@ public class CertificateDaoImpl implements CertificateDao {
 
         Predicate notLock = criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0);
         conditions.add(notLock);
-        // конец
 
-        TypedQuery<Certificate> typed = entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery,
-                root, criteriaBuilder, sortField, sortAsc));
-
-        return typed.getResultList();
+        return conditions;
     }
 
     private CriteriaQuery<Certificate> getCertificateCriteriaQuery(List<Predicate> conditions, CriteriaQuery<Certificate> criteriaQuery,
                                                                    Root<Certificate> root, CriteriaBuilder criteriaBuilder,
                                                                    String sortField, Boolean sortAsc) {
-            if (sortAsc == null) {
-                criteriaQuery.select(root)
-                        .distinct(true)
-                        .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])));
-            } else if (sortAsc) {
-                criteriaQuery.select(root)
-                        .distinct(true)
-                        .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
-                        .orderBy(criteriaBuilder.asc(root.get(sortField)));
-            } else {
-                criteriaQuery.select(root)
-                        .distinct(true)
-                        .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
-                        .orderBy(criteriaBuilder.desc(root.get(sortField)));
-            }
+        return (sortAsc == null) ? selectWithoutSort(conditions, criteriaQuery, root, criteriaBuilder) :
+                selectSort(conditions, criteriaQuery, root, criteriaBuilder, sortField, sortAsc);
+    }
 
-        return criteriaQuery;
+    private CriteriaQuery<Certificate> selectSort(List<Predicate> conditions, CriteriaQuery<Certificate> criteriaQuery,
+                                                  Root<Certificate> root, CriteriaBuilder criteriaBuilder,
+                                                  String sortField, Boolean sortAsc) {
+        return (sortAsc) ? selectSortAsc(conditions, criteriaQuery, root, criteriaBuilder, sortField) :
+                selectSortDesc(conditions, criteriaQuery, root, criteriaBuilder, sortField);
+    }
+
+    private CriteriaQuery<Certificate> selectSortAsc(List<Predicate> conditions, CriteriaQuery<Certificate> criteriaQuery,
+                                                     Root<Certificate> root, CriteriaBuilder criteriaBuilder, String sortField) {
+        return criteriaQuery.select(root)
+                .distinct(true)
+                .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
+                .orderBy(criteriaBuilder.asc(root.get(sortField)));
+    }
+
+    private CriteriaQuery<Certificate> selectSortDesc(List<Predicate> conditions, CriteriaQuery<Certificate> criteriaQuery,
+                                                      Root<Certificate> root, CriteriaBuilder criteriaBuilder, String sortField) {
+        return criteriaQuery.select(root)
+                .distinct(true)
+                .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])))
+                .orderBy(criteriaBuilder.desc(root.get(sortField)));
+    }
+
+    private CriteriaQuery<Certificate> selectWithoutSort(List<Predicate> conditions, CriteriaQuery<Certificate> criteriaQuery,
+                                                         Root<Certificate> root, CriteriaBuilder criteriaBuilder) {
+        return criteriaQuery.select(root)
+                .distinct(true)
+                .where(criteriaBuilder.and(conditions.toArray(new Predicate[0])));
     }
 
     @Override

@@ -30,7 +30,7 @@ public class Order {
     @Column(name = "lock_order")
     private Integer lock;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
     private User user;
 

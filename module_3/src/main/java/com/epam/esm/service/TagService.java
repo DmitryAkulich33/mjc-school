@@ -13,7 +13,7 @@ public interface TagService {
 
     List<Tag> getTags();
 
-    void updateTags(List<Tag> tags, Long idCertificate);
+    List<Tag> updateTags(List<Tag> tags, Long idCertificate);
 
     boolean isNewTag(List<Tag> tags, String nameTag);
 }

@@ -1,5 +1,6 @@
-package com.epam.esm.exceptions;
+package com.epam.esm;
 
+import com.epam.esm.exceptions.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,7 +78,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleAnotherException(Exception exception) {
+    public ResponseEntity<Object> handleException(Exception exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
                 ErrorCode.DAO_ERROR_CODE.getErrorCode());
         String message = exception.getMessage();

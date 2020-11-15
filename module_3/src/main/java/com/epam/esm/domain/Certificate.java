@@ -17,10 +17,10 @@ import java.util.List;
 public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_certificate", updatable = false, nullable = false)
+    @Column(name = "id_certificate")
     private Long id;
 
-    @Column(name = "name_certificate", unique = true)
+    @Column(name = "name_certificate")
     private String name;
 
     @Column
@@ -43,7 +43,10 @@ public class Certificate {
     @Column(name = "duration")
     private Integer duration;
 
-    @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "tag_certificate",
+            joinColumns = @JoinColumn(name = "certificate_id", referencedColumnName = "id_certificate"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id_tag"))
     private List<Tag> tags;
 
     @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)

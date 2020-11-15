@@ -7,8 +7,6 @@ import java.util.List;
 public interface TagDao {
     Tag createTag(Tag tag);
 
-    void createTagCertificate(Long idTag, Long idCertificate);
-
     void deleteTag(Long idTag);
 
     Tag getTagById(Long idTag);
@@ -16,6 +14,4 @@ public interface TagDao {
     Tag getTagByName(String nameTag);
 
     List<Tag> getTags();
-
-    List<Tag> getCertificateTags(Long idCertificate);
 }

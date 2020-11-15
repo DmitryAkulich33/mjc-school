@@ -1,7 +1,6 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.TagDao;
-import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.domain.Tag_;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Repository
@@ -21,8 +23,6 @@ public class TagDaoImpl implements TagDao {
 
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
-    private static final String ADD_TAG_CERTIFICATE = "INSERT INTO tag_certificate " +
-            "(tag_id, certificate_id) VALUES(?,?)";
 
     @Autowired
     public TagDaoImpl(EntityManager entityManager) {
@@ -35,14 +35,6 @@ public class TagDaoImpl implements TagDao {
         tag.setLock(LOCK_VALUE_0);
         entityManager.persist(tag);
         return tag;
-    }
-
-    @Override
-    public void createTagCertificate(Long idTag, Long idCertificate) {
-        entityManager.createNativeQuery(ADD_TAG_CERTIFICATE)
-                .setParameter(1, idTag)
-                .setParameter(2, idCertificate)
-                .executeUpdate();
     }
 
     @Override
@@ -85,19 +77,6 @@ public class TagDaoImpl implements TagDao {
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
         criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
-        TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
-
-        return typed.getResultList();
-    }
-
-    @Override
-    public List<Tag> getCertificateTags(Long idCertificate) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
-        Join<Tag, Certificate> join = root.join("certificates", JoinType.INNER);
-        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0),
-                criteriaBuilder.equal(join.get(Tag_.ID), idCertificate));
         TypedQuery<Tag> typed = entityManager.createQuery(criteriaQuery);
 
         return typed.getResultList();
