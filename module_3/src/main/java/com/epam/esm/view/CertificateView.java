@@ -1,16 +1,27 @@
 package com.epam.esm.view;
 
 import com.epam.esm.domain.Certificate;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class CertificateView {
+public class CertificateView extends RepresentationModel<CertificateView> {
+    private final String content;
+    private static final String CERTIFICATES = "certificates";
+
+    @JsonCreator
+    public CertificateView(@JsonProperty("content") String content) {
+        this.content = content;
+    }
+
     @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private Long id;
 
@@ -43,7 +54,7 @@ public class CertificateView {
     }
 
     public static CertificateView createForm(Certificate certificate) {
-        CertificateView certificateView = new CertificateView();
+        CertificateView certificateView = new CertificateView(CERTIFICATES);
         certificateView.setId(certificate.getId());
         certificateView.setName(certificate.getName());
         certificateView.setDescription(certificate.getDescription());

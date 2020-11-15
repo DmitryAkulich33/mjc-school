@@ -7,6 +7,7 @@ import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Order;
 import com.epam.esm.domain.User;
 import com.epam.esm.service.OrderService;
+import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.util.OrderValidator;
 import com.epam.esm.util.UserValidator;
 import org.apache.logging.log4j.LogManager;
@@ -24,16 +25,18 @@ public class OrderServiceImpl implements OrderService {
     private final CertificateDao certificateDao;
     private final OrderValidator orderValidator;
     private final UserValidator userValidator;
+    private final OffsetCalculator offsetCalculator;
 
     private static Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    public OrderServiceImpl(OrderDao orderDao, UserDao userDao, CertificateDao certificateDao, OrderValidator orderValidator, UserValidator userValidator) {
+    public OrderServiceImpl(OrderDao orderDao, UserDao userDao, CertificateDao certificateDao, OrderValidator orderValidator, UserValidator userValidator, OffsetCalculator offsetCalculator) {
         this.orderDao = orderDao;
         this.userDao = userDao;
         this.certificateDao = certificateDao;
         this.orderValidator = orderValidator;
         this.userValidator = userValidator;
+        this.offsetCalculator = offsetCalculator;
     }
 
     @Override
@@ -44,16 +47,18 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getOrders() {
+    public List<Order> getOrders(Integer pageNumber, Integer pageSize) {
         log.debug("Service: search all orders.");
-        return orderDao.getOrders();
+        Integer offset = offsetCalculator.calculate(pageNumber, pageSize);
+        return orderDao.getOrders(offset, pageSize);
     }
 
     @Override
-    public List<Order> getOrdersByUserId(Long idUser) {
+    public List<Order> getOrdersByUserId(Long idUser, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search all users.");
         userValidator.validateUserId(idUser);
-        return orderDao.getOrdersByUserId(idUser);
+        Integer offset = offsetCalculator.calculate(pageNumber, pageSize);
+        return orderDao.getOrdersByUserId(idUser, offset, pageSize);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.service.TagService;
+import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.util.TagValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +29,8 @@ public class TagServiceImpl implements TagService {
      */
     private final TagValidator tagValidator;
 
+    private final OffsetCalculator offsetCalculator;
+
     /**
      * Logger for this service
      */
@@ -36,13 +39,15 @@ public class TagServiceImpl implements TagService {
     /**
      * Constructor - creating a new object
      *
-     * @param tagDao       dao for this service
-     * @param tagValidator validator for this service
+     * @param tagDao           dao for this service
+     * @param tagValidator     validator for this service
+     * @param offsetCalculator
      */
     @Autowired
-    public TagServiceImpl(TagDao tagDao, TagValidator tagValidator) {
+    public TagServiceImpl(TagDao tagDao, TagValidator tagValidator, OffsetCalculator offsetCalculator) {
         this.tagDao = tagDao;
         this.tagValidator = tagValidator;
+        this.offsetCalculator = offsetCalculator;
     }
 
     /**
@@ -92,9 +97,10 @@ public class TagServiceImpl implements TagService {
      * @return list of tags
      */
     @Override
-    public List<Tag> getTags() {
+    public List<Tag> getTags(Integer pageNumber, Integer pageSize) {
         log.debug("Service: search all tags.");
-        return tagDao.getTags();
+        Integer offset = offsetCalculator.calculate(pageNumber, pageSize);
+        return tagDao.getTags(offset, pageSize);
     }
 
     /**

@@ -7,5 +7,5 @@ import java.util.List;
 public interface UserDao {
     User getUserById(Long idUser);
 
-    List<User> getUsers();
+    List<User> getUsers(Integer offset, Integer pageSize);
 }

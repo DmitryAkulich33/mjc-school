@@ -97,6 +97,22 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
+    public List<Tag> getTags(Integer offset, Integer pageSize) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
+        Root<Tag> root = criteriaQuery.from(Tag.class);
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
+        try {
+            return entityManager.createQuery(criteriaQuery)
+                    .setFirstResult(offset)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        } catch (IllegalArgumentException e) {
+            throw new TagDaoException("message.wrong_data", e);
+        }
+    }
+
+    @Override
     public List<Tag> getTags() {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);

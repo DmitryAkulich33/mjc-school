@@ -48,21 +48,24 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
-    public List<Order> getOrders() {
+    public List<Order> getOrders(Integer offset, Integer pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
         criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Order_.lock), LOCK_VALUE_0));
 
         try {
-            return entityManager.createQuery(criteriaQuery).getResultList();
+            return entityManager.createQuery(criteriaQuery)
+                    .setFirstResult(offset)
+                    .setMaxResults(pageSize)
+                    .getResultList();
         } catch (IllegalArgumentException e) {
             throw new OrderDaoException("message.wrong_data", e);
         }
     }
 
     @Override
-    public List<Order> getOrdersByUserId(Long idUser) {
+    public List<Order> getOrdersByUserId(Long idUser, Integer offset, Integer pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> rootOrder = criteriaQuery.from(Order.class);

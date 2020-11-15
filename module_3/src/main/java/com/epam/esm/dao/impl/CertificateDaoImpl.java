@@ -92,15 +92,18 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Override
-    public List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField) {
+    public List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField,
+                                             Integer offset, Integer pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
         List<Predicate> conditions = getPredicates(name, search, root, criteriaBuilder);
 
         try {
-            return entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery,
-                    root, criteriaBuilder, sortField, sortAsc)).getResultList();
+            return entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery, root, criteriaBuilder, sortField, sortAsc))
+                    .setFirstResult(offset)
+                    .setMaxResults(pageSize)
+                    .getResultList();
         } catch (IllegalArgumentException e) {
             throw new CertificateDaoException("message.wrong_data", e);
         } catch (PersistenceException e) {
@@ -166,7 +169,7 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Override
-    public List<Certificate> getCertificatesByTags(List<String> tagNames) {
+    public List<Certificate> getCertificatesByTags(List<String> tagNames, Integer offset, Integer pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
@@ -178,7 +181,10 @@ public class CertificateDaoImpl implements CertificateDao {
                 criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
 
         try {
-            return entityManager.createQuery(criteriaQuery).getResultList();
+            return entityManager.createQuery(criteriaQuery)
+                    .setFirstResult(offset)
+                    .setMaxResults(pageSize)
+                    .getResultList();
         } catch (IllegalArgumentException e) {
             throw new CertificateDaoException("message.wrong_data", e);
         } catch (PersistenceException e) {

@@ -13,5 +13,7 @@ public interface TagDao {
 
     Tag getTagByName(String nameTag);
 
+    List<Tag> getTags(Integer offset, Integer pageSize);
+
     List<Tag> getTags();
 }

@@ -11,7 +11,7 @@ public interface TagService {
 
     Tag getTagById(Long idTag);
 
-    List<Tag> getTags();
+    List<Tag> getTags(Integer pageNumber, Integer pageSize);
 
     List<Tag> updateTags(List<Tag> tags, Long idCertificate);
 

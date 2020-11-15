@@ -6,6 +6,8 @@ import com.epam.esm.view.CreateTagView;
 import com.epam.esm.view.TagView;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "/api/v1/tags")
 public class TagController {
     private final TagService tagService;
+    private static final String PAGE_NUMBER_DEFAULT = "1";
+    private static final String PAGE_SIZE_DEFAULT = "10";
 
     @Autowired
     public TagController(TagService tagService) {
@@ -33,16 +37,21 @@ public class TagController {
         Tag tag = tagService.getTagById(id);
         TagView tagView = TagView.createForm(tag);
 
+        tagView.add(linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel());
+
         return new ResponseEntity<>(tagView, HttpStatus.OK);
     }
 
     @JsonView(TagView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TagView>> getAllTags() {
-        List<Tag> tags = tagService.getTags();
+    public ResponseEntity<CollectionModel<TagView>> getAllTags(@RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
+                                                               @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+        List<Tag> tags = tagService.getTags(pageNumber, pageSize);
         List<TagView> tagViews = TagView.createListForm(tags);
 
-        return new ResponseEntity<>(tagViews, HttpStatus.OK);
+        Link link = linkTo(methodOn(TagController.class).getAllTags(pageNumber, pageSize)).withSelfRel();
+
+        return new ResponseEntity<>(CollectionModel.of(tagViews, link), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")

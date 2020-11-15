@@ -45,14 +45,17 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getUsers() {
+    public List<User> getUsers(Integer offset, Integer pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
         criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(User_.lock), LOCK_VALUE_0));
 
         try {
-            return entityManager.createQuery(criteriaQuery).getResultList();
+            return entityManager.createQuery(criteriaQuery)
+                    .setFirstResult(offset)
+                    .setMaxResults(pageSize)
+                    .getResultList();
         } catch (IllegalArgumentException e) {
             throw new UserDaoException("message.wrong_data", e);
         }

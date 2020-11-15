@@ -8,6 +8,8 @@ import com.epam.esm.view.UpdateCertificateView;
 import com.epam.esm.view.UpdatePartCertificateView;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +17,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping(value = "/api/v1/certificates")
 public class CertificateController {
     private final CertificateService certificateService;
+    private static final String PAGE_NUMBER_DEFAULT = "1";
+    private static final String PAGE_SIZE_DEFAULT = "10";
 
     @Autowired
     public CertificateController(CertificateService certificateService) {
@@ -40,6 +47,8 @@ public class CertificateController {
         Certificate createdCertificate = certificateService.createCertificate(certificate);
         CertificateView certificateView = CertificateView.createForm(createdCertificate);
 
+        certificateView.add(linkTo(methodOn(CertificateController.class).createCertificate(createCertificateView)).withSelfRel());
+
         return new ResponseEntity<>(certificateView, HttpStatus.CREATED);
     }
 
@@ -48,6 +57,8 @@ public class CertificateController {
     public ResponseEntity<CertificateView> getCertificateById(@PathVariable Long id) {
         Certificate certificate = certificateService.getCertificateById(id);
         CertificateView certificateView = CertificateView.createForm(certificate);
+
+        certificateView.add(linkTo(methodOn(CertificateController.class).getCertificateById(id)).withSelfRel());
 
         return new ResponseEntity<>(certificateView, HttpStatus.OK);
     }
@@ -61,6 +72,8 @@ public class CertificateController {
         Certificate certificateToUpdate = certificateService.updatePartCertificate(certificateFromQuery, id);
         CertificateView certificateView = CertificateView.createForm(certificateToUpdate);
 
+        certificateView.add(linkTo(methodOn(CertificateController.class).updatePartCertificate(updatePartCertificateView, id)).withSelfRel());
+
         return new ResponseEntity<>(certificateView, HttpStatus.OK);
     }
 
@@ -72,26 +85,36 @@ public class CertificateController {
         Certificate certificateToUpdate = certificateService.updateCertificate(certificateFromQuery, id);
         CertificateView certificateView = CertificateView.createForm(certificateToUpdate);
 
+        certificateView.add(linkTo(methodOn(CertificateController.class).updateCertificate(updateCertificateView, id)).withSelfRel());
+
         return new ResponseEntity<>(certificateView, HttpStatus.OK);
     }
 
     @JsonView(CertificateView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CertificateView>> getCertificates(@RequestParam(required = false) String tag,
-                                                                 @RequestParam(required = false) String search,
-                                                                 @RequestParam(required = false) String sort) {
-        List<Certificate> certificates = certificateService.getCertificates(tag, search, sort);
+    public ResponseEntity<CollectionModel<CertificateView>> getCertificates(@RequestParam(required = false) String tag,
+                                                                            @RequestParam(required = false) String search,
+                                                                            @RequestParam(required = false) String sort,
+                                                                            @RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
+                                                                            @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+        List<Certificate> certificates = certificateService.getCertificates(tag, search, sort, pageNumber, pageSize);
         List<CertificateView> certificateView = CertificateView.createListForm(certificates);
 
-        return new ResponseEntity<>(certificateView, HttpStatus.OK);
+        Link link = linkTo(methodOn(CertificateController.class).getCertificates(tag, search, sort, pageNumber, pageSize)).withSelfRel();
+
+        return new ResponseEntity<>(CollectionModel.of(certificateView, link), HttpStatus.OK);
     }
 
     @JsonView(CertificateView.Views.V1.class)
-    @GetMapping(path = "/search",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CertificateView>> getCertificatesByTags(@RequestParam List<String> names) {
-        List<Certificate> certificates = certificateService.getCertificatesByTags(names);
+    @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CollectionModel<CertificateView>> getCertificatesByTags(@RequestParam List<String> names,
+                                                                                  @RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
+                                                                                  @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+        List<Certificate> certificates = certificateService.getCertificatesByTags(names, pageNumber, pageSize);
         List<CertificateView> certificateView = CertificateView.createListForm(certificates);
 
-        return new ResponseEntity<>(certificateView, HttpStatus.OK);
+        Link link = linkTo(methodOn(CertificateController.class).getCertificatesByTags(names, pageNumber, pageSize)).withSelfRel();
+
+        return new ResponseEntity<>(CollectionModel.of(certificateView, link), HttpStatus.OK);
     }
 }

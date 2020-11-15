@@ -7,6 +7,7 @@ import com.epam.esm.domain.Tag;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
+import com.epam.esm.util.OffsetCalculator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +44,8 @@ public class CertificateServiceImpl implements CertificateService {
      */
     private final TagService tagService;
 
+    private final OffsetCalculator offsetCalculator;
+
     /**
      * Logger for this service
      */
@@ -59,16 +62,18 @@ public class CertificateServiceImpl implements CertificateService {
      * @param tagDao               dao for this server
      * @param certificateValidator validator for this service
      * @param tagService           service for this service
+     * @param offsetCalculator
      */
     @Autowired
     public CertificateServiceImpl(CertificateDao certificateDao,
                                   TagDao tagDao,
                                   CertificateValidator certificateValidator,
-                                  TagService tagService) {
+                                  TagService tagService, OffsetCalculator offsetCalculator) {
         this.certificateDao = certificateDao;
         this.tagDao = tagDao;
         this.certificateValidator = certificateValidator;
         this.tagService = tagService;
+        this.offsetCalculator = offsetCalculator;
     }
 
     /**
@@ -223,19 +228,20 @@ public class CertificateServiceImpl implements CertificateService {
      */
     @Transactional(readOnly = true)
     @Override
-    public List<Certificate> getCertificates(String name, String search, String sort) {
+    public List<Certificate> getCertificates(String name, String search, String sort, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates.");
-
+        Integer offset = offsetCalculator.calculate(pageNumber, pageSize);
         Boolean sortAsc = isSortAsc(sort);
         String sortField = getSortField(sort);
 
-        return certificateDao.getCertificates(name, search, sortAsc, sortField);
+        return certificateDao.getCertificates(name, search, sortAsc, sortField, offset, pageSize);
     }
 
     @Override
-    public List<Certificate> getCertificatesByTags(List<String> tagNames) {
+    public List<Certificate> getCertificatesByTags(List<String> tagNames, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates by tags' names.");
-        return certificateDao.getCertificatesByTags(tagNames);
+        Integer offset = offsetCalculator.calculate(pageNumber, pageSize);
+        return certificateDao.getCertificatesByTags(tagNames, offset, pageSize);
     }
 
     private Boolean isSortAsc(String sort) {

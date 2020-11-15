@@ -8,9 +8,9 @@ import java.util.List;
 public interface OrderService {
     Order getOrderById(Long idOrder);
 
-    List<Order> getOrders();
+    List<Order> getOrders(Integer pageNumber, Integer pageSize);
 
-    List<Order> getOrdersByUserId(Long idUser);
+    List<Order> getOrdersByUserId(Long idUser, Integer pageNumber, Integer pageSize);
 
     Order getDataByUserId(Long idUser, Long idOrder);
 

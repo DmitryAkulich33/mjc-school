@@ -1,15 +1,26 @@
 package com.epam.esm.view;
 
 import com.epam.esm.domain.Order;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class OrderView {
+public class OrderView extends RepresentationModel<OrderView> {
+    private final String content;
+    private static final String ORDERS = "orders";
+
+    @JsonCreator
+    public OrderView(@JsonProperty("content") String content) {
+        this.content = content;
+    }
+
     @JsonView(Views.V1.class)
     private Long id;
 
@@ -31,7 +42,7 @@ public class OrderView {
     }
 
     public static OrderView createForm(Order order) {
-        OrderView orderView = new OrderView();
+        OrderView orderView = new OrderView(ORDERS);
         orderView.setId(order.getId());
         orderView.setPurchaseDate(order.getPurchaseDate());
         orderView.setTotal(order.getTotal());

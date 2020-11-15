@@ -12,17 +12,13 @@ import java.util.stream.Collectors;
 
 @Data
 public class TagView extends RepresentationModel<TagView> {
-//    @JsonView({TagView.Views.V1.class, CertificateView.Views.V1.class, OrderView.Views.V1.class})
-//    private final String content;
-//
-//    @JsonCreator
-//    public TagView(@JsonProperty("content") String content) {
-//        this.content = content;
-//    }
-//
-//    public String getContent() {
-//        return content;
-//    }
+    private final String content;
+    private static final String TAGS = "tags";
+
+    @JsonCreator
+    public TagView(@JsonProperty("content") String content) {
+        this.content = content;
+    }
 
     @JsonView({TagView.Views.V1.class, CertificateView.Views.V1.class, OrderView.Views.V1.class})
     private Long id;
@@ -41,7 +37,7 @@ public class TagView extends RepresentationModel<TagView> {
     }
 
     public static TagView createForm(Tag tag) {
-        TagView view = new TagView();
+        TagView view = new TagView(TAGS);
         view.setId(tag.getId());
         view.setName(tag.getName());
         return view;
