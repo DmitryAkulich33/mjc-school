@@ -44,6 +44,9 @@ public class CertificateServiceImpl implements CertificateService {
      */
     private final TagService tagService;
 
+    /**
+     * Offset's calculator for this service
+     */
     private final OffsetCalculator offsetCalculator;
 
     /**
@@ -62,12 +65,10 @@ public class CertificateServiceImpl implements CertificateService {
      * @param tagDao               dao for this server
      * @param certificateValidator validator for this service
      * @param tagService           service for this service
-     * @param offsetCalculator
+     * @param offsetCalculator     offset's calculator for this service
      */
     @Autowired
-    public CertificateServiceImpl(CertificateDao certificateDao,
-                                  TagDao tagDao,
-                                  CertificateValidator certificateValidator,
+    public CertificateServiceImpl(CertificateDao certificateDao, TagDao tagDao, CertificateValidator certificateValidator,
                                   TagService tagService, OffsetCalculator offsetCalculator) {
         this.certificateDao = certificateDao;
         this.tagDao = tagDao;
@@ -111,7 +112,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     /**
-     * Update certificate
+     * Update part of certificate
      *
      * @param certificate   certificate
      * @param idCertificate certificate
@@ -139,6 +140,13 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateDao.updateCertificate(certificateToUpdate);
     }
 
+    /**
+     * Update whole certificate
+     *
+     * @param certificate   certificate
+     * @param idCertificate certificate
+     * @return certificate
+     */
     @Transactional
     @Override
     public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
@@ -221,26 +229,36 @@ public class CertificateServiceImpl implements CertificateService {
     /**
      * Get certificates with params
      *
-     * @param name   tag's name
-     * @param search a word or part of a word to search
-     * @param sort   field and kind of sort
+     * @param name       tag's name
+     * @param search     a word or part of a word to search
+     * @param sort       field and kind of sort
+     * @param pageNumber page number
+     * @param pageSize   page size
      * @return list of certificates
      */
     @Transactional(readOnly = true)
     @Override
     public List<Certificate> getCertificates(String name, String search, String sort, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates.");
-        Integer offset = offsetCalculator.calculate(pageNumber, pageSize);
+        Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
         Boolean sortAsc = isSortAsc(sort);
         String sortField = getSortField(sort);
 
         return certificateDao.getCertificates(name, search, sortAsc, sortField, offset, pageSize);
     }
 
+    /**
+     * Get certificates by tags
+     *
+     * @param tagNames   list of tag's name
+     * @param pageNumber page number
+     * @param pageSize   page size
+     * @return list of certificates
+     */
     @Override
     public List<Certificate> getCertificatesByTags(List<String> tagNames, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates by tags' names.");
-        Integer offset = offsetCalculator.calculate(pageNumber, pageSize);
+        Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
         return certificateDao.getCertificatesByTags(tagNames, offset, pageSize);
     }
 

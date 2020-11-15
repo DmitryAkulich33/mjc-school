@@ -29,6 +29,9 @@ public class TagServiceImpl implements TagService {
      */
     private final TagValidator tagValidator;
 
+    /**
+     * Offset's calculator for this service
+     */
     private final OffsetCalculator offsetCalculator;
 
     /**
@@ -41,7 +44,7 @@ public class TagServiceImpl implements TagService {
      *
      * @param tagDao           dao for this service
      * @param tagValidator     validator for this service
-     * @param offsetCalculator
+     * @param offsetCalculator offset's calculator for this service
      */
     @Autowired
     public TagServiceImpl(TagDao tagDao, TagValidator tagValidator, OffsetCalculator offsetCalculator) {
@@ -94,12 +97,14 @@ public class TagServiceImpl implements TagService {
     /**
      * Get all tags
      *
+     * @param pageNumber page number
+     * @param pageSize   page size
      * @return list of tags
      */
     @Override
     public List<Tag> getTags(Integer pageNumber, Integer pageSize) {
         log.debug("Service: search all tags.");
-        Integer offset = offsetCalculator.calculate(pageNumber, pageSize);
+        Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
         return tagDao.getTags(offset, pageSize);
     }
 
@@ -108,6 +113,7 @@ public class TagServiceImpl implements TagService {
      *
      * @param tags          list of tags
      * @param idCertificate certificate's id
+     * @return list of tags
      */
     @Transactional
     @Override

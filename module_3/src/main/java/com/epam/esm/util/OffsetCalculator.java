@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class OffsetCalculator {
 
-    public Integer calculate(int pageNumber, int pageSize) {
+    public Integer calculateOffset(Integer pageNumber, Integer pageSize) {
         return (pageNumber - 1) * pageSize;
     }
 }
