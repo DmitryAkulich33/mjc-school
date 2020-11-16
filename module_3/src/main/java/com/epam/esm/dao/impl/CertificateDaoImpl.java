@@ -30,7 +30,6 @@ public class CertificateDaoImpl implements CertificateDao {
         this.entityManager = entityManager;
     }
 
-    @Transactional
     @PrePersist
     @Override
     public Certificate createCertificate(Certificate certificate) {

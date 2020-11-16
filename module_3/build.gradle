@@ -8,16 +8,14 @@ repositories {
     jcenter()
 }
 
+configurations {
+    all*.exclude module : 'spring-boot-starter-logging'
+}
+
 dependencies {
-    implementation ('org.springframework.boot:spring-boot-starter-web') {
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-    }
-    implementation ('org.springframework.boot:spring-boot-starter-jdbc'){
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-    }
-    implementation ('org.springframework.boot:spring-boot-starter-data-jpa'){
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-    }
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'mysql:mysql-connector-java:8.0.17'
@@ -26,14 +24,12 @@ dependencies {
     implementation 'org.hibernate:hibernate-jpamodelgen:6.0.0.Alpha6'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
-    annotationProcessor('org.hibernate:hibernate-jpamodelgen:6.0.0.Alpha6')
+    annotationProcessor 'org.hibernate:hibernate-jpamodelgen:6.0.0.Alpha6'
 
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.6.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.6.0'
+    testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
 }
 
 test {
@@ -43,7 +39,6 @@ test {
 tasks.withType(JavaCompile) {
     options.annotationProcessorGeneratedSourcesDirectory = file("src/generated/java")
 }
-
 
 sourceSets {
     generated {

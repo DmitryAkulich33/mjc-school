@@ -1,18 +1,17 @@
 package com.epam.esm.domain;
 
 import com.epam.esm.dao.audit.AuditTagListener;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
 
+@Data
 @EntityListeners(AuditTagListener.class)
-@Getter
-@Setter
-@ToString(of = {"id", "name", "lock"})
-@EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString(exclude = "certificates")
+@EqualsAndHashCode(exclude = "certificates")
 @Entity(name = "tag")
 public class Tag {
     @Id

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CertificateValidatorTest {
     private static final Long CORRECT_CERTIFICATE_ID = 1L;
@@ -60,8 +60,6 @@ class CertificateValidatorTest {
         });
     }
 
-
-
     @Test
     public void testValidateCertificate() {
         certificate.setName(CORRECT_CERTIFICATE_NAME);
@@ -84,5 +82,4 @@ class CertificateValidatorTest {
             certificateValidator.validateCertificate(certificate);
         });
     }
-
 }

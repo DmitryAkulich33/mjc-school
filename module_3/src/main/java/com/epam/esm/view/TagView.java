@@ -4,15 +4,19 @@ import com.epam.esm.domain.Tag;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Data;
+import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class TagView extends RepresentationModel<TagView> {
-    private final String content;
+    private String content;
     private static final String TAGS = "tags";
 
     @JsonCreator

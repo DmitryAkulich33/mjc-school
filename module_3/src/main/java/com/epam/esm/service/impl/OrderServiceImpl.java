@@ -142,6 +142,8 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public Order makeOrder(Long idUser, List<Certificate> certificatesFromQuery) {
+        log.debug("Service: make order.");
+        userValidator.validateUserId(idUser);
         List<Certificate> certificates = getCertificates(certificatesFromQuery);
         double total = getTotal(certificates);
         Order order = new Order();

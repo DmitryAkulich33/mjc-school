@@ -1,1 +1,1 @@
-DROP TABLE tag, certificate, tag_certificate
+DROP TABLE tag, certificate, tag_certificate;

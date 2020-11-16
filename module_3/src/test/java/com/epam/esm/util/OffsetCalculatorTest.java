@@ -14,7 +14,6 @@ class OffsetCalculatorTest {
 
     private OffsetCalculator offsetCalculator;
 
-
     @BeforeEach
     public void setUp() {
         offsetCalculator = new OffsetCalculator();

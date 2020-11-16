@@ -1,16 +1,15 @@
 package com.epam.esm.domain;
 
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Getter
-@Setter
-@ToString(of = {"id", "name", "surname", "lock"})
-@EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@ToString(exclude = "orders")
+@EqualsAndHashCode(exclude = "orders")
 @Entity(name = "user")
 public class User {
     @Id

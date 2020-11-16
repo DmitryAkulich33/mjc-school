@@ -2,19 +2,18 @@ package com.epam.esm.domain;
 
 import com.epam.esm.dao.audit.AuditOrderListener;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
 @EntityListeners(AuditOrderListener.class)
-@Getter
-@Setter
-@ToString(of = {"id", "purchaseDate", "total", "user", "lock"})
-@EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString(exclude = "certificates")
+@EqualsAndHashCode(exclude = "certificates")
 @Entity(name = "orders")
 public class Order {
     @Id

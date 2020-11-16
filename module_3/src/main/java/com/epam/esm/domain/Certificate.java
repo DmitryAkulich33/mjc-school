@@ -2,19 +2,18 @@ package com.epam.esm.domain;
 
 import com.epam.esm.dao.audit.AuditCertificateListener;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
 @EntityListeners(AuditCertificateListener.class)
-@Getter
-@Setter
-@ToString(of = {"id", "name", "description", "price", "duration", "createDate"})
-@EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString(exclude = {"tags", "orders"})
+@EqualsAndHashCode(exclude = {"tags", "orders"})
 @Entity(name = "certificate")
 public class Certificate {
     @Id

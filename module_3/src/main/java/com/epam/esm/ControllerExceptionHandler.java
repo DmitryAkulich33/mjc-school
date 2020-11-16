@@ -1,6 +1,9 @@
 package com.epam.esm;
 
 import com.epam.esm.exceptions.*;
+import com.epam.esm.service.impl.CertificateServiceImpl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,8 @@ import java.util.ResourceBundle;
 @ControllerAdvice
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     private final ResourceBundle labels = ResourceBundle.getBundle("messages");
+
+    private static Logger log = LogManager.getLogger(CertificateServiceImpl.class);
 
     @ExceptionHandler(TagValidatorException.class)
     public ResponseEntity<Object> handleTagValidatorException(TagValidatorException exception) {
@@ -118,13 +123,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
                 ErrorCode.DAO_ERROR_CODE.getErrorCode());
         String message = exception.getMessage();
         ExceptionResponse error = new ExceptionResponse(message, errorCode);
-        logger.error(message, exception);
+        log.error(message, exception);
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<Object> getResponseEntity(Exception exception, String errorCode, HttpStatus httpStatus) {
         String message = labels.getString(exception.getMessage());
-        logger.error(message, exception);
+        log.error(message, exception);
         ExceptionResponse error = new ExceptionResponse(message, errorCode);
         return new ResponseEntity<>(error, new HttpHeaders(), httpStatus);
     }

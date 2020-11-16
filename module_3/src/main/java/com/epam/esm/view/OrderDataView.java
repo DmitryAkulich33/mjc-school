@@ -4,14 +4,18 @@ import com.epam.esm.domain.Order;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Data;
+import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderDataView extends RepresentationModel<OrderDataView> {
-    private final String content;
+    private String content;
     private static final String ORDERS = "orders";
 
     @JsonCreator
