@@ -3,7 +3,6 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.config.DbConfig;
 import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.User;
-import com.epam.esm.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +15,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -62,16 +59,9 @@ class UserDaoImplTest {
     public void testGetUserById() {
         User expected = user1;
 
-        User actual = userDao.getUserById(CORRECT_ID_1);
+        User actual = userDao.getUserById(CORRECT_ID_1).get();
 
         Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testGetUserById_UserNotFoundException() {
-        assertThrows(UserNotFoundException.class, () -> {
-            userDao.getUserById(WRONG_ID);
-        });
     }
 
     @Test

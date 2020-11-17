@@ -77,12 +77,12 @@ class CertificateDaoImplTest {
         certificateUpdate.setDuration(365);
     }
 
-    @Test
-    public void testGetCertificateById() {
-        Certificate actual = certificateDao.getCertificateById(CORRECT_ID_1);
-
-        Assertions.assertEquals(certificate1, actual);
-    }
+//    @Test
+//    public void testGetCertificateById() {
+//        Certificate actual = certificateDao.getCertificateById(CORRECT_ID_1);
+//
+//        Assertions.assertEquals(certificate1, actual);
+//    }
 
 //    @Test
 //    public void testCreateCertificate() {

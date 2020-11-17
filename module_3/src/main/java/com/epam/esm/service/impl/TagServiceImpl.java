@@ -2,6 +2,9 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
+import com.epam.esm.domain.User;
+import com.epam.esm.exceptions.TagNotFoundException;
+import com.epam.esm.exceptions.UserNotFoundException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.util.TagValidator;
@@ -11,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,7 +77,7 @@ public class TagServiceImpl implements TagService {
     public void deleteTag(Long idTag) {
         log.debug(String.format("Service: deletion tag by id  %d", idTag));
         tagValidator.validateTagId(idTag);
-        tagDao.getTagById(idTag);
+        getTagById(idTag);
         tagDao.deleteTag(idTag);
     }
 
@@ -91,7 +91,12 @@ public class TagServiceImpl implements TagService {
     public Tag getTagById(Long idTag) {
         log.debug(String.format("Service: search tag by id %d", idTag));
         tagValidator.validateTagId(idTag);
-        return tagDao.getTagById(idTag);
+        Optional<Tag> tag = tagDao.getTagById(idTag);
+        if(tag.isPresent()){
+            return tag.get();
+        } else {
+            throw new TagNotFoundException("message.wrong_tag_id");
+        }
     }
 
     /**
@@ -111,7 +116,7 @@ public class TagServiceImpl implements TagService {
     /**
      * Update tag
      *
-     * @param tags          list of tags
+     * @param tags list of tags
      * @return list of tags
      */
     @Transactional
@@ -119,13 +124,11 @@ public class TagServiceImpl implements TagService {
     public List<Tag> updateTags(List<Tag> tags) {
         log.debug("Service: update tags in certificate");
         List<Tag> tagsToUpdate = new ArrayList<>();
-
-//        List<Tag> tagsFromDB = tagDao.getTags();
         Set<Tag> uniqueTags = new HashSet<>(tags);
         for (Tag tag : uniqueTags) {
             String nameTag = tag.getName();
-            if(tagDao.getTagByName(nameTag) != null){
-                Tag currentTag = tagDao.getTagByName(nameTag);
+            if (tagDao.getTagByName(nameTag).isPresent()) {
+                Tag currentTag = tagDao.getTagByName(nameTag).get();
                 tagsToUpdate.add(currentTag);
             } else {
                 Tag tagToCreate = new Tag();
@@ -133,15 +136,6 @@ public class TagServiceImpl implements TagService {
                 Tag createdTag = tagDao.createTag(tagToCreate);
                 tagsToUpdate.add(createdTag);
             }
-//            if (isNewTag(tagsFromDB, nameTag)) {
-//                Tag tagToCreate = new Tag();
-//                tagToCreate.setName(nameTag);
-//                Tag createdTag = tagDao.createTag(tagToCreate);
-//                tagsToUpdate.add(createdTag);
-//            } else {
-//                Tag currentTag = tagDao.getTagByName(nameTag);
-//                tagsToUpdate.add(currentTag);
-//            }
         }
         return tagsToUpdate;
     }

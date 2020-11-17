@@ -8,7 +8,6 @@ import com.epam.esm.domain.Tag_;
 import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.exceptions.CertificateDuplicateException;
 import com.epam.esm.exceptions.CertificateNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,19 +15,20 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CertificateDaoImpl implements CertificateDao {
     @PersistenceContext
-    private final EntityManager entityManager;
+    private EntityManager entityManager;
 
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
 
-    @Autowired
-    public CertificateDaoImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+//    @Autowired
+//    public CertificateDaoImpl(EntityManager entityManager) {
+//        this.entityManager = entityManager;
+//    }
 
     @PrePersist
     @Override
@@ -61,7 +61,7 @@ public class CertificateDaoImpl implements CertificateDao {
     }
 
     @Override
-    public Certificate getCertificateById(Long id) {
+    public Optional<Certificate> getCertificateById(Long id) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
@@ -69,11 +69,9 @@ public class CertificateDaoImpl implements CertificateDao {
                 criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
 
         try {
-            return entityManager.createQuery(criteriaQuery).getSingleResult();
-        } catch (IllegalArgumentException e) {
+            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new CertificateDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new CertificateNotFoundException("message.wrong_certificate_id", e);
         }
     }
 

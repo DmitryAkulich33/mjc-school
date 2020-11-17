@@ -2,12 +2,12 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.OrderDao;
 import com.epam.esm.dao.UserDao;
-import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Order;
 import com.epam.esm.exceptions.OrderDaoException;
 import com.epam.esm.exceptions.OrderNotFoundException;
 import com.epam.esm.exceptions.OrderValidatorException;
 import com.epam.esm.exceptions.UserValidatorException;
+import com.epam.esm.service.UserService;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.util.OrderValidator;
 import com.epam.esm.util.UserValidator;
@@ -17,8 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,6 +43,8 @@ class OrderServiceImplTest {
     private UserValidator mockUserValidator;
     @Mock
     private OffsetCalculator mockOffsetCalculator;
+    @Mock
+    private UserService mockUserService;
 
     @InjectMocks
     private OrderServiceImpl orderServiceImpl;
@@ -71,7 +73,7 @@ class OrderServiceImplTest {
     public void testGetOrderById() {
         Order expected = mock(Order.class);
 
-        when(mockOrderDao.getOrderById(ID)).thenReturn(expected);
+        when(mockOrderDao.getOrderById(ID)).thenReturn(Optional.ofNullable(expected));
 
         Order actual = orderServiceImpl.getOrderById(ID);
 
@@ -80,18 +82,10 @@ class OrderServiceImplTest {
         verify(mockOrderDao).getOrderById(ID);
     }
 
-    @Test
-    public void testGetOrderById_OrderNotFoundException() {
-        when(mockOrderDao.getOrderById(ID)).thenThrow(new OrderNotFoundException());
-
-        assertThrows(OrderNotFoundException.class, () -> {
-            orderServiceImpl.getOrderById(ID);
-        });
-    }
 
     @Test
     public void testGetOrderById_OrderValidatorException() {
-        when(mockOrderDao.getOrderById(ID)).thenThrow(new OrderValidatorException());
+        doThrow(OrderValidatorException.class).when(mockOrderValidator).validateOrderId(ID);
 
         assertThrows(OrderValidatorException.class, () -> {
             orderServiceImpl.getOrderById(ID);
@@ -117,18 +111,16 @@ class OrderServiceImplTest {
     }
 
     @Test
-    public void testGetDataByUserId_OrderNotFoundException() {
-        when(mockOrderDao.getDataByUserId(ID, ID)).thenThrow(new OrderNotFoundException());
-
-        assertThrows(OrderNotFoundException.class, () -> {
+    public void testGetDataByUserId_UserValidatorException() {
+        doThrow(UserValidatorException.class).when(mockUserValidator).validateUserId(ID);
+        assertThrows(UserValidatorException.class, () -> {
             orderServiceImpl.getDataByUserId(ID, ID);
         });
     }
 
     @Test
     public void testGetDataByUserId_OrderValidatorException() {
-        when(mockOrderDao.getDataByUserId(ID, ID)).thenThrow(new OrderValidatorException());
-
+        doThrow(OrderValidatorException.class).when(mockOrderValidator).validateOrderId(ID);
         assertThrows(OrderValidatorException.class, () -> {
             orderServiceImpl.getDataByUserId(ID, ID);
         });
@@ -136,10 +128,17 @@ class OrderServiceImplTest {
 
     @Test
     public void testGetDataByUserId() {
-        orderServiceImpl.getDataByUserId(ID, ID);
+        Order expected = mock(Order.class);
+
+        when(mockOrderDao.getDataByUserId(ID, ID)).thenReturn(Optional.ofNullable(expected));
+
+        Order actual = orderServiceImpl.getDataByUserId(ID, ID);
+
+        assertEquals(expected, actual);
 
         verify(mockUserValidator).validateUserId(ID);
         verify(mockOrderValidator).validateOrderId(ID);
+        verify(mockUserService).getUserById(ID);
         verify(mockOrderDao).getDataByUserId(ID, ID);
     }
 
@@ -177,15 +176,5 @@ class OrderServiceImplTest {
         assertThrows(OrderDaoException.class, () -> {
             orderServiceImpl.getOrdersByUserId(ID, PAGE_NUMBER, PAGE_SIZE);
         });
-    }
-
-    @Test
-    public void testMakeOrder() {
-        List<Certificate> certificates = new ArrayList<>();
-
-        orderServiceImpl.makeOrder(ID, certificates);
-
-        verify(mockUserValidator).validateUserId(ID);
-        verify(mockUserDao).getUserById(ID);
     }
 }

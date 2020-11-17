@@ -4,8 +4,6 @@ import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.User;
 import com.epam.esm.domain.User_;
 import com.epam.esm.exceptions.UserDaoException;
-import com.epam.esm.exceptions.UserNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -15,32 +13,30 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserDaoImpl implements UserDao {
     @PersistenceContext
-    private final EntityManager entityManager;
+    private EntityManager entityManager;
 
     private static final Integer LOCK_VALUE_0 = 0;
 
-    @Autowired
-    public UserDaoImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+//    @Autowired
+//    public UserDaoImpl(EntityManager entityManager) {
+//        this.entityManager = entityManager;
+//    }
 
     @Override
-    public User getUserById(Long idUser) {
+    public Optional<User> getUserById(Long idUser) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
         criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(User_.id), idUser));
-
         try {
-            return entityManager.createQuery(criteriaQuery).getSingleResult();
-        } catch (IllegalArgumentException e) {
+            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new UserDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new UserNotFoundException("message.wrong_user_id", e);
         }
     }
 

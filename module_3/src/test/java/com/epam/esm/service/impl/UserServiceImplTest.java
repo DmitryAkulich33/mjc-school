@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +35,7 @@ class UserServiceImplTest {
     private UserValidator mockUserValidator;
     @Mock
     private OffsetCalculator mockOffsetCalculator;
+
 
     @InjectMocks
     private UserServiceImpl userServiceImpl;
@@ -62,7 +64,7 @@ class UserServiceImplTest {
     public void testGetUserById() {
         User expected = mock(User.class);
 
-        when(mockUserDao.getUserById(USER_ID)).thenReturn(expected);
+        when(mockUserDao.getUserById(USER_ID)).thenReturn(Optional.of(expected));
 
         User actual = userServiceImpl.getUserById(USER_ID);
 
@@ -73,7 +75,7 @@ class UserServiceImplTest {
 
     @Test
     public void testGetUserById_UserNotFoundException() {
-        when(mockUserDao.getUserById(USER_ID)).thenThrow(new UserNotFoundException());
+        when(mockUserDao.getUserById(USER_ID)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> {
             userServiceImpl.getUserById(USER_ID);
@@ -82,7 +84,7 @@ class UserServiceImplTest {
 
     @Test
     public void testGetUserById_UserValidatorException() {
-        when(mockUserDao.getUserById(USER_ID)).thenThrow(new UserValidatorException());
+        doThrow(UserValidatorException.class).when(mockUserValidator).validateUserId(USER_ID);
 
         assertThrows(UserValidatorException.class, () -> {
             userServiceImpl.getUserById(USER_ID);
@@ -90,7 +92,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    public void testGetTagById_UserDaoException() {
+    public void testGetUsrById_UserDaoException() {
         when(mockUserDao.getUserById(USER_ID)).thenThrow(new UserDaoException());
 
         assertThrows(UserDaoException.class, () -> {

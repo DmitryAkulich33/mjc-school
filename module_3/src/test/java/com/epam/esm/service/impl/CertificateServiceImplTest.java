@@ -7,6 +7,7 @@ import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.exceptions.CertificateDuplicateException;
 import com.epam.esm.exceptions.CertificateNotFoundException;
 import com.epam.esm.exceptions.CertificateValidatorException;
+import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
 import com.epam.esm.util.OffsetCalculator;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,52 +49,19 @@ class CertificateServiceImplTest {
     private Certificate mockCertificate;
     @Mock
     private List<String> tagNames;
+    @Mock
+    private TagService tagService;
 
 
     @InjectMocks
     private CertificateServiceImpl certificateServiceImpl;
 
-    @Test
-    public void testDeleteCertificateById() {
-        certificateServiceImpl.deleteCertificate(CERTIFICATE_ID);
-
-        verify(mockCertificateValidator).validateCertificateId(CERTIFICATE_ID);
-        verify(mockCertificateDao).getCertificateById(CERTIFICATE_ID);
-        verify(mockCertificateDao).deleteCertificate(CERTIFICATE_ID);
-    }
-
-    @Test
-    public void testDeleteCertificateById_CertificateDaoException() {
-        doThrow(new CertificateDaoException()).when(mockCertificateDao).deleteCertificate(CERTIFICATE_ID);
-
-        assertThrows(CertificateDaoException.class, () -> {
-            certificateServiceImpl.deleteCertificate(CERTIFICATE_ID);
-        });
-    }
-
-    @Test
-    public void testDeleteCertificateById_CertificateValidatorException() {
-        doThrow(new CertificateValidatorException()).when(mockCertificateDao).deleteCertificate(CERTIFICATE_ID);
-
-        assertThrows(CertificateValidatorException.class, () -> {
-            certificateServiceImpl.deleteCertificate(CERTIFICATE_ID);
-        });
-    }
-
-    @Test
-    public void testDeleteCertificateById_CertificateNotFoundException() {
-        doThrow(new CertificateNotFoundException()).when(mockCertificateDao).deleteCertificate(CERTIFICATE_ID);
-
-        assertThrows(CertificateNotFoundException.class, () -> {
-            certificateServiceImpl.deleteCertificate(CERTIFICATE_ID);
-        });
-    }
 
     @Test
     public void testGetCertificateById() {
         Certificate expected = mock(Certificate.class);
 
-        when(mockCertificateDao.getCertificateById(CERTIFICATE_ID)).thenReturn(expected);
+        when(mockCertificateDao.getCertificateById(CERTIFICATE_ID)).thenReturn(Optional.ofNullable(expected));
 
         Certificate actual = certificateServiceImpl.getCertificateById(CERTIFICATE_ID);
 

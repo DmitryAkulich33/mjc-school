@@ -2,25 +2,18 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.config.DbConfig;
 import com.epam.esm.dao.TagDao;
-import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.TagNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -40,6 +33,7 @@ class TagDaoImplTest {
     private Tag tag2;
     private Tag tagFromQuery;
     private Tag tagFromDb;
+
 
     @Autowired
     private TagDao tagDao;
@@ -65,19 +59,35 @@ class TagDaoImplTest {
         tagFromDb.setLock(TAG_LOCK);
     }
 
-    @Test
-    public void testGetTagById() {
-        Tag expected = tag1;
+//    @Test
+//    public void testGetTagById() {
+//        Tag expected = tag1;
+//
+//        Tag actual = tagDao.getTagById(CORRECT_ID_1);
+//
+//        Assertions.assertEquals(expected, actual);
+//    }
 
-        Tag actual = tagDao.getTagById(CORRECT_ID_1);
+//    @Test
+//    public void testGetTagById_TagNotFoundException() {
+//        assertThrows(TagNotFoundException.class, () -> {
+//            tagDao.getTagById(WRONG_ID);
+//        });
+//    }
+//
+//    @Test
+//    public void testCreateTag() {
+//        Tag tagForCreate = new Tag();
+//        tagForCreate.setName("new");
+//
+//        Tag actual = tagDao.createTag(tagForCreate);
+//
+//        Tag expected = new Tag();
+//        expected.setId(3L);
+//        expected.setName("new");
+//        expected.setLock(0);
+//
+//        Assertions.assertEquals(expected, actual);
+//    }
 
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testGetTagById_TagNotFoundException() {
-        assertThrows(TagNotFoundException.class, () -> {
-            tagDao.getTagById(WRONG_ID);
-        });
-    }
 }

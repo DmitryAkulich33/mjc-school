@@ -10,11 +10,9 @@ public interface TagDao {
 
     void deleteTag(Long idTag);
 
-    Tag getTagById(Long idTag);
+    Optional<Tag> getTagById(Long idTag);
 
-    Tag getTagByName(String nameTag);
+    Optional<Tag> getTagByName(String name);
 
     List<Tag> getTags(Integer offset, Integer pageSize);
-
-    List<Tag> getTags();
 }

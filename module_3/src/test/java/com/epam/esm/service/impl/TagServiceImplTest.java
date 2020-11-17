@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,47 +40,12 @@ class TagServiceImplTest {
     @InjectMocks
     private TagServiceImpl tagServiceImpl;
 
-    @Test
-    public void testDeleteTagById() {
-        tagServiceImpl.deleteTag(TAG_ID);
-
-        verify(mockTagValidator).validateTagId(TAG_ID);
-        verify(mockTagDao).getTagById(TAG_ID);
-        verify(mockTagDao).deleteTag(TAG_ID);
-    }
-
-    @Test
-    public void testDeleteTagById_TagNotFoundException() {
-        doThrow(new TagNotFoundException()).when(mockTagDao).deleteTag(TAG_ID);
-
-        assertThrows(TagNotFoundException.class, () -> {
-            tagServiceImpl.deleteTag(TAG_ID);
-        });
-    }
-
-    @Test
-    public void testDeleteTagById_TagDaoException() {
-        doThrow(new TagDaoException()).when(mockTagDao).deleteTag(TAG_ID);
-
-        assertThrows(TagDaoException.class, () -> {
-            tagServiceImpl.deleteTag(TAG_ID);
-        });
-    }
-
-    @Test
-    public void testDeleteTagById_TagValidatorException() {
-        doThrow(new TagValidatorException()).when(mockTagDao).deleteTag(TAG_ID);
-
-        assertThrows(TagValidatorException.class, () -> {
-            tagServiceImpl.deleteTag(TAG_ID);
-        });
-    }
 
     @Test
     public void testGetTagById() {
         Tag expected = mock(Tag.class);
 
-        when(mockTagDao.getTagById(TAG_ID)).thenReturn(expected);
+        when(mockTagDao.getTagById(TAG_ID)).thenReturn(Optional.ofNullable(expected));
 
         Tag actual = tagServiceImpl.getTagById(TAG_ID);
 
@@ -90,7 +56,7 @@ class TagServiceImplTest {
 
     @Test
     public void testGetTagById_TagNotFoundException() {
-        when(mockTagDao.getTagById(TAG_ID)).thenThrow(new TagNotFoundException());
+        when(mockTagDao.getTagById(TAG_ID)).thenReturn(Optional.empty());
 
         assertThrows(TagNotFoundException.class, () -> {
             tagServiceImpl.getTagById(TAG_ID);
@@ -99,7 +65,7 @@ class TagServiceImplTest {
 
     @Test
     public void testGetTagById_TagValidatorException() {
-        when(mockTagDao.getTagById(TAG_ID)).thenThrow(new TagValidatorException());
+        doThrow(new TagValidatorException()).when(mockTagValidator).validateTagId(TAG_ID);
 
         assertThrows(TagValidatorException.class, () -> {
             tagServiceImpl.getTagById(TAG_ID);
@@ -116,7 +82,16 @@ class TagServiceImplTest {
     }
 
     @Test
-    public void testGetTagsWithParams() {
+    public void testDeleteTagById_TagValidatorException() {
+        doThrow(new TagValidatorException()).when(mockTagValidator).validateTagId(TAG_ID);
+
+        assertThrows(TagValidatorException.class, () -> {
+            tagServiceImpl.deleteTag(TAG_ID);
+        });
+    }
+
+    @Test
+    public void testGetTags() {
         when(mockTagDao.getTags(OFFSET, PAGE_SIZE)).thenReturn(mockTags);
 
         List<Tag> actual = tagServiceImpl.getTags(PAGE_NUMBER, PAGE_SIZE);
@@ -127,7 +102,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    public void testGetTagsWithParams_TagDaoException() {
+    public void testGetTags_TagDaoException() {
         when(mockTagDao.getTags(OFFSET, PAGE_SIZE)).thenThrow(new TagDaoException());
 
         assertThrows(TagDaoException.class, () -> {

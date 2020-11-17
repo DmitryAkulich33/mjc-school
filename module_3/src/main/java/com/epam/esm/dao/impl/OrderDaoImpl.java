@@ -19,31 +19,30 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class OrderDaoImpl implements OrderDao {
     @PersistenceContext
-    private final EntityManager entityManager;
+    private EntityManager entityManager;
 
     private static final Integer LOCK_VALUE_0 = 0;
 
-    public OrderDaoImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+//    public OrderDaoImpl(EntityManager entityManager) {
+//        this.entityManager = entityManager;
+//    }
 
     @Override
-    public Order getOrderById(Long idOrder) {
+    public Optional<Order> getOrderById(Long idOrder) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
         criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Order_.id), idOrder));
 
         try {
-            return entityManager.createQuery(criteriaQuery).getSingleResult();
-        } catch (IllegalArgumentException e) {
+            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new OrderDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new OrderNotFoundException("message.wrong_order_id", e);
         }
     }
 
@@ -86,7 +85,7 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
-    public Order getDataByUserId(Long idUser, Long idOrder) {
+    public Optional<Order> getDataByUserId(Long idUser, Long idOrder) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> rootOrder = criteriaQuery.from(Order.class);
@@ -99,11 +98,9 @@ public class OrderDaoImpl implements OrderDao {
                 criteriaBuilder.in(rootOrder.get(Order_.user)).value(userSubquery));
 
         try {
-            return entityManager.createQuery(criteriaQuery).getSingleResult();
-        } catch (IllegalArgumentException e) {
+            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new OrderDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new OrderNotFoundException("message.wrong_data", e);
         }
     }
 

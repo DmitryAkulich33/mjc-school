@@ -6,7 +6,6 @@ import com.epam.esm.domain.Tag_;
 import com.epam.esm.exceptions.TagDaoException;
 import com.epam.esm.exceptions.TagDuplicateException;
 import com.epam.esm.exceptions.TagNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +23,15 @@ import java.util.Optional;
 @Repository
 public class TagDaoImpl implements TagDao {
     @PersistenceContext
-    private final EntityManager entityManager;
+    private EntityManager entityManager;
 
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
 
-    @Autowired
-    public TagDaoImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+//    @Autowired
+//    public TagDaoImpl(EntityManager entityManager) {
+//        this.entityManager = entityManager;
+//    }
 
     @Transactional
     @PrePersist
@@ -65,7 +64,7 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public Tag getTagById(Long id) {
+    public Optional<Tag> getTagById(Long id) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
@@ -73,28 +72,25 @@ public class TagDaoImpl implements TagDao {
                 criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
 
         try {
-            return entityManager.createQuery(criteriaQuery).getSingleResult();
-        } catch (IllegalArgumentException e) {
+            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new TagDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new TagNotFoundException("message.wrong_tag_id", e);
         }
     }
 
     @Override
-    public Tag getTagByName(String name) {
-
+    public Optional<Tag> getTagByName(String name) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
         criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Tag_.name), name),
                 criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
         try {
-            return entityManager.createQuery(criteriaQuery).getSingleResult();
+            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
         } catch (IllegalArgumentException e) {
             throw new TagDaoException("message.wrong_data", e);
         } catch (PersistenceException e) {
-            return null;
+            throw new TagNotFoundException("message.wrong_tag_name", e);
         }
     }
 
@@ -109,19 +105,6 @@ public class TagDaoImpl implements TagDao {
                     .setFirstResult(offset)
                     .setMaxResults(pageSize)
                     .getResultList();
-        } catch (IllegalArgumentException e) {
-            throw new TagDaoException("message.wrong_data", e);
-        }
-    }
-
-    @Override
-    public List<Tag> getTags() {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
-        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
-        try {
-            return entityManager.createQuery(criteriaQuery).getResultList();
         } catch (IllegalArgumentException e) {
             throw new TagDaoException("message.wrong_data", e);
         }

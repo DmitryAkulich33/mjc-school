@@ -3,13 +3,14 @@ package com.epam.esm.dao;
 import com.epam.esm.domain.Certificate;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CertificateDao {
     Certificate createCertificate(Certificate certificate);
 
     void deleteCertificate(Long idCertificate);
 
-    Certificate getCertificateById(Long idCertificate);
+    Optional<Certificate> getCertificateById(Long idCertificate);
 
     Certificate updateCertificate(Certificate certificate);
 

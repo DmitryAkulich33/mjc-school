@@ -6,7 +6,10 @@ import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Order;
 import com.epam.esm.domain.User;
+import com.epam.esm.exceptions.OrderNotFoundException;
+import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.OrderService;
+import com.epam.esm.service.UserService;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.util.OrderValidator;
 import com.epam.esm.util.UserValidator;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,6 +55,15 @@ public class OrderServiceImpl implements OrderService {
     private final OffsetCalculator offsetCalculator;
 
     /**
+     * User service for this service
+     */
+    private final UserService userService;
+
+    /**
+     * Certificate service for this service
+     */
+    private final CertificateService certificateService;
+    /**
      * Logger for this service
      */
     private static Logger log = LogManager.getLogger(OrderServiceImpl.class);
@@ -58,21 +71,25 @@ public class OrderServiceImpl implements OrderService {
     /**
      * Constructor - creating a new object
      *
-     * @param orderDao         dao for this server
-     * @param userDao          dao for this server
-     * @param certificateDao   dao for this server
-     * @param orderValidator   validator for this service
-     * @param userValidator    Validator validator for this service
-     * @param offsetCalculator offset's calculator for this service
+     * @param orderDao           dao for this server
+     * @param userDao            dao for this server
+     * @param certificateDao     dao for this server
+     * @param orderValidator     validator for this service
+     * @param userValidator      Validator validator for this service
+     * @param offsetCalculator   offset's calculator for this service
+     * @param userService        user service for this service
+     * @param certificateService Certificate service for this service
      */
     @Autowired
-    public OrderServiceImpl(OrderDao orderDao, UserDao userDao, CertificateDao certificateDao, OrderValidator orderValidator, UserValidator userValidator, OffsetCalculator offsetCalculator) {
+    public OrderServiceImpl(OrderDao orderDao, UserDao userDao, CertificateDao certificateDao, OrderValidator orderValidator, UserValidator userValidator, OffsetCalculator offsetCalculator, UserService userService, CertificateService certificateService) {
         this.orderDao = orderDao;
         this.userDao = userDao;
         this.certificateDao = certificateDao;
         this.orderValidator = orderValidator;
         this.userValidator = userValidator;
         this.offsetCalculator = offsetCalculator;
+        this.userService = userService;
+        this.certificateService = certificateService;
     }
 
     /**
@@ -85,7 +102,12 @@ public class OrderServiceImpl implements OrderService {
     public Order getOrderById(Long idOrder) {
         log.debug(String.format("Service: search order by id %d", idOrder));
         orderValidator.validateOrderId(idOrder);
-        return orderDao.getOrderById(idOrder);
+        Optional<Order> order = orderDao.getOrderById(idOrder);
+        if (order.isPresent()) {
+            return order.get();
+        } else {
+            throw new OrderNotFoundException("message.wrong_order_id");
+        }
     }
 
     /**
@@ -130,7 +152,13 @@ public class OrderServiceImpl implements OrderService {
         log.debug(String.format("Service: search order by id_order %d and id_user %d", idOrder, idUser));
         orderValidator.validateOrderId(idOrder);
         userValidator.validateUserId(idUser);
-        return orderDao.getDataByUserId(idUser, idOrder);
+        userService.getUserById(idUser);
+        Optional<Order> order = orderDao.getDataByUserId(idUser, idOrder);
+        if (order.isPresent()) {
+            return order.get();
+        } else {
+            throw new OrderNotFoundException("message.wrong_order_id");
+        }
     }
 
     /**
@@ -147,7 +175,7 @@ public class OrderServiceImpl implements OrderService {
         List<Certificate> certificates = getCertificates(certificatesFromQuery);
         double total = getTotal(certificates);
         Order order = new Order();
-        User user = userDao.getUserById(idUser);
+        User user = userService.getUserById(idUser);
         order.setCertificates(certificates);
         order.setTotal(total);
         order.setUser(user);
@@ -156,7 +184,7 @@ public class OrderServiceImpl implements OrderService {
 
     private List<Certificate> getCertificates(List<Certificate> certificatesFromQuery) {
         return certificatesFromQuery.stream()
-                .map(certificate -> certificateDao.getCertificateById(certificate.getId()))
+                .map(certificate -> certificateService.getCertificateById(certificate.getId()))
                 .collect(Collectors.toList());
     }
 
