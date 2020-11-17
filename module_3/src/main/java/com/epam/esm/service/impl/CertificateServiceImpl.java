@@ -88,23 +88,34 @@ public class CertificateServiceImpl implements CertificateService {
     public Certificate createCertificate(Certificate certificate) {
         log.debug("Service: creation certificate.");
         certificateValidator.validateCertificate(certificate);
-
-        List<Tag> tagsForCertificate = new ArrayList<>();
-        List<Tag> tagsFromDB = tagDao.getTags();
-        Set<Tag> uniqueTags = new HashSet<>(certificate.getTags());
-
-        for (Tag tag : uniqueTags) {
-            String nameTag = tag.getName();
-            if (tagService.isNewTag(tagsFromDB, nameTag)) {
-                Tag tagToCreate = new Tag();
-                tagToCreate.setName(nameTag);
-                Tag createdTag = tagDao.createTag(tagToCreate);
-                tagsForCertificate.add(createdTag);
-            } else {
-                Tag currentTag = tagDao.getTagByName(nameTag);
-                tagsForCertificate.add(currentTag);
-            }
-        }
+        List<Tag> tagsForCertificate = tagService.updateTags(certificate.getTags());
+//        List<Tag> tagsForCertificate = new ArrayList<>();
+//        List<Tag> tagsFromDB = tagDao.getTags();
+//        Set<Tag> uniqueTags = new HashSet<>(certificate.getTags());
+//        Set<Tag> uniqueTags = new HashSet<>(tags);
+//        for (Tag tag : uniqueTags) {
+//            String nameTag = tag.getName();
+//            if(tagDao.getTagByName(nameTag).isPresent()){
+//                Tag tagToCreate = new Tag();
+//                tagToCreate.setName(nameTag);
+//                Tag createdTag = tagDao.createTag(tagToCreate);
+//                tagsForCertificate.add(createdTag);
+//            } else {
+//                Tag currentTag = tagDao.getTagByName(nameTag).get();
+//                tagsToUpdate.add(currentTag);
+//            }
+//        for (Tag tag : uniqueTags) {
+//            String nameTag = tag.getName();
+//            if (tagService.isNewTag(tagsFromDB, nameTag)) {
+//                Tag tagToCreate = new Tag();
+//                tagToCreate.setName(nameTag);
+//                Tag createdTag = tagDao.createTag(tagToCreate);
+//                tagsForCertificate.add(createdTag);
+//            } else {
+//                Tag currentTag = tagDao.getTagByName(nameTag);
+//                tagsForCertificate.add(currentTag);
+//            }
+//        }
         certificate.setTags(tagsForCertificate);
 
         return certificateDao.createCertificate(certificate);
@@ -128,7 +139,7 @@ public class CertificateServiceImpl implements CertificateService {
         String description = composeCertificateDescription(certificate, certificateToUpdate);
         Double price = composeCertificatePrice(certificate, certificateToUpdate);
         Integer duration = composeCertificateDuration(certificate, certificateToUpdate);
-        List<Tag> tags = composeCertificateTags(certificate, certificateToUpdate, idCertificate);
+        List<Tag> tags = composeCertificateTags(certificate, certificateToUpdate);
 
         certificateToUpdate.setName(name);
         certificateToUpdate.setDescription(description);
@@ -153,7 +164,7 @@ public class CertificateServiceImpl implements CertificateService {
         certificateValidator.validateCertificateId(idCertificate);
         certificateValidator.validateCertificate(certificate);
         Certificate certificateFromDb = certificateDao.getCertificateById(idCertificate);
-        List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags(), idCertificate);
+        List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags());
 
         certificate.setId(certificateFromDb.getId());
         certificate.setCreateDate(certificateFromDb.getCreateDate());
@@ -188,11 +199,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private List<Tag> composeCertificateTags(Certificate certificateFromQuery,
-                                             Certificate certificateToUpdate,
-                                             Long idCertificate) {
+                                             Certificate certificateToUpdate) {
         List<Tag> tags = certificateFromQuery.getTags();
 
-        return tags == null ? certificateToUpdate.getTags() : tagService.updateTags(tags, idCertificate);
+        return tags == null ? certificateToUpdate.getTags() : tagService.updateTags(tags);
     }
 
     /**

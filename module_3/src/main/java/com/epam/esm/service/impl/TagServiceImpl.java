@@ -112,27 +112,36 @@ public class TagServiceImpl implements TagService {
      * Update tag
      *
      * @param tags          list of tags
-     * @param idCertificate certificate's id
      * @return list of tags
      */
     @Transactional
     @Override
-    public List<Tag> updateTags(List<Tag> tags, Long idCertificate) {
-        log.debug(String.format("Service: update tags in certificate with %d", idCertificate));
+    public List<Tag> updateTags(List<Tag> tags) {
+        log.debug("Service: update tags in certificate");
         List<Tag> tagsToUpdate = new ArrayList<>();
-        List<Tag> tagsFromDB = tagDao.getTags();
+
+//        List<Tag> tagsFromDB = tagDao.getTags();
         Set<Tag> uniqueTags = new HashSet<>(tags);
         for (Tag tag : uniqueTags) {
             String nameTag = tag.getName();
-            if (isNewTag(tagsFromDB, nameTag)) {
+            if(tagDao.getTagByName(nameTag) != null){
+                Tag currentTag = tagDao.getTagByName(nameTag);
+                tagsToUpdate.add(currentTag);
+            } else {
                 Tag tagToCreate = new Tag();
                 tagToCreate.setName(nameTag);
                 Tag createdTag = tagDao.createTag(tagToCreate);
                 tagsToUpdate.add(createdTag);
-            } else {
-                Tag currentTag = tagDao.getTagByName(nameTag);
-                tagsToUpdate.add(currentTag);
             }
+//            if (isNewTag(tagsFromDB, nameTag)) {
+//                Tag tagToCreate = new Tag();
+//                tagToCreate.setName(nameTag);
+//                Tag createdTag = tagDao.createTag(tagToCreate);
+//                tagsToUpdate.add(createdTag);
+//            } else {
+//                Tag currentTag = tagDao.getTagByName(nameTag);
+//                tagsToUpdate.add(currentTag);
+//            }
         }
         return tagsToUpdate;
     }

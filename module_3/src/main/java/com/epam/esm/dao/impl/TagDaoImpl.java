@@ -19,6 +19,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class TagDaoImpl implements TagDao {
@@ -82,6 +83,7 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Tag getTagByName(String name) {
+
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = criteriaQuery.from(Tag.class);
@@ -92,7 +94,7 @@ public class TagDaoImpl implements TagDao {
         } catch (IllegalArgumentException e) {
             throw new TagDaoException("message.wrong_data", e);
         } catch (PersistenceException e) {
-            throw new TagNotFoundException("message.wrong_tag_name", e);
+            return null;
         }
     }
 
