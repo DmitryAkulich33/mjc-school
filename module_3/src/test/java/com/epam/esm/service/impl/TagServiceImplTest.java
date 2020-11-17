@@ -120,6 +120,7 @@ class TagServiceImplTest {
 
         assertEquals(expected, actual);
         verify(mockTagValidator).validateTagName(expected.getName());
+        verify(mockTagDao).getTagByName(expected.getName());
         verify(mockTagDao).createTag(expected);
     }
 

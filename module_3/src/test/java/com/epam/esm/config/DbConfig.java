@@ -16,14 +16,12 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories
 @ComponentScan(basePackages = {"com.epam.esm.dao"})
 public class DbConfig {
     @Bean
     public DataSource embeddedDataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
-//                .setName("testDB")
                 .addScript("classpath:create_tables.sql")
                 .addScript("classpath:init_tables.sql")
                 .build();
@@ -48,5 +46,4 @@ public class DbConfig {
         txManager.setEntityManagerFactory(entityManagerFactory().getObject());
         return txManager;
     }
-
 }

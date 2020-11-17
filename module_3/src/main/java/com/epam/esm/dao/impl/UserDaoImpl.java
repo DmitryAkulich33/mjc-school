@@ -22,11 +22,6 @@ public class UserDaoImpl implements UserDao {
 
     private static final Integer LOCK_VALUE_0 = 0;
 
-//    @Autowired
-//    public UserDaoImpl(EntityManager entityManager) {
-//        this.entityManager = entityManager;
-//    }
-
     @Override
     public Optional<User> getUserById(Long idUser) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();

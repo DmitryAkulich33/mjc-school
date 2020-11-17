@@ -15,6 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -57,9 +58,28 @@ class UserDaoImplTest {
 
     @Test
     public void testGetUserById() {
-        User expected = user1;
+        Optional<User> expected = Optional.ofNullable(user1);
 
-        User actual = userDao.getUserById(CORRECT_ID_1).get();
+        Optional<User> actual = userDao.getUserById(CORRECT_ID_1);
+
+        Assertions.assertEquals(expected, actual);
+
+    }
+
+    @Test
+    public void testGetUserById_WrongResult() {
+        Optional<User> expected = Optional.ofNullable(user2);
+
+        Optional<User> actual = userDao.getUserById(CORRECT_ID_1);
+
+        Assertions.assertNotEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetUserById_NotFound() {
+        Optional<User> expected = Optional.empty();
+
+        Optional<User> actual = userDao.getUserById(WRONG_ID);
 
         Assertions.assertEquals(expected, actual);
     }

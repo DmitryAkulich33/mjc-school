@@ -28,10 +28,6 @@ public class OrderDaoImpl implements OrderDao {
 
     private static final Integer LOCK_VALUE_0 = 0;
 
-//    public OrderDaoImpl(EntityManager entityManager) {
-//        this.entityManager = entityManager;
-//    }
-
     @Override
     public Optional<Order> getOrderById(Long idOrder) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();

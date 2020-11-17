@@ -14,6 +14,4 @@ public interface TagService {
     List<Tag> getTags(Integer pageNumber, Integer pageSize);
 
     List<Tag> updateTags(List<Tag> tags);
-
-    boolean isNewTag(List<Tag> tags, String nameTag);
 }

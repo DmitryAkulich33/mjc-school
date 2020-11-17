@@ -8,6 +8,7 @@ import com.epam.esm.domain.Tag_;
 import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.exceptions.CertificateDuplicateException;
 import com.epam.esm.exceptions.CertificateNotFoundException;
+import com.epam.esm.exceptions.TagDaoException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +25,6 @@ public class CertificateDaoImpl implements CertificateDao {
 
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
-
-//    @Autowired
-//    public CertificateDaoImpl(EntityManager entityManager) {
-//        this.entityManager = entityManager;
-//    }
 
     @PrePersist
     @Override
@@ -182,10 +178,23 @@ public class CertificateDaoImpl implements CertificateDao {
                     .setFirstResult(offset)
                     .setMaxResults(pageSize)
                     .getResultList();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new CertificateDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new CertificateNotFoundException("message.wrong_data", e);
         }
+    }
+
+    @Override
+    public Optional<Certificate> getCertificateByName(String nameCertificate) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
+        Root<Certificate> root = criteriaQuery.from(Certificate.class);
+        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Certificate_.name), nameCertificate),
+                criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
+        try {
+            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        }
+
     }
 }

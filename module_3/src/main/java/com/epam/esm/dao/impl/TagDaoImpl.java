@@ -28,21 +28,14 @@ public class TagDaoImpl implements TagDao {
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
 
-//    @Autowired
-//    public TagDaoImpl(EntityManager entityManager) {
-//        this.entityManager = entityManager;
-//    }
-
     @Transactional
     @PrePersist
     @Override
     public Tag createTag(Tag tag) {
         try {
             entityManager.persist(tag);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new TagDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new TagDuplicateException("message.tag.exists", e);
         }
         return tag;
     }
@@ -56,10 +49,8 @@ public class TagDaoImpl implements TagDao {
         criteriaUpdate.where(criteriaBuilder.equal(root.get(Tag_.id), id));
         try {
             entityManager.createQuery(criteriaUpdate).executeUpdate();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new TagDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new TagNotFoundException("message.wrong_tag_id", e);
         }
     }
 
@@ -87,10 +78,8 @@ public class TagDaoImpl implements TagDao {
                 criteriaBuilder.equal(root.get(Tag_.lock), LOCK_VALUE_0));
         try {
             return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new TagDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new TagNotFoundException("message.wrong_tag_name", e);
         }
     }
 

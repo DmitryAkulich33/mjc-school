@@ -1,9 +1,7 @@
 package com.epam.esm.domain;
 
 import com.epam.esm.dao.audit.AuditTagListener;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;

@@ -136,6 +136,8 @@ class CertificateServiceImplTest {
 
         assertEquals(expected, actual);
         verify(mockCertificateValidator).validateCertificate(expected);
+        verify(mockCertificateDao).getCertificateByName(expected.getName());
+        verify(mockCertificateDao).createCertificate(expected);
     }
 
     @Test

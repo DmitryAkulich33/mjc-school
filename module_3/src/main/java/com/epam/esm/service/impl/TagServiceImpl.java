@@ -2,9 +2,8 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.domain.User;
+import com.epam.esm.exceptions.TagDuplicateException;
 import com.epam.esm.exceptions.TagNotFoundException;
-import com.epam.esm.exceptions.UserNotFoundException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.util.TagValidator;
@@ -14,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,11 +61,16 @@ public class TagServiceImpl implements TagService {
      * @param tag tag
      * @return tag
      */
+    @Transactional
     @Override
     public Tag createTag(Tag tag) {
         log.debug("Service: creation tag.");
-        tagValidator.validateTagName(tag.getName());
-
+        String tagName = tag.getName();
+        tagValidator.validateTagName(tagName);
+        Optional<Tag> optionalTag = tagDao.getTagByName(tagName);
+        if (optionalTag.isPresent()) {
+            throw new TagDuplicateException("message.tag.exists");
+        }
         return tagDao.createTag(tag);
     }
 
@@ -92,7 +99,7 @@ public class TagServiceImpl implements TagService {
         log.debug(String.format("Service: search tag by id %d", idTag));
         tagValidator.validateTagId(idTag);
         Optional<Tag> tag = tagDao.getTagById(idTag);
-        if(tag.isPresent()){
+        if (tag.isPresent()) {
             return tag.get();
         } else {
             throw new TagNotFoundException("message.wrong_tag_id");
@@ -123,36 +130,20 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<Tag> updateTags(List<Tag> tags) {
         log.debug("Service: update tags in certificate");
-        List<Tag> tagsToUpdate = new ArrayList<>();
         Set<Tag> uniqueTags = new HashSet<>(tags);
-        for (Tag tag : uniqueTags) {
-            String nameTag = tag.getName();
-            if (tagDao.getTagByName(nameTag).isPresent()) {
-                Tag currentTag = tagDao.getTagByName(nameTag).get();
-                tagsToUpdate.add(currentTag);
-            } else {
-                Tag tagToCreate = new Tag();
-                tagToCreate.setName(nameTag);
-                Tag createdTag = tagDao.createTag(tagToCreate);
-                tagsToUpdate.add(createdTag);
-            }
-        }
-        return tagsToUpdate;
-    }
+        uniqueTags.forEach((s -> tagValidator.validateTagName(s.getName())));
 
-    /**
-     * Determine if a tag is new or not
-     *
-     * @param tags    list of tags
-     * @param nameTag tag's name
-     */
-    @Override
-    public boolean isNewTag(List<Tag> tags, String nameTag) {
-        log.debug("Service: check is tag new.");
-        List<Tag> list = tags.stream()
-                .filter(x -> x.getName().equals(nameTag))
+        List<Tag> tagsToCreate = uniqueTags.stream()
+                .filter(tag -> !tagDao.getTagByName(tag.getName()).isPresent())
+                .map(tagDao::createTag)
                 .collect(Collectors.toList());
 
-        return list.size() == 0;
+        List<Tag> existingTags = uniqueTags.stream()
+                .filter(tag -> !tagsToCreate.contains(tag))
+                .map(tag -> tagDao.getTagByName(tag.getName()).get())
+                .collect(Collectors.toList());
+
+        existingTags.addAll(tagsToCreate);
+        return existingTags;
     }
 }

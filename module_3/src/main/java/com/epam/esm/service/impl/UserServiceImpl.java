@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
         log.debug(String.format("Service: search user by id %d", idUser));
         userValidator.validateUserId(idUser);
         Optional<User> user = userDao.getUserById(idUser);
-        if(user.isPresent()){
+        if (user.isPresent()) {
             return user.get();
         } else {
             throw new UserNotFoundException("message.wrong_user_id");

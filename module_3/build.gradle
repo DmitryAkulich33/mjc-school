@@ -26,7 +26,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.hibernate:hibernate-jpamodelgen:6.0.0.Alpha6'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation ('org.springframework.boot:spring-boot-starter-test'){
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.6.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.6.0'
     testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'

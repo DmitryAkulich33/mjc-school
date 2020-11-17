@@ -4,9 +4,8 @@ import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.domain.User;
+import com.epam.esm.exceptions.CertificateDuplicateException;
 import com.epam.esm.exceptions.CertificateNotFoundException;
-import com.epam.esm.exceptions.UserNotFoundException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
@@ -89,10 +88,18 @@ public class CertificateServiceImpl implements CertificateService {
     public Certificate createCertificate(Certificate certificate) {
         log.debug("Service: creation certificate.");
         certificateValidator.validateCertificate(certificate);
+        checkCertificateByName(certificate.getName());
         List<Tag> tagsForCertificate = tagService.updateTags(certificate.getTags());
         certificate.setTags(tagsForCertificate);
 
         return certificateDao.createCertificate(certificate);
+    }
+
+    private void checkCertificateByName(String name) {
+        Optional<Certificate> optionalCertificate = certificateDao.getCertificateByName(name);
+        if (optionalCertificate.isPresent()) {
+            throw new CertificateDuplicateException("message.certificate.exists");
+        }
     }
 
     /**
@@ -110,6 +117,8 @@ public class CertificateServiceImpl implements CertificateService {
 
         Certificate certificateToUpdate = getCertificateById(idCertificate);
         String name = composeCertificateName(certificate, certificateToUpdate);
+        checkCertificateByName(name);
+
         String description = composeCertificateDescription(certificate, certificateToUpdate);
         Double price = composeCertificatePrice(certificate, certificateToUpdate);
         Integer duration = composeCertificateDuration(certificate, certificateToUpdate);
@@ -138,6 +147,7 @@ public class CertificateServiceImpl implements CertificateService {
         certificateValidator.validateCertificateId(idCertificate);
         certificateValidator.validateCertificate(certificate);
         Certificate certificateFromDb = getCertificateById(idCertificate);
+        checkCertificateByName(certificate.getName());
         List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags());
 
         certificate.setId(certificateFromDb.getId());
@@ -205,7 +215,7 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug(String.format("Service: search certificate by id %d", idCertificate));
         certificateValidator.validateCertificateId(idCertificate);
         Optional<Certificate> certificate = certificateDao.getCertificateById(idCertificate);
-        if(certificate.isPresent()){
+        if (certificate.isPresent()) {
             return certificate.get();
         } else {
             throw new CertificateNotFoundException("message.wrong_certificate_id");
