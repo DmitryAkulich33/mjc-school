@@ -4,7 +4,9 @@ import com.epam.esm.config.DbConfig;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.TagDaoException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -133,6 +135,15 @@ class TagDaoImplTest {
         List<Tag> expected = new ArrayList<>(Arrays.asList(tag1, tag2));
 
         List<Tag> actual = tagDao.getTags(OFFSET, PAGE_SIZE_10);
+
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetTags_Pagination() {
+        List<Tag> expected = new ArrayList<>(Arrays.asList(tag1));
+
+        List<Tag> actual = tagDao.getTags(OFFSET, PAGE_SIZE_1);
 
         Assertions.assertEquals(expected, actual);
     }

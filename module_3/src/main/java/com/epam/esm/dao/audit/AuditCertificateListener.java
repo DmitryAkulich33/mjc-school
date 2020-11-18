@@ -11,17 +11,22 @@ public class AuditCertificateListener {
 
     @PrePersist
     public void createCertificate(Certificate certificate) {
-        setDate(certificate);
+        setCreateDate(certificate);
         certificate.setLock(LOCK);
     }
 
     @PreUpdate
     public void updateCertificate(Certificate certificate) {
-        setDate(certificate);
+        setUpdateDate(certificate);
     }
 
-    private void setDate(Certificate certificate) {
+    private void setCreateDate(Certificate certificate) {
         LocalDateTime creationDate = LocalDateTime.now();
         certificate.setCreateDate(creationDate);
+    }
+
+    private void setUpdateDate(Certificate certificate) {
+        LocalDateTime updateDate = LocalDateTime.now();
+        certificate.setLastUpdateDate(updateDate);
     }
 }

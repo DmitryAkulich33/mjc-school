@@ -109,15 +109,6 @@ class CertificateServiceImplTest {
     }
 
     @Test
-    public void testGetCertificates_CertificateNotFoundException() {
-        when(mockCertificateDao.getCertificates(TAG_NAME, CERTIFICATE_SEARCH, SORT_ASC, CREATE_DATE, OFFSET, PAGE_SIZE)).thenThrow(new CertificateNotFoundException());
-
-        assertThrows(CertificateNotFoundException.class, () -> {
-            certificateServiceImpl.getCertificates(TAG_NAME, CERTIFICATE_SEARCH, CERTIFICATE_SORT, OFFSET, PAGE_SIZE);
-        });
-    }
-
-    @Test
     public void testGetCertificates_CertificateDaoException() {
         when(mockCertificateDao.getCertificates(TAG_NAME, CERTIFICATE_SEARCH, SORT_ASC, CREATE_DATE, OFFSET, PAGE_SIZE)).thenThrow(new CertificateDaoException());
 

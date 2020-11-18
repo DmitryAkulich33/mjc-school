@@ -97,10 +97,8 @@ public class CertificateDaoImpl implements CertificateDao {
                     .setFirstResult(offset)
                     .setMaxResults(pageSize)
                     .getResultList();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new CertificateDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new CertificateNotFoundException("message.wrong_data", e);
         }
     }
 

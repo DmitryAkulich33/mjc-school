@@ -12,8 +12,6 @@ import java.util.List;
 
 @Data
 @EntityListeners(AuditOrderListener.class)
-@ToString(exclude = "certificates")
-@EqualsAndHashCode(exclude = "certificates")
 @Entity(name = "orders")
 public class Order {
     @Id

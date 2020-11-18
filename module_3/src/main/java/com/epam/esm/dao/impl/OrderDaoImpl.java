@@ -69,7 +69,7 @@ public class OrderDaoImpl implements OrderDao {
         Root<User> userRoot = userSubquery.from(User.class);
         userSubquery.select(userRoot).where(criteriaBuilder.equal(userRoot.get(User_.id), idUser));
         criteriaQuery.select(rootOrder).where(criteriaBuilder.equal(rootOrder.get(Order_.lock), LOCK_VALUE_0),
-                criteriaBuilder.in(rootOrder.get(Order_.user)));
+                criteriaBuilder.in(rootOrder.get(Order_.user)).value(userSubquery));
 
         try {
             return entityManager.createQuery(criteriaQuery).getResultList();

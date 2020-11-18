@@ -10,16 +10,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ContextConfiguration(classes = {DbConfig.class})
+@SqlGroup({
+        @Sql(scripts = "/drop_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(scripts = "/create_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(scripts = "/init_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+})
 class UserDaoImplTest {
     private static final Long CORRECT_ID_1 = 1L;
     private static final Long CORRECT_ID_2 = 2L;
@@ -29,7 +33,8 @@ class UserDaoImplTest {
     private static final String SURNAME_1 = "Ivanov";
     private static final String SURNAME_2 = "Petrov";
     private static final Integer LOCK = 0;
-    private static final Integer PAGE_SIZE = 10;
+    private static final Integer PAGE_SIZE_1 = 1;
+    private static final Integer PAGE_SIZE_10 = 10;
     private static final Integer OFFSET = 0;
 
     @Autowired
@@ -86,8 +91,17 @@ class UserDaoImplTest {
 
     @Test
     public void testGetUsers() {
-        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE);
+        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE_10);
 
         Assertions.assertEquals(users, actual);
+    }
+
+    @Test
+    public void testGetUsers_Pagination() {
+        List<User> expected = new ArrayList<>(Collections.singletonList(user1));
+
+        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE_1);
+
+        Assertions.assertEquals(expected, actual);
     }
 }

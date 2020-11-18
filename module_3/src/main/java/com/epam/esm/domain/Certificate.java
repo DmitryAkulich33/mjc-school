@@ -12,8 +12,8 @@ import java.util.List;
 
 @Data
 @EntityListeners(AuditCertificateListener.class)
-@ToString(exclude = {"tags", "orders"})
-@EqualsAndHashCode(exclude = {"tags", "orders"})
+@ToString(exclude = "orders")
+@EqualsAndHashCode(exclude = "orders")
 @Entity(name = "certificate")
 public class Certificate {
     @Id
