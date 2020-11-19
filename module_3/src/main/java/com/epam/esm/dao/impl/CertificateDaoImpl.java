@@ -181,18 +181,18 @@ public class CertificateDaoImpl implements CertificateDao {
         }
     }
 
-    @Override
-    public Optional<Certificate> getCertificateByName(String nameCertificate) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
-        Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Certificate_.name), nameCertificate),
-                criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
-        try {
-            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
-        } catch (IllegalArgumentException | PersistenceException e) {
-            throw new CertificateDaoException("message.wrong_data", e);
-        }
-
-    }
+//    @Override
+//    public Optional<Certificate> getCertificateByName(String nameCertificate) {
+//        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+//        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
+//        Root<Certificate> root = criteriaQuery.from(Certificate.class);
+//        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Certificate_.name), nameCertificate),
+//                criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
+//        try {
+//            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+//        } catch (IllegalArgumentException | PersistenceException e) {
+//            throw new CertificateDaoException("message.wrong_data", e);
+//        }
+//
+//    }
 }

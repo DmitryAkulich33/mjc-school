@@ -187,4 +187,9 @@ class CertificateServiceImplTest {
             certificateServiceImpl.getCertificatesByTags(tagNames, OFFSET, PAGE_SIZE);
         });
     }
+
+    @Test
+    public void testUpdateCertificate(){
+
+    }
 }

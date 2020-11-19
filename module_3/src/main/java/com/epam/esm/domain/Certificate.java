@@ -21,7 +21,7 @@ public class Certificate {
     @Column(name = "id_certificate")
     private Long id;
 
-    @Column(name = "name_certificate")
+    @Column(name = "name_certificate", unique = true)
     private String name;
 
     @Column

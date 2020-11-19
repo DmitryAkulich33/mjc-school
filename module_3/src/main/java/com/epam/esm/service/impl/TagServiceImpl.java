@@ -21,33 +21,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class TagServiceImpl implements TagService {
-    /**
-     * Dao for this server
-     */
     private final TagDao tagDao;
-
-    /**
-     * Validator for this service
-     */
     private final TagValidator tagValidator;
-
-    /**
-     * Offset's calculator for this service
-     */
     private final OffsetCalculator offsetCalculator;
-
-    /**
-     * Logger for this service
-     */
     private static Logger log = LogManager.getLogger(TagServiceImpl.class);
 
-    /**
-     * Constructor - creating a new object
-     *
-     * @param tagDao           dao for this service
-     * @param tagValidator     validator for this service
-     * @param offsetCalculator offset's calculator for this service
-     */
     @Autowired
     public TagServiceImpl(TagDao tagDao, TagValidator tagValidator, OffsetCalculator offsetCalculator) {
         this.tagDao = tagDao;
@@ -55,12 +33,6 @@ public class TagServiceImpl implements TagService {
         this.offsetCalculator = offsetCalculator;
     }
 
-    /**
-     * Create tag
-     *
-     * @param tag tag
-     * @return tag
-     */
     @Transactional
     @Override
     public Tag createTag(Tag tag) {
@@ -74,11 +46,6 @@ public class TagServiceImpl implements TagService {
         return tagDao.createTag(tag);
     }
 
-    /**
-     * Delete tag
-     *
-     * @param idTag tag's id
-     */
     @Transactional
     @Override
     public void deleteTag(Long idTag) {
@@ -88,12 +55,6 @@ public class TagServiceImpl implements TagService {
         tagDao.deleteTag(idTag);
     }
 
-    /**
-     * Get tag by id
-     *
-     * @param idTag tag's id
-     * @return tag
-     */
     @Override
     public Tag getTagById(Long idTag) {
         log.debug(String.format("Service: search tag by id %d", idTag));
@@ -106,13 +67,6 @@ public class TagServiceImpl implements TagService {
         }
     }
 
-    /**
-     * Get all tags
-     *
-     * @param pageNumber page number
-     * @param pageSize   page size
-     * @return list of tags
-     */
     @Override
     public List<Tag> getTags(Integer pageNumber, Integer pageSize) {
         log.debug("Service: search all tags.");
@@ -120,12 +74,6 @@ public class TagServiceImpl implements TagService {
         return tagDao.getTags(offset, pageSize);
     }
 
-    /**
-     * Update tag
-     *
-     * @param tags list of tags
-     * @return list of tags
-     */
     @Transactional
     @Override
     public List<Tag> updateTags(List<Tag> tags) {
@@ -145,5 +93,11 @@ public class TagServiceImpl implements TagService {
 
         existingTags.addAll(tagsToCreate);
         return existingTags;
+    }
+
+    @Override
+    public List<Tag> getTheMostUsedTag() {
+        log.debug("Service: search the most used Tag");
+        return tagDao.getTheMostUsedTag();
     }
 }

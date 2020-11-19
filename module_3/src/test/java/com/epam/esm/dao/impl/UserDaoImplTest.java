@@ -61,47 +61,47 @@ class UserDaoImplTest {
         users = new ArrayList<>(Arrays.asList(user1, user2));
     }
 
-    @Test
-    public void testGetUserById() {
-        Optional<User> expected = Optional.ofNullable(user1);
-
-        Optional<User> actual = userDao.getUserById(CORRECT_ID_1);
-
-        Assertions.assertEquals(expected, actual);
-
-    }
-
-    @Test
-    public void testGetUserById_WrongResult() {
-        Optional<User> expected = Optional.ofNullable(user2);
-
-        Optional<User> actual = userDao.getUserById(CORRECT_ID_1);
-
-        Assertions.assertNotEquals(expected, actual);
-    }
-
-    @Test
-    public void testGetUserById_NotFound() {
-        Optional<User> expected = Optional.empty();
-
-        Optional<User> actual = userDao.getUserById(WRONG_ID);
-
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testGetUsers() {
-        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE_10);
-
-        Assertions.assertEquals(users, actual);
-    }
-
-    @Test
-    public void testGetUsers_Pagination() {
-        List<User> expected = new ArrayList<>(Collections.singletonList(user1));
-
-        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE_1);
-
-        Assertions.assertEquals(expected, actual);
-    }
+//    @Test
+//    public void testGetUserById() {
+//        Optional<User> expected = Optional.ofNullable(user1);
+//
+//        Optional<User> actual = userDao.getUserById(CORRECT_ID_1);
+//
+//        Assertions.assertEquals(expected, actual);
+//
+//    }
+//
+//    @Test
+//    public void testGetUserById_WrongResult() {
+//        Optional<User> expected = Optional.ofNullable(user2);
+//
+//        Optional<User> actual = userDao.getUserById(CORRECT_ID_1);
+//
+//        Assertions.assertNotEquals(expected, actual);
+//    }
+//
+//    @Test
+//    public void testGetUserById_NotFound() {
+//        Optional<User> expected = Optional.empty();
+//
+//        Optional<User> actual = userDao.getUserById(WRONG_ID);
+//
+//        Assertions.assertEquals(expected, actual);
+//    }
+//
+//    @Test
+//    public void testGetUsers() {
+//        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE_10);
+//
+//        Assertions.assertEquals(users, actual);
+//    }
+//
+//    @Test
+//    public void testGetUsers_Pagination() {
+//        List<User> expected = new ArrayList<>(Collections.singletonList(user1));
+//
+//        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE_1);
+//
+//        Assertions.assertEquals(expected, actual);
+//    }
 }

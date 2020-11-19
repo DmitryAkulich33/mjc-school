@@ -17,7 +17,7 @@ public class Tag {
     @Column(name = "id_tag")
     private Long id;
 
-    @Column(name = "name_tag")
+    @Column(name = "name_tag", unique = true)
     private String name;
 
     @Column(name = "lock_tag")

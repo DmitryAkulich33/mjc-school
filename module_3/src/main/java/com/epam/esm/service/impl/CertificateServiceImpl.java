@@ -24,49 +24,17 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
 public class CertificateServiceImpl implements CertificateService {
-    /**
-     * Dao for this server
-     */
     private final CertificateDao certificateDao;
-
-    /**
-     * Dao for this server
-     */
     private final TagDao tagDao;
-
-    /**
-     * Validator for this service
-     */
     private final CertificateValidator certificateValidator;
-
-    /**
-     * Service for this service
-     */
     private final TagService tagService;
-
-    /**
-     * Offset's calculator for this service
-     */
     private final OffsetCalculator offsetCalculator;
-
-    /**
-     * Logger for this service
-     */
     private static Logger log = LogManager.getLogger(CertificateServiceImpl.class);
 
     private static final String UNDERSCORES = "_";
     private static final String ASC = "ASC";
     private static final String DESC = "DESC";
 
-    /**
-     * Constructor - creating a new object
-     *
-     * @param certificateDao       dao for this server
-     * @param tagDao               dao for this server
-     * @param certificateValidator validator for this service
-     * @param tagService           service for this service
-     * @param offsetCalculator     offset's calculator for this service
-     */
     @Autowired
     public CertificateServiceImpl(CertificateDao certificateDao, TagDao tagDao, CertificateValidator certificateValidator,
                                   TagService tagService, OffsetCalculator offsetCalculator) {
@@ -77,38 +45,25 @@ public class CertificateServiceImpl implements CertificateService {
         this.offsetCalculator = offsetCalculator;
     }
 
-    /**
-     * Create certificate
-     *
-     * @param certificate certificate
-     * @return certificate
-     */
     @Transactional
     @Override
     public Certificate createCertificate(Certificate certificate) {
         log.debug("Service: creation certificate.");
         certificateValidator.validateCertificate(certificate);
-        checkCertificateByName(certificate.getName());
+//        checkCertificateByName(certificate.getName());
         List<Tag> tagsForCertificate = tagService.updateTags(certificate.getTags());
         certificate.setTags(tagsForCertificate);
 
         return certificateDao.createCertificate(certificate);
     }
 
-    private void checkCertificateByName(String name) {
-        Optional<Certificate> optionalCertificate = certificateDao.getCertificateByName(name);
-        if (optionalCertificate.isPresent()) {
-            throw new CertificateDuplicateException("message.certificate.exists");
-        }
-    }
+//    private void checkCertificateByName(String name) {
+//        Optional<Certificate> optionalCertificate = certificateDao.getCertificateByName(name);
+//        if (optionalCertificate.isPresent()) {
+//            throw new CertificateDuplicateException("message.certificate.exists");
+//        }
+//    }
 
-    /**
-     * Update part of certificate
-     *
-     * @param certificate   certificate
-     * @param idCertificate certificate
-     * @return certificate
-     */
     @Transactional
     @Override
     public Certificate updatePartCertificate(Certificate certificate, Long idCertificate) {
@@ -117,7 +72,7 @@ public class CertificateServiceImpl implements CertificateService {
 
         Certificate certificateToUpdate = getCertificateById(idCertificate);
         String name = composeCertificateName(certificate, certificateToUpdate);
-        checkCertificateByName(name);
+//        checkCertificateByName(name);
 
         String description = composeCertificateDescription(certificate, certificateToUpdate);
         Double price = composeCertificatePrice(certificate, certificateToUpdate);
@@ -133,13 +88,6 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateDao.updateCertificate(certificateToUpdate);
     }
 
-    /**
-     * Update whole certificate
-     *
-     * @param certificate   certificate
-     * @param idCertificate certificate
-     * @return certificate
-     */
     @Transactional
     @Override
     public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
@@ -147,7 +95,8 @@ public class CertificateServiceImpl implements CertificateService {
         certificateValidator.validateCertificateId(idCertificate);
         certificateValidator.validateCertificate(certificate);
         Certificate certificateFromDb = getCertificateById(idCertificate);
-        checkCertificateByName(certificate.getName());
+//        checkCertificateByName(certificate.getName());
+
         List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags());
 
         certificate.setId(certificateFromDb.getId());
@@ -189,11 +138,6 @@ public class CertificateServiceImpl implements CertificateService {
         return tags == null ? certificateToUpdate.getTags() : tagService.updateTags(tags);
     }
 
-    /**
-     * Delete certificate by id
-     *
-     * @param idCertificate certificate's id
-     */
     @Transactional
     @Override
     public void deleteCertificate(Long idCertificate) {
@@ -203,12 +147,6 @@ public class CertificateServiceImpl implements CertificateService {
         certificateDao.deleteCertificate(idCertificate);
     }
 
-    /**
-     * Get certificate by id
-     *
-     * @param idCertificate certificate's id
-     * @return certificate
-     */
     @Transactional(readOnly = true)
     @Override
     public Certificate getCertificateById(Long idCertificate) {
@@ -222,16 +160,6 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    /**
-     * Get certificates with params
-     *
-     * @param name       tag's name
-     * @param search     a word or part of a word to search
-     * @param sort       field and kind of sort
-     * @param pageNumber page number
-     * @param pageSize   page size
-     * @return list of certificates
-     */
     @Transactional(readOnly = true)
     @Override
     public List<Certificate> getCertificates(String name, String search, String sort, Integer pageNumber, Integer pageSize) {
@@ -243,14 +171,6 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateDao.getCertificates(name, search, sortAsc, sortField, offset, pageSize);
     }
 
-    /**
-     * Get certificates by tags
-     *
-     * @param tagNames   list of tag's name
-     * @param pageNumber page number
-     * @param pageSize   page size
-     * @return list of certificates
-     */
     @Override
     public List<Certificate> getCertificatesByTags(List<String> tagNames, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates by tags' names.");

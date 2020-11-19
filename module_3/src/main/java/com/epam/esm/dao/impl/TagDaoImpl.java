@@ -4,15 +4,10 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.domain.Tag_;
 import com.epam.esm.exceptions.TagDaoException;
-import com.epam.esm.exceptions.TagDuplicateException;
-import com.epam.esm.exceptions.TagNotFoundException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
-import javax.persistence.PrePersist;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
@@ -22,6 +17,18 @@ import java.util.Optional;
 
 @Repository
 public class TagDaoImpl implements TagDao {
+    private static final String GET_THE_MOST_USED_TAG = "SELECT t_tag, t_tag, lock_tag FROM tag INNER JOIN " +
+            "(SELECT tag_id, count(tag_id) as max_val FROM " +
+            "(SELECT tag_id FROM tag_certificate INNER JOIN " +
+            "(SELECT * FROM certificate_order INNER JOIN " +
+            "(SELECT o.id_order, o.id_user FROM orders o INNER JOIN " +
+            "(SELECT id_user FROM orders WHERE total = " +
+            "(SELECT max(total) FROM orders)) AS o_u ON o.id_user=o_u.id_user)" +
+            " AS c_o ON certificate_order.order_id=c_o.id_order)" +
+            " AS t_c ON tag_certificate.certificate_id=t_c.certificate_id)" +
+            " AS t_v group by t_v.tag_id ORDER BY max_val DESC LIMIT 1)" +
+            " AS t ON tag.id_tag=t.tag_id";
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -97,5 +104,10 @@ public class TagDaoImpl implements TagDao {
         } catch (IllegalArgumentException e) {
             throw new TagDaoException("message.wrong_data", e);
         }
+    }
+
+    @Override
+    public List<Tag> getTheMostUsedTag() {
+       return entityManager.createQuery(GET_THE_MOST_USED_TAG, Tag.class).getResultList();
     }
 }
