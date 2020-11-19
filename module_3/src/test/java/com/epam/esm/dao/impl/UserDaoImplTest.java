@@ -1,6 +1,5 @@
 package com.epam.esm.dao.impl;
 
-import com.epam.esm.config.DbConfig;
 import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.User;
 import org.junit.jupiter.api.Assertions;
@@ -8,26 +7,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlGroup;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ContextConfiguration(classes = {DbConfig.class})
-@SqlGroup({
-        @Sql(scripts = "/drop_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-        @Sql(scripts = "/create_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-        @Sql(scripts = "/init_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-})
+@DataJpaTest
+@ComponentScan(basePackages = {"com.epam.esm.dao", "com.epam.esm.domain"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserDaoImplTest {
-    private static final Long CORRECT_ID_1 = 1L;
-    private static final Long CORRECT_ID_2 = 2L;
-    private static final Long WRONG_ID = 10L;
+    private static final Long ID_1 = 1L;
     private static final String NAME_1 = "Ivan";
     private static final String NAME_2 = "Petr";
     private static final String SURNAME_1 = "Ivanov";
@@ -35,73 +30,83 @@ class UserDaoImplTest {
     private static final Integer LOCK = 0;
     private static final Integer PAGE_SIZE_1 = 1;
     private static final Integer PAGE_SIZE_10 = 10;
-    private static final Integer OFFSET = 0;
+    private static final Integer OFFSET_0 = 0;
+    private static final Integer OFFSET_2 = 2;
 
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private TestEntityManager entityManager;
+
     private User user1;
     private User user2;
-    private List<User> users;
 
     @BeforeEach
     public void setUp() {
         user1 = new User();
-        user1.setId(CORRECT_ID_1);
         user1.setName(NAME_1);
         user1.setSurname(SURNAME_1);
         user1.setLock(LOCK);
 
         user2 = new User();
-        user2.setId(CORRECT_ID_2);
         user2.setName(NAME_2);
         user2.setSurname(SURNAME_2);
         user2.setLock(LOCK);
-
-        users = new ArrayList<>(Arrays.asList(user1, user2));
     }
 
-//    @Test
-//    public void testGetUserById() {
-//        Optional<User> expected = Optional.ofNullable(user1);
-//
-//        Optional<User> actual = userDao.getUserById(CORRECT_ID_1);
-//
-//        Assertions.assertEquals(expected, actual);
-//
-//    }
-//
-//    @Test
-//    public void testGetUserById_WrongResult() {
-//        Optional<User> expected = Optional.ofNullable(user2);
-//
-//        Optional<User> actual = userDao.getUserById(CORRECT_ID_1);
-//
-//        Assertions.assertNotEquals(expected, actual);
-//    }
-//
-//    @Test
-//    public void testGetUserById_NotFound() {
-//        Optional<User> expected = Optional.empty();
-//
-//        Optional<User> actual = userDao.getUserById(WRONG_ID);
-//
-//        Assertions.assertEquals(expected, actual);
-//    }
-//
-//    @Test
-//    public void testGetUsers() {
-//        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE_10);
-//
-//        Assertions.assertEquals(users, actual);
-//    }
-//
-//    @Test
-//    public void testGetUsers_Pagination() {
-//        List<User> expected = new ArrayList<>(Collections.singletonList(user1));
-//
-//        List<User> actual = userDao.getUsers(OFFSET, PAGE_SIZE_1);
-//
-//        Assertions.assertEquals(expected, actual);
-//    }
+    @Test
+    public void testGetUserById() {
+        User expected = entityManager.persist(user1);
+
+        User actual = userDao.getUserById(expected.getId()).get();
+
+        assertEquals(expected, actual);
+        assert actual.getId() > 0;
+    }
+
+    @Test
+    public void testGetUserById_NotFound() {
+        Optional<User> expected = Optional.empty();
+
+        Optional<User> actual = userDao.getUserById(ID_1);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testUsers() {
+        User expected1 = entityManager.persist(user1);
+        User expected2 = entityManager.persist(user2);
+        List<User> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
+
+        List<User> actual = userDao.getUsers(OFFSET_0, PAGE_SIZE_10);
+
+        Assertions.assertEquals(expected, actual);
+        assert !actual.isEmpty();
+    }
+
+    @Test
+    public void testGetUsers_Pagination() {
+        User expected1 = entityManager.persist(user1);
+        User expected2 = entityManager.persist(user2);
+        List<User> expected = new ArrayList<>(Collections.singletonList(expected1));
+
+        List<User> actual = userDao.getUsers(OFFSET_0, PAGE_SIZE_1);
+
+        Assertions.assertEquals(expected, actual);
+        assert !actual.isEmpty();
+        assert !actual.contains(expected2);
+        assert actual.size() == PAGE_SIZE_1;
+    }
+
+    @Test
+    public void testGetTags_Pagination_NotFound() {
+        entityManager.persist(user1);
+        entityManager.persist(user2);
+
+        List<User> actual = userDao.getUsers(OFFSET_2, PAGE_SIZE_10);
+
+        assert actual.isEmpty();
+    }
 }

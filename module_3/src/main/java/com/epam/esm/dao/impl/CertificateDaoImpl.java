@@ -8,7 +8,6 @@ import com.epam.esm.domain.Tag_;
 import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.exceptions.CertificateDuplicateException;
 import com.epam.esm.exceptions.CertificateNotFoundException;
-import com.epam.esm.exceptions.TagDaoException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,10 +76,8 @@ public class CertificateDaoImpl implements CertificateDao {
     public Certificate updateCertificate(Certificate certificate) {
         try {
             return entityManager.merge(certificate);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | PersistenceException e) {
             throw new CertificateDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new CertificateNotFoundException("message.certificate.exists", e);
         }
     }
 
@@ -90,7 +87,7 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        List<Predicate> conditions = getPredicates(name, search, root, criteriaBuilder);
+        List<Predicate> conditions = getPredicatesForFilter(name, search, root, criteriaBuilder);
 
         try {
             return entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery, root, criteriaBuilder, sortField, sortAsc))
@@ -102,7 +99,7 @@ public class CertificateDaoImpl implements CertificateDao {
         }
     }
 
-    private List<Predicate> getPredicates(String name, String search, Root<Certificate> root, CriteriaBuilder criteriaBuilder) {
+    private List<Predicate> getPredicatesForFilter(String name, String search, Root<Certificate> root, CriteriaBuilder criteriaBuilder) {
         List<Predicate> conditions = new ArrayList<>();
         if (name != null) {
             Join<Certificate, Tag> join = root.join(Certificate_.tags, JoinType.INNER);
@@ -165,10 +162,9 @@ public class CertificateDaoImpl implements CertificateDao {
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
 
-        Join<Certificate, Tag> join = root.join(Certificate_.tags, JoinType.INNER);
-        Expression<String> tagNamesFromDb = join.get(Tag_.name);
+        List<Predicate> conditions = getPredicatesForSearchByTags(tagNames, root, criteriaBuilder);
 
-        criteriaQuery.select(root).distinct(true).where(tagNamesFromDb.in(tagNames),
+        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.and(conditions.toArray(new Predicate[0])),
                 criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
 
         try {
@@ -181,18 +177,16 @@ public class CertificateDaoImpl implements CertificateDao {
         }
     }
 
-//    @Override
-//    public Optional<Certificate> getCertificateByName(String nameCertificate) {
-//        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-//        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
-//        Root<Certificate> root = criteriaQuery.from(Certificate.class);
-//        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.equal(root.get(Certificate_.name), nameCertificate),
-//                criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
-//        try {
-//            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
-//        } catch (IllegalArgumentException | PersistenceException e) {
-//            throw new CertificateDaoException("message.wrong_data", e);
-//        }
-//
-//    }
+    private List<Predicate> getPredicatesForSearchByTags(List<String> tagNames, Root<Certificate> root, CriteriaBuilder criteriaBuilder) {
+        List<Predicate> conditions = new ArrayList<>();
+        if (tagNames != null && !tagNames.isEmpty()) {
+            for (String tagName : tagNames) {
+                Join<Certificate, Tag> join = root.join(Certificate_.tags, JoinType.INNER);
+                conditions.add(criteriaBuilder.equal(join.get(Tag_.name), tagName));
+            }
+        }
+        return conditions;
+    }
 }
+
+

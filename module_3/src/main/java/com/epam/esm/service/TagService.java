@@ -15,5 +15,5 @@ public interface TagService {
 
     List<Tag> updateTags(List<Tag> tags);
 
-    List<Tag> getTheMostUsedTag();
+    Tag getTheMostUsedTag();
 }

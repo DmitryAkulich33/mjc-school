@@ -16,5 +16,5 @@ public interface TagDao {
 
     List<Tag> getTags(Integer offset, Integer pageSize);
 
-    List<Tag> getTheMostUsedTag();
+    Tag getTheMostUsedTag();
 }

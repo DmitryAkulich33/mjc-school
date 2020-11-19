@@ -1,10 +1,8 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.CertificateDao;
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.exceptions.CertificateDuplicateException;
 import com.epam.esm.exceptions.CertificateNotFoundException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
@@ -25,7 +23,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Service
 public class CertificateServiceImpl implements CertificateService {
     private final CertificateDao certificateDao;
-    private final TagDao tagDao;
     private final CertificateValidator certificateValidator;
     private final TagService tagService;
     private final OffsetCalculator offsetCalculator;
@@ -36,10 +33,9 @@ public class CertificateServiceImpl implements CertificateService {
     private static final String DESC = "DESC";
 
     @Autowired
-    public CertificateServiceImpl(CertificateDao certificateDao, TagDao tagDao, CertificateValidator certificateValidator,
+    public CertificateServiceImpl(CertificateDao certificateDao, CertificateValidator certificateValidator,
                                   TagService tagService, OffsetCalculator offsetCalculator) {
         this.certificateDao = certificateDao;
-        this.tagDao = tagDao;
         this.certificateValidator = certificateValidator;
         this.tagService = tagService;
         this.offsetCalculator = offsetCalculator;
@@ -50,19 +46,11 @@ public class CertificateServiceImpl implements CertificateService {
     public Certificate createCertificate(Certificate certificate) {
         log.debug("Service: creation certificate.");
         certificateValidator.validateCertificate(certificate);
-//        checkCertificateByName(certificate.getName());
         List<Tag> tagsForCertificate = tagService.updateTags(certificate.getTags());
         certificate.setTags(tagsForCertificate);
 
         return certificateDao.createCertificate(certificate);
     }
-
-//    private void checkCertificateByName(String name) {
-//        Optional<Certificate> optionalCertificate = certificateDao.getCertificateByName(name);
-//        if (optionalCertificate.isPresent()) {
-//            throw new CertificateDuplicateException("message.certificate.exists");
-//        }
-//    }
 
     @Transactional
     @Override
@@ -72,7 +60,6 @@ public class CertificateServiceImpl implements CertificateService {
 
         Certificate certificateToUpdate = getCertificateById(idCertificate);
         String name = composeCertificateName(certificate, certificateToUpdate);
-//        checkCertificateByName(name);
 
         String description = composeCertificateDescription(certificate, certificateToUpdate);
         Double price = composeCertificatePrice(certificate, certificateToUpdate);
@@ -95,7 +82,6 @@ public class CertificateServiceImpl implements CertificateService {
         certificateValidator.validateCertificateId(idCertificate);
         certificateValidator.validateCertificate(certificate);
         Certificate certificateFromDb = getCertificateById(idCertificate);
-//        checkCertificateByName(certificate.getName());
 
         List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags());
 

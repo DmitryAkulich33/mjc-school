@@ -11,7 +11,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
@@ -21,51 +25,41 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ContextConfiguration(classes = {DbConfig.class})
-@Transactional
-@SqlGroup({
-        @Sql(scripts = "/drop_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-        @Sql(scripts = "/create_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-        @Sql(scripts = "/init_tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-})
+@DataJpaTest
+@ComponentScan(basePackages = {"com.epam.esm.dao", "com.epam.esm.domain"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class CertificateDaoImplTest {
 
-    private static final Long CORRECT_ID_1 = 1L;
-    private static final Long CORRECT_ID_2 = 2L;
-    private static final Long CORRECT_ID_3 = 3L;
-    private static final Long WRONG_ID = 100L;
-    private static final String WRONG_CERTIFICATE_NAME = "super";
+    private static final Long ID_1 = 1L;
+    private static final Long ID_2 = 2L;
+    private static final String TAG_NAME_1 = "food";
+    private static final String TAG_NAME_2 = "delivery";
     private static final String CERTIFICATE_NAME_1 = "Certificate for one purchase";
     private static final String CERTIFICATE_NAME_2 = "Certificate for dinner in a restaurant";
+    private static final String CERTIFICATE_DESCRIPTION_1 = "Certificate for one going to the shop";
+    private static final String CERTIFICATE_DESCRIPTION_2 = "Food and drink without check limit at Viet Express";
+    private static final Double CERTIFICATE_PRICE_1 = 50.0;
+    private static final Double CERTIFICATE_PRICE_2 = 100.0;
+    private static final String CERTIFICATE_DATE_1 = "2020-10-22T11:45:11";
+    private static final String CERTIFICATE_DATE_2 = "2020-11-22T12:45:11";
+    private static final Integer CERTIFICATE_DURATION_1 = 365;
+    private static final Integer CERTIFICATE_DURATION_2 = 100;
     private static final Integer LOCK = 0;
     private static final Integer PAGE_SIZE_1 = 1;
     private static final Integer PAGE_SIZE_10 = 10;
-    private static final Integer OFFSET = 0;
-    private static final Integer WRONG_OFFSET = -2;
-    private static final String CREATE_DATE = "createDate";
-    private static final String TAG_NAME_1 = "food";
-    private static final String TAG_NAME_2 = "delivery";
-    private static final String TAG_NAME_3 = "spa";
-    private static final String SEARCH = "shop";
-    private static final String CREATION_DATE_2 = "2020-11-22T12:45:11";
-    private static final String CREATION_DATE_3 = "2020-11-22T13:00:01";
-    private static final String UPDATE_DATE = "2020-11-22T13:15:01";
+    private static final Integer OFFSET_0 = 0;
+    private static final Integer OFFSET_2 = 2;
 
 
     private Certificate certificate1;
     private Certificate certificate2;
-    private Certificate certificate3;
-    private Certificate certificateCreate;
-    private Certificate certificateUpdate;
-    private Certificate certificate4;
 
     private Tag tag1;
     private Tag tag2;
-    private Tag newTag;
 
     private List<Tag> tags1;
     private List<Tag> tags2;
@@ -76,144 +70,61 @@ class CertificateDaoImplTest {
     @Autowired
     private CertificateDao certificateDao;
 
+    @Autowired
+    private TestEntityManager entityManager;
+
     @BeforeEach
     public void setUp() {
         tag1 = new Tag();
-        tag1.setId(CORRECT_ID_1);
         tag1.setName(TAG_NAME_1);
         tag1.setLock(LOCK);
 
         tag2 = new Tag();
-        tag2.setId(CORRECT_ID_2);
         tag2.setName(TAG_NAME_2);
         tag2.setLock(LOCK);
 
-        newTag = new Tag();
-        newTag.setName(TAG_NAME_3);
-
-        tags1 = new ArrayList<>(Arrays.asList(tag1, tag2));
-        tags2 = new ArrayList<>(Collections.singletonList(tag1));
-        newTags = new ArrayList<>(Arrays.asList(tag2, newTag));
-        tagNames1 = new ArrayList<>(Arrays.asList(TAG_NAME_1, TAG_NAME_2));
-        tagNames2 = new ArrayList<>(Collections.singletonList(TAG_NAME_2));
+        List<Tag> tags1 = new ArrayList<>(Arrays.asList(tag1, tag2));
+        List<Tag> tags2 = new ArrayList<>(Collections.singletonList(tag1));
 
         certificate1 = new Certificate();
-        certificate1.setId(CORRECT_ID_1);
         certificate1.setName(CERTIFICATE_NAME_1);
-        certificate1.setDescription("Certificate for one going to the shop");
-        certificate1.setPrice(50.0);
-        certificate1.setCreateDate(LocalDateTime.parse("2020-10-22T11:45:11"));
+        certificate1.setDescription(CERTIFICATE_DESCRIPTION_1);
+        certificate1.setPrice(CERTIFICATE_PRICE_1);
+        certificate1.setCreateDate(LocalDateTime.parse(CERTIFICATE_DATE_1));
         certificate1.setLock(LOCK);
-        certificate1.setDuration(365);
+        certificate1.setDuration(CERTIFICATE_DURATION_1);
         certificate1.setTags(tags1);
 
         certificate2 = new Certificate();
-        certificate2.setId(CORRECT_ID_2);
         certificate2.setName(CERTIFICATE_NAME_2);
-        certificate2.setDescription("Food and drink without check limit at Viet Express");
-        certificate2.setPrice(100.0);
-        certificate2.setCreateDate(LocalDateTime.parse(CREATION_DATE_2));
+        certificate2.setDescription(CERTIFICATE_DESCRIPTION_2);
+        certificate2.setPrice(CERTIFICATE_PRICE_2);
+        certificate2.setCreateDate(LocalDateTime.parse(CERTIFICATE_DATE_2));
         certificate2.setLock(LOCK);
-        certificate2.setDuration(100);
+        certificate2.setDuration(CERTIFICATE_DURATION_2);
         certificate2.setTags(tags2);
-
-        certificate3 = new Certificate();
-        certificate3.setName("SPA certificate");
-        certificate3.setDescription("Romantic SPA date for two any day");
-        certificate3.setPrice(100.0);
-        certificate3.setDuration(100);
-        certificate3.setTags(newTags);
-
-        certificate4 = new Certificate();
-        certificate4.setId(CORRECT_ID_2);
-        certificate4.setName("SPA certificate");
-        certificate4.setDescription("Romantic SPA date for two any day");
-        certificate4.setPrice(100.0);
-        certificate4.setCreateDate(LocalDateTime.parse(CREATION_DATE_2));
-        certificate4.setDuration(100);
-        certificate4.setLock(LOCK);
-        certificate4.setTags(tags1);
-
-        certificateCreate = new Certificate();
-        certificateCreate.setId(CORRECT_ID_3);
-        certificateCreate.setName("SPA certificate");
-        certificateCreate.setDescription("Romantic SPA date for two any day");
-        certificateCreate.setPrice(100.0);
-        certificateCreate.setCreateDate(LocalDateTime.parse(CREATION_DATE_3));
-        certificateCreate.setLock(0);
-        certificateCreate.setDuration(100);
-        certificateCreate.setTags(newTags);
-        certificateCreate.getTags().get(1).setId(CORRECT_ID_3);
-        certificateCreate.getTags().get(1).setLock(LOCK);
-
-        certificateUpdate = new Certificate();
-        certificateUpdate.setId(CORRECT_ID_2);
-        certificateUpdate.setName("SPA certificate");
-        certificateUpdate.setDescription("Romantic SPA date for two any day");
-        certificateUpdate.setPrice(100.0);
-        certificateUpdate.setCreateDate(LocalDateTime.parse(CREATION_DATE_2));
-        certificateUpdate.setLastUpdateDate(LocalDateTime.parse(UPDATE_DATE));
-        certificateUpdate.setDuration(100);
-        certificateUpdate.setLock(LOCK);
-        certificateUpdate.setTags(tags1);
-
     }
 
-//    @Test
-//    public void testGetCertificateById() {
-//        Optional<Certificate> expected = Optional.ofNullable(certificate1);
-//
-//        Optional<Certificate> actual = certificateDao.getCertificateById(CORRECT_ID_1);
-//
-//        Assertions.assertEquals(expected, actual);
-//    }
-//
-//
-//    @Test
-//    public void testGetCertificateById_WrongResult() {
-//        Optional<Certificate> expected = Optional.ofNullable(certificate2);
-//
-//        Optional<Certificate> actual = certificateDao.getCertificateById(CORRECT_ID_1);
-//
-//        Assertions.assertNotEquals(expected, actual);
-//    }
-//
-//    @Test
-//    public void testGetCertificateById_NotFound() {
-//        Optional<Certificate> expected = Optional.empty();
-//
-//        Optional<Certificate> actual = certificateDao.getCertificateById(WRONG_ID);
-//
-//        Assertions.assertEquals(expected, actual);
-//    }
-//
-//    @Test
-//    public void testGetCertificateByName() {
-//        Optional<Certificate> expected = Optional.ofNullable(certificate1);
-//
-//        Optional<Certificate> actual = certificateDao.getCertificateByName(CERTIFICATE_NAME_1);
-//
-//        Assertions.assertEquals(expected, actual);
-//    }
-//
-////    @Test
-////    public void testGetCertificateByName_WrongResult() {
-////        Optional<Certificate> expected = Optional.ofNullable(certificate2);
-////
-////        Optional<Certificate> actual = certificateDao.getCertificateByName(CERTIFICATE_NAME_1);
-////
-////        Assertions.assertNotEquals(expected, actual);
-////    }
-//
-//    @Test
-//    public void testGetCertificateByName_NotFound() {
-//        Optional<Certificate> expected = Optional.empty();
-//
-//        Optional<Certificate> actual = certificateDao.getCertificateByName(WRONG_CERTIFICATE_NAME);
-//
-//        Assertions.assertEquals(expected, actual);
-//    }
-//
+    @Test
+    public void testGetCertificateById() {
+        Certificate expected = entityManager.persist(certificate1);
+
+        Certificate actual = certificateDao.getCertificateById(expected.getId()).get();
+
+        assertEquals(expected, actual);
+        assert actual.getId() > 0;
+        assert !actual.getTags().isEmpty();
+    }
+
+    @Test
+    public void testGetCertificateById_NotFound() {
+        Optional<Certificate> expected = Optional.empty();
+
+        Optional<Certificate> actual = certificateDao.getCertificateById(ID_1);
+
+        assertEquals(expected, actual);
+    }
+    
 //    @Test
 //    public void testGetCertificates() {
 //        List<Certificate> expected = new ArrayList<>(Arrays.asList(certificate1, certificate2));

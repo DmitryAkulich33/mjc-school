@@ -75,12 +75,12 @@ public class TagController {
 
     @JsonView(TagView.Views.V1.class)
     @GetMapping(path = "/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionModel<TagView>> getTheMostUsedTag() {
-        List<Tag> tags = tagService.getTheMostUsedTag();
-        List<TagView> tagViews = TagView.createListForm(tags);
+    public ResponseEntity<TagView> getTheMostUsedTag() {
+        Tag tag = tagService.getTheMostUsedTag();
+        TagView tagView = TagView.createForm(tag);
 
-        Link link = linkTo(methodOn(TagController.class).getTheMostUsedTag()).withSelfRel();
+        tagView.add(linkTo(methodOn(TagController.class).getTheMostUsedTag()).withSelfRel());
 
-        return new ResponseEntity<>(CollectionModel.of(tagViews, link), HttpStatus.OK);
+        return new ResponseEntity<>(tagView, HttpStatus.OK);
     }
 }

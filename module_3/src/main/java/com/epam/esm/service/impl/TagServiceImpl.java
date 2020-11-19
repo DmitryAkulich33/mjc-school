@@ -96,7 +96,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Tag> getTheMostUsedTag() {
+    public Tag getTheMostUsedTag() {
         log.debug("Service: search the most used Tag");
         return tagDao.getTheMostUsedTag();
     }
