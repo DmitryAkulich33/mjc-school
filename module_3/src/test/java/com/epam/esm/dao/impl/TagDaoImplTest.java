@@ -79,11 +79,11 @@ class TagDaoImplTest {
     void setUp() {
         tag1 = new Tag();
         tag1.setName(TAG_NAME_1);
-        tag1.setLock(LOCK);
+
 
         tag2 = new Tag();
         tag2.setName(TAG_NAME_2);
-        tag2.setLock(LOCK);
+
 
         tag3 = new Tag();
         tag3.setName(TAG_NAME_1);
@@ -95,8 +95,8 @@ class TagDaoImplTest {
         certificate1.setName(CERTIFICATE_NAME_1);
         certificate1.setDescription(CERTIFICATE_DESCRIPTION_1);
         certificate1.setPrice(CERTIFICATE_PRICE_1);
-        certificate1.setCreateDate(LocalDateTime.parse(CERTIFICATE_DATE_1));
-        certificate1.setLock(LOCK);
+
+
         certificate1.setDuration(CERTIFICATE_DURATION_1);
         certificate1.setTags(tags1);
 
@@ -104,8 +104,8 @@ class TagDaoImplTest {
         certificate2.setName(CERTIFICATE_NAME_2);
         certificate2.setDescription(CERTIFICATE_DESCRIPTION_2);
         certificate2.setPrice(CERTIFICATE_PRICE_2);
-        certificate2.setCreateDate(LocalDateTime.parse(CERTIFICATE_DATE_2));
-        certificate2.setLock(LOCK);
+
+
         certificate2.setDuration(CERTIFICATE_DURATION_2);
         certificate2.setTags(tags2);
 
@@ -204,7 +204,7 @@ class TagDaoImplTest {
     }
 
     @Test
-    public void testGetTags_Pagination_ReturnEmpty() {
+    public void testGetTags_Pagination_NotFound() {
         entityManager.persist(tag1);
         entityManager.persist(tag2);
 

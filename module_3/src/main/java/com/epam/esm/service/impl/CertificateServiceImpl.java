@@ -186,7 +186,6 @@ public class CertificateServiceImpl implements CertificateService {
             String[] fields = sort.trim().split(UNDERSCORES);
             String sortType = fields[fields.length - 1];
             return sort.trim().replace(UNDERSCORES + sortType.toLowerCase(), StringUtils.EMPTY);
-
         } else {
             return null;
         }
