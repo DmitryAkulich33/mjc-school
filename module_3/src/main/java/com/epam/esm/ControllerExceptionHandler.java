@@ -117,6 +117,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(PaginationValidatorException.class)
+    public ResponseEntity<Object> handlePaginationValidatorException(PaginationValidatorException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.PAGINATION_ERROR_CODE.getErrorCode(),
+                ErrorCode.DATA_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
@@ -125,6 +132,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         ExceptionResponse error = new ExceptionResponse(message, errorCode);
         log.error(message, exception);
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(WrongEnteredDataException.class)
+    public ResponseEntity<Object> handleWrongEnteredDataException(WrongEnteredDataException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
+                ErrorCode.DATA_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<Object> getResponseEntity(Exception exception, String errorCode, HttpStatus httpStatus) {

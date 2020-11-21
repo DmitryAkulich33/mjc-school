@@ -4,10 +4,12 @@ import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.CertificateNotFoundException;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
 import com.epam.esm.util.OffsetCalculator;
+import com.epam.esm.util.PaginationValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +26,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class CertificateServiceImpl implements CertificateService {
     private final CertificateDao certificateDao;
     private final CertificateValidator certificateValidator;
+    private final PaginationValidator paginationValidator;
     private final TagService tagService;
     private final OffsetCalculator offsetCalculator;
     private static Logger log = LogManager.getLogger(CertificateServiceImpl.class);
@@ -34,9 +37,10 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Autowired
     public CertificateServiceImpl(CertificateDao certificateDao, CertificateValidator certificateValidator,
-                                  TagService tagService, OffsetCalculator offsetCalculator) {
+                                  PaginationValidator paginationValidator, TagService tagService, OffsetCalculator offsetCalculator) {
         this.certificateDao = certificateDao;
         this.certificateValidator = certificateValidator;
+        this.paginationValidator = paginationValidator;
         this.tagService = tagService;
         this.offsetCalculator = offsetCalculator;
     }
@@ -150,18 +154,29 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<Certificate> getCertificates(String name, String search, String sort, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates.");
+        paginationValidator.validatePagination(pageNumber, pageSize);
         Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
         Boolean sortAsc = isSortAsc(sort);
         String sortField = getSortField(sort);
-
-        return certificateDao.getCertificates(name, search, sortAsc, sortField, offset, pageSize);
+        List<Certificate> certificates = certificateDao.getCertificates(name, search, sortAsc, sortField, offset, pageSize);
+        if (certificates.isEmpty()) {
+            throw new WrongEnteredDataException("message.invalid_entered_data");
+        } else {
+            return certificates;
+        }
     }
 
     @Override
     public List<Certificate> getCertificatesByTags(List<String> tagNames, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates by tags' names.");
+        paginationValidator.validatePagination(pageNumber, pageSize);
         Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
-        return certificateDao.getCertificatesByTags(tagNames, offset, pageSize);
+        List<Certificate> certificates = certificateDao.getCertificatesByTags(tagNames, offset, pageSize);
+        if (certificates.isEmpty()) {
+            throw new WrongEnteredDataException("message.invalid_entered_data");
+        } else {
+            return certificates;
+        }
     }
 
     private Boolean isSortAsc(String sort) {

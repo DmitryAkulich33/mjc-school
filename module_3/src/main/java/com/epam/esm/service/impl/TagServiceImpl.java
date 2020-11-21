@@ -4,8 +4,10 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.TagDuplicateException;
 import com.epam.esm.exceptions.TagNotFoundException;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.OffsetCalculator;
+import com.epam.esm.util.PaginationValidator;
 import com.epam.esm.util.TagValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,13 +25,15 @@ import java.util.stream.Collectors;
 public class TagServiceImpl implements TagService {
     private final TagDao tagDao;
     private final TagValidator tagValidator;
+    private final PaginationValidator paginationValidator;
     private final OffsetCalculator offsetCalculator;
     private static Logger log = LogManager.getLogger(TagServiceImpl.class);
 
     @Autowired
-    public TagServiceImpl(TagDao tagDao, TagValidator tagValidator, OffsetCalculator offsetCalculator) {
+    public TagServiceImpl(TagDao tagDao, TagValidator tagValidator, PaginationValidator paginationValidator, OffsetCalculator offsetCalculator) {
         this.tagDao = tagDao;
         this.tagValidator = tagValidator;
+        this.paginationValidator = paginationValidator;
         this.offsetCalculator = offsetCalculator;
     }
 
@@ -70,8 +74,14 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<Tag> getTags(Integer pageNumber, Integer pageSize) {
         log.debug("Service: search all tags.");
+        paginationValidator.validatePagination(pageNumber, pageSize);
         Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
-        return tagDao.getTags(offset, pageSize);
+        List<Tag> tags = tagDao.getTags(offset, pageSize);
+        if(tags.isEmpty()){
+            throw new WrongEnteredDataException("message.invalid_entered_data");
+        } else {
+            return tags;
+        }
     }
 
     @Transactional
