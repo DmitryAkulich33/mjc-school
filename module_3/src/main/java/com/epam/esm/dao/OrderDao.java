@@ -12,7 +12,7 @@ public interface OrderDao {
 
     List<Order> getOrdersByUserId(Long idUser, Integer offset, Integer pageSize);
 
-    Optional<Order> getDataByUserId(Long idUser, Long idOrder);
+    Optional<Order> getOrderDataByUserId(Long idUser, Long idOrder);
 
     Order createOrder(Order order);
 }

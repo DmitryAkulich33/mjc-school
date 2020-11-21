@@ -81,7 +81,7 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
-    public Optional<Order> getDataByUserId(Long idUser, Long idOrder) {
+    public Optional<Order> getOrderDataByUserId(Long idUser, Long idOrder) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> rootOrder = criteriaQuery.from(Order.class);
@@ -106,10 +106,8 @@ public class OrderDaoImpl implements OrderDao {
     public Order createOrder(Order order) {
         try {
             entityManager.persist(order);
-        } catch (IllegalArgumentException e) {
-            throw new OrderDaoException("message.wrong_data", e);
-        } catch (PersistenceException e) {
-            throw new OrderNotFoundException("message.wrong_data", e);
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new OrderDaoException("message.wrong_data");
         }
         return order;
     }

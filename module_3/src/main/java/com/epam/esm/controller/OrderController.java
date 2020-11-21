@@ -73,7 +73,7 @@ public class OrderController {
     @GetMapping(path = "/{idOrder}/users/{idUser}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderDataView> getDataByUserId(@PathVariable @NonNull Long idUser,
                                                          @PathVariable @NonNull Long idOrder) {
-        Order order = orderService.getDataByUserId(idUser, idOrder);
+        Order order = orderService.getOrderDataByUserId(idUser, idOrder);
         OrderDataView orderDataView = OrderDataView.createForm(order);
 
         orderDataView.add(linkTo(methodOn(OrderController.class).getDataByUserId(idUser, idOrder)).withSelfRel());

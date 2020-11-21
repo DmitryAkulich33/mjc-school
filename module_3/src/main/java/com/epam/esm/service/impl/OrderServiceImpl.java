@@ -74,12 +74,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getDataByUserId(Long idUser, Long idOrder) {
+    public Order getOrderDataByUserId(Long idUser, Long idOrder) {
         log.debug(String.format("Service: search order by id_order %d and id_user %d", idOrder, idUser));
         orderValidator.validateOrderId(idOrder);
         userValidator.validateUserId(idUser);
         userService.getUserById(idUser);
-        Optional<Order> order = orderDao.getDataByUserId(idUser, idOrder);
+        Optional<Order> order = orderDao.getOrderDataByUserId(idUser, idOrder);
         if (order.isPresent()) {
             return order.get();
         } else {

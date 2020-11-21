@@ -103,10 +103,10 @@ class OrderServiceImplTest {
 
     @Test
     public void testGetDataByUserId_OrderDaoException() {
-        when(mockOrderDao.getDataByUserId(ID, ID)).thenThrow(new OrderDaoException());
+        when(mockOrderDao.getOrderDataByUserId(ID, ID)).thenThrow(new OrderDaoException());
 
         assertThrows(OrderDaoException.class, () -> {
-            orderServiceImpl.getDataByUserId(ID, ID);
+            orderServiceImpl.getOrderDataByUserId(ID, ID);
         });
     }
 
@@ -114,7 +114,7 @@ class OrderServiceImplTest {
     public void testGetDataByUserId_UserValidatorException() {
         doThrow(UserValidatorException.class).when(mockUserValidator).validateUserId(ID);
         assertThrows(UserValidatorException.class, () -> {
-            orderServiceImpl.getDataByUserId(ID, ID);
+            orderServiceImpl.getOrderDataByUserId(ID, ID);
         });
     }
 
@@ -122,7 +122,7 @@ class OrderServiceImplTest {
     public void testGetDataByUserId_OrderValidatorException() {
         doThrow(OrderValidatorException.class).when(mockOrderValidator).validateOrderId(ID);
         assertThrows(OrderValidatorException.class, () -> {
-            orderServiceImpl.getDataByUserId(ID, ID);
+            orderServiceImpl.getOrderDataByUserId(ID, ID);
         });
     }
 
@@ -130,16 +130,16 @@ class OrderServiceImplTest {
     public void testGetDataByUserId() {
         Order expected = mock(Order.class);
 
-        when(mockOrderDao.getDataByUserId(ID, ID)).thenReturn(Optional.ofNullable(expected));
+        when(mockOrderDao.getOrderDataByUserId(ID, ID)).thenReturn(Optional.ofNullable(expected));
 
-        Order actual = orderServiceImpl.getDataByUserId(ID, ID);
+        Order actual = orderServiceImpl.getOrderDataByUserId(ID, ID);
 
         assertEquals(expected, actual);
 
         verify(mockUserValidator).validateUserId(ID);
         verify(mockOrderValidator).validateOrderId(ID);
         verify(mockUserService).getUserById(ID);
-        verify(mockOrderDao).getDataByUserId(ID, ID);
+        verify(mockOrderDao).getOrderDataByUserId(ID, ID);
     }
 
     @Test

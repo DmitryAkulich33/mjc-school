@@ -2,6 +2,7 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.User;
+import com.epam.esm.exceptions.UserDaoException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -32,6 +34,7 @@ class UserDaoImplTest {
     private static final Integer PAGE_SIZE_10 = 10;
     private static final Integer OFFSET_0 = 0;
     private static final Integer OFFSET_2 = 2;
+    private static final Integer WRONG_OFFSET = -2;
 
     @Autowired
     private UserDao userDao;
@@ -75,7 +78,7 @@ class UserDaoImplTest {
     }
 
     @Test
-    public void testUsers() {
+    public void testGetUsers() {
         User expected1 = entityManager.persist(user1);
         User expected2 = entityManager.persist(user2);
         List<User> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
@@ -108,5 +111,12 @@ class UserDaoImplTest {
         List<User> actual = userDao.getUsers(OFFSET_2, PAGE_SIZE_10);
 
         assert actual.isEmpty();
+    }
+
+    @Test
+    public void testGetUsers_UserDaoException() {
+        assertThrows(UserDaoException.class, () -> {
+            userDao.getUsers(WRONG_OFFSET, PAGE_SIZE_10);
+        });
     }
 }

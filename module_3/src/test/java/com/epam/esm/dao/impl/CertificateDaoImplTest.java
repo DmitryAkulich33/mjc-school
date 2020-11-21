@@ -39,8 +39,6 @@ class CertificateDaoImplTest {
     private static final String CERTIFICATE_DESCRIPTION_2 = "Food and drink without check limit at Viet Express";
     private static final Double CERTIFICATE_PRICE_1 = 50.0;
     private static final Double CERTIFICATE_PRICE_2 = 100.0;
-    private static final String CERTIFICATE_DATE_1 = "2020-10-22T11:45:11";
-    private static final String CERTIFICATE_DATE_2 = "2020-11-22T12:45:11";
     private static final Integer CERTIFICATE_DURATION_1 = 365;
     private static final Integer CERTIFICATE_DURATION_2 = 100;
     private static final Integer LOCK = 0;
@@ -54,7 +52,6 @@ class CertificateDaoImplTest {
     private static final String WRONG_SORT_NAME = "wrongName";
     private static final String SEARCH_1 = "shop";
     private static final String SEARCH_2 = "Certificate";
-
 
     private Certificate certificate1;
     private Certificate certificate2;
@@ -431,16 +428,6 @@ class CertificateDaoImplTest {
         assert actual.isEmpty();
     }
 
-    //    @Test
-//    public void testDeleteCertificate() {
-//        List<Certificate> expected = new ArrayList<>(Collections.singletonList(certificate1));
-//
-//        certificateDao.deleteCertificate(CORRECT_ID_2);
-//        List<Certificate> actual = certificateDao.getCertificates(null, null, null, null, OFFSET, PAGE_SIZE_10);
-//
-//        Assertions.assertEquals(expected, actual);
-//    }
-//
     @Test
     public void testDeleteCertificate_GetCertificateById() {
         Optional<Certificate> expected = Optional.empty();
@@ -467,7 +454,13 @@ class CertificateDaoImplTest {
         assert actual.getTags().get(0).equals(updateCertificate.getTags().get(0));
     }
 
-    // negative tests
+    @Test
+    public void testUpdateCertificate_CertificateDaoException() {
+        entityManager.persist(certificate1);
+        updateCertificate.setId(ID_2);
 
-
+        assertThrows(CertificateDaoException.class, () -> {
+            certificateDao.updateCertificate(updateCertificate);
+        });
+    }
 }

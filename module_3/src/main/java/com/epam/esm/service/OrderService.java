@@ -12,7 +12,7 @@ public interface OrderService {
 
     List<Order> getOrdersByUserId(Long idUser, Integer pageNumber, Integer pageSize);
 
-    Order getDataByUserId(Long idUser, Long idOrder);
+    Order getOrderDataByUserId(Long idUser, Long idOrder);
 
     Order makeOrder(Long idUser, List<Certificate> certificates);
 }
