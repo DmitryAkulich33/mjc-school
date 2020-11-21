@@ -7,7 +7,7 @@ import com.epam.esm.domain.Tag;
 import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.TagDaoException;
 import com.epam.esm.exceptions.TagDuplicateException;
-import org.junit.jupiter.api.Assertions;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +18,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class TagDaoImplTest {
     private static final Long ID_1 = 1L;
-    private static final Long ID_2 = 2L;
     private static final String TAG_NAME_1 = "food";
     private static final String TAG_NAME_2 = "delivery";
     private static final String CERTIFICATE_NAME_1 = "Certificate for one purchase";
@@ -51,7 +50,7 @@ class TagDaoImplTest {
     private static final Double ORDER_TOTAL_2 = 50.0;
     private static final Integer LOCK = 0;
     private static final Integer PAGE_SIZE_1 = 1;
-    private static final Integer PAGE_SIZE_10 = 10;
+    private static final Integer PAGE_SIZE_2 = 2;
     private static final Integer OFFSET_0 = 0;
     private static final Integer OFFSET_2 = 2;
     private static final Integer WRONG_OFFSET = -2;
@@ -86,8 +85,8 @@ class TagDaoImplTest {
         tag3 = new Tag();
         tag3.setName(TAG_NAME_1);
 
-        List<Tag> tags1 = new ArrayList<>(Arrays.asList(tag1, tag2));
-        List<Tag> tags2 = new ArrayList<>(Collections.singletonList(tag1));
+        List<Tag> tags1 = Arrays.asList(tag1, tag2);
+        List<Tag> tags2 = Collections.singletonList(tag1);
 
         certificate1 = new Certificate();
         certificate1.setName(CERTIFICATE_NAME_1);
@@ -103,8 +102,8 @@ class TagDaoImplTest {
         certificate2.setDuration(CERTIFICATE_DURATION_2);
         certificate2.setTags(tags2);
 
-        List<Certificate> certificates1 = new ArrayList<>(Arrays.asList(certificate1, certificate2));
-        List<Certificate> certificates2 = new ArrayList<>(Collections.singletonList(certificate1));
+        List<Certificate> certificates1 = Arrays.asList(certificate1, certificate2);
+        List<Certificate> certificates2 = Collections.singletonList(certificate1);
 
         user1 = new User();
         user1.setName(USER_NAME_1);
@@ -131,7 +130,6 @@ class TagDaoImplTest {
         order2.setCertificates(certificates2);
     }
 
-
     @Test
     public void testGetTagById() {
         Tag expected = entityManager.persist(tag1);
@@ -139,7 +137,6 @@ class TagDaoImplTest {
         Tag actual = tagDao.getTagById(expected.getId()).get();
 
         assertEquals(expected, actual);
-        assert actual.getId() > 0;
     }
 
     @Test
@@ -157,8 +154,7 @@ class TagDaoImplTest {
 
         Tag actual = tagDao.getTagByName(expected.getName()).get();
 
-        Assertions.assertEquals(expected, actual);
-        assert actual.getId() > 0;
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -175,66 +171,51 @@ class TagDaoImplTest {
     public void testGetTags() {
         Tag expected1 = entityManager.persist(tag1);
         Tag expected2 = entityManager.persist(tag2);
-        List<Tag> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
+        List<Tag> expected = Arrays.asList(expected1, expected2);
 
-        List<Tag> actual = tagDao.getTags(OFFSET_0, PAGE_SIZE_10);
+        List<Tag> actual = tagDao.getTags();
 
-        Assertions.assertEquals(expected, actual);
-        assert !actual.isEmpty();
+        assertEquals(expected, actual);
     }
 
     @Test
     public void testGetTags_Pagination() {
         Tag expected1 = entityManager.persist(tag1);
         Tag expected2 = entityManager.persist(tag2);
-        List<Tag> expected = new ArrayList<>(Collections.singletonList(expected1));
+        List<Tag> expected = Collections.singletonList(expected1);
 
         List<Tag> actual = tagDao.getTags(OFFSET_0, PAGE_SIZE_1);
 
-        Assertions.assertEquals(expected, actual);
-        assert !actual.isEmpty();
-        assert !actual.contains(expected2);
-        assert actual.size() == PAGE_SIZE_1;
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void testGetTags_Pagination_NotFound() {
+    public void testGetTags_Pagination_WrongEnteredDataException() {
         entityManager.persist(tag1);
         entityManager.persist(tag2);
-
-        List<Tag> actual = tagDao.getTags(OFFSET_2, PAGE_SIZE_10);
-
-        assert actual.isEmpty();
+        assertThrows(WrongEnteredDataException.class, () -> {
+            tagDao.getTags(OFFSET_2, PAGE_SIZE_2);
+        });
     }
 
     @Test
     public void testGetTags_TagDaoException() {
         assertThrows(TagDaoException.class, () -> {
-            tagDao.getTags(WRONG_OFFSET, PAGE_SIZE_10);
+            tagDao.getTags(WRONG_OFFSET, PAGE_SIZE_2);
         });
     }
 
     @Test
-    public void testDeleteTags_CheckList() {
+    public void testDeleteTags() {
         entityManager.persist(tag1);
-        Tag expected = entityManager.persist(tag2);
 
-        tagDao.deleteTag(ID_2);
+        tagDao.deleteTag(tag1.getId());
 
-        List<Tag> actual = tagDao.getTags(OFFSET_0, PAGE_SIZE_10);
-        assert !actual.contains(expected);
-    }
+        TypedQuery<Tag> query = entityManager.getEntityManager().createQuery(
+                "SELECT t FROM tag t WHERE t.id=?1 AND t.lock=0", Tag.class);
+        Tag actual = query.setParameter(1, tag1.getId()).getResultStream().findAny().orElse(null);
 
-    @Test
-    public void testDeleteTags_CheckTag() {
-        entityManager.persist(tag1);
-        entityManager.persist(tag2);
-        Optional<Tag> expected = Optional.empty();
-
-        tagDao.deleteTag(ID_2);
-
-        Optional<Tag> actual = tagDao.getTagById(ID_2);
-        Assertions.assertEquals(expected, actual);
+        assertNull(actual);
     }
 
     @Test
@@ -268,8 +249,6 @@ class TagDaoImplTest {
 
         Tag actual = tagDao.getTheMostUsedTag();
 
-        Assertions.assertEquals(expected, actual);
-        assert actual != null;
+        assertEquals(expected, actual);
     }
-
 }

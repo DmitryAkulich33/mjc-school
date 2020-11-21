@@ -7,8 +7,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.ResourceBundle;
@@ -139,6 +142,16 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
                 ErrorCode.DATA_ERROR_CODE.getErrorCode());
         return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        String message = ex.getMessage();
+        ExceptionResponse error = new ExceptionResponse(message, errorCode);
+        log.error(message, ex);
+        return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<Object> getResponseEntity(Exception exception, String errorCode, HttpStatus httpStatus) {

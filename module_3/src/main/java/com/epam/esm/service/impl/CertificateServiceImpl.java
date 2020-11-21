@@ -4,11 +4,9 @@ import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.CertificateNotFoundException;
-import com.epam.esm.exceptions.WrongEnteredDataException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
-import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.util.PaginationValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +26,6 @@ public class CertificateServiceImpl implements CertificateService {
     private final CertificateValidator certificateValidator;
     private final PaginationValidator paginationValidator;
     private final TagService tagService;
-    private final OffsetCalculator offsetCalculator;
     private static Logger log = LogManager.getLogger(CertificateServiceImpl.class);
 
     private static final String UNDERSCORES = "_";
@@ -37,12 +34,11 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Autowired
     public CertificateServiceImpl(CertificateDao certificateDao, CertificateValidator certificateValidator,
-                                  PaginationValidator paginationValidator, TagService tagService, OffsetCalculator offsetCalculator) {
+                                  PaginationValidator paginationValidator, TagService tagService) {
         this.certificateDao = certificateDao;
         this.certificateValidator = certificateValidator;
         this.paginationValidator = paginationValidator;
         this.tagService = tagService;
-        this.offsetCalculator = offsetCalculator;
     }
 
     @Transactional
@@ -64,7 +60,6 @@ public class CertificateServiceImpl implements CertificateService {
 
         Certificate certificateToUpdate = getCertificateById(idCertificate);
         String name = composeCertificateName(certificate, certificateToUpdate);
-
         String description = composeCertificateDescription(certificate, certificateToUpdate);
         Double price = composeCertificatePrice(certificate, certificateToUpdate);
         Integer duration = composeCertificateDuration(certificate, certificateToUpdate);
@@ -83,12 +78,10 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
         log.debug(String.format("Service: update certificate with id %d", idCertificate));
-        certificateValidator.validateCertificateId(idCertificate);
-        certificateValidator.validateCertificate(certificate);
+        certificateValidator.validateCertificateWithId(idCertificate, certificate);
         Certificate certificateFromDb = getCertificateById(idCertificate);
 
         List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags());
-
         certificate.setId(certificateFromDb.getId());
         certificate.setCreateDate(certificateFromDb.getCreateDate());
         certificate.setTags(tagsAfterUpdate);
@@ -132,7 +125,6 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public void deleteCertificate(Long idCertificate) {
         log.debug(String.format("Service: deletion certificate with id %d", idCertificate));
-        certificateValidator.validateCertificateId(idCertificate);
         getCertificateById(idCertificate);
         certificateDao.deleteCertificate(idCertificate);
     }
@@ -142,27 +134,22 @@ public class CertificateServiceImpl implements CertificateService {
     public Certificate getCertificateById(Long idCertificate) {
         log.debug(String.format("Service: search certificate by id %d", idCertificate));
         certificateValidator.validateCertificateId(idCertificate);
-        Optional<Certificate> certificate = certificateDao.getCertificateById(idCertificate);
-        if (certificate.isPresent()) {
-            return certificate.get();
-        } else {
-            throw new CertificateNotFoundException("message.wrong_certificate_id");
-        }
+        Optional<Certificate> optionalCertificate = certificateDao.getCertificateById(idCertificate);
+        return optionalCertificate.orElseThrow(() -> new CertificateNotFoundException("message.wrong_certificate_id"));
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Certificate> getCertificates(String name, String search, String sort, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates.");
-        paginationValidator.validatePagination(pageNumber, pageSize);
-        Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
         Boolean sortAsc = isSortAsc(sort);
         String sortField = getSortField(sort);
-        List<Certificate> certificates = certificateDao.getCertificates(name, search, sortAsc, sortField, offset, pageSize);
-        if (certificates.isEmpty()) {
-            throw new WrongEnteredDataException("message.invalid_entered_data");
+        paginationValidator.validatePagination(pageNumber, pageSize);
+        if (pageNumber != null && pageSize != null) {
+            Integer offset = calculateOffset(pageNumber, pageSize);
+            return certificateDao.getCertificates(name, search, sortAsc, sortField, offset, pageSize);
         } else {
-            return certificates;
+            return certificateDao.getCertificates(name, search, sortAsc, sortField);
         }
     }
 
@@ -170,12 +157,11 @@ public class CertificateServiceImpl implements CertificateService {
     public List<Certificate> getCertificatesByTags(List<String> tagNames, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates by tags' names.");
         paginationValidator.validatePagination(pageNumber, pageSize);
-        Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
-        List<Certificate> certificates = certificateDao.getCertificatesByTags(tagNames, offset, pageSize);
-        if (certificates.isEmpty()) {
-            throw new WrongEnteredDataException("message.invalid_entered_data");
+        if (pageNumber != null && pageSize != null) {
+            Integer offset = calculateOffset(pageNumber, pageSize);
+            return certificateDao.getCertificatesByTags(tagNames, offset, pageSize);
         } else {
-            return certificates;
+            return certificateDao.getCertificatesByTags(tagNames);
         }
     }
 

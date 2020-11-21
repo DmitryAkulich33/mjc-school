@@ -16,6 +16,10 @@ public interface CertificateDao {
 
     List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField, Integer offset, Integer pageSize);
 
+    List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField);
+
     List<Certificate> getCertificatesByTags(List<String> tagNames, Integer offset, Integer pageSize);
+
+    List<Certificate> getCertificatesByTags(List<String> tagNames);
 
 }

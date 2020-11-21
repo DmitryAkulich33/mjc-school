@@ -4,8 +4,8 @@ import com.epam.esm.domain.Certificate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
-import org.springframework.lang.NonNull;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,15 +14,15 @@ public class CreateCertificateView {
     @JsonView(Views.V1.class)
     private Long id;
 
-    @NonNull
+    @NotNull
     @JsonView(Views.V1.class)
     private String name;
 
-    @NonNull
+    @NotNull
     @JsonView(Views.V1.class)
     private String description;
 
-    @NonNull
+    @NotNull
     @JsonView(Views.V1.class)
     private Double price;
 
@@ -34,11 +34,11 @@ public class CreateCertificateView {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdateDate;
 
-    @NonNull
+    @NotNull
     @JsonView(Views.V1.class)
     private Integer duration;
 
-    @NonNull
+    @NotNull
     @JsonView(Views.V1.class)
     private List<TagView> tags;
 

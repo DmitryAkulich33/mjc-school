@@ -44,8 +44,8 @@ public class TagController {
 
     @JsonView(TagView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionModel<TagView>> getAllTags(@RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
-                                                               @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+    public ResponseEntity<CollectionModel<TagView>> getAllTags(@RequestParam(required = false) Integer pageNumber,
+                                                               @RequestParam(required = false) Integer pageSize) {
         List<Tag> tags = tagService.getTags(pageNumber, pageSize);
         List<TagView> tagViews = TagView.createListForm(tags);
 
@@ -55,7 +55,7 @@ public class TagController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Tag> deleteTag(@PathVariable @NonNull Long id) {
+    public ResponseEntity<Tag> deleteTag(@PathVariable Long id) {
         tagService.deleteTag(id);
 
         return ResponseEntity.ok().build();

@@ -1,17 +1,13 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.OrderDao;
-import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Order;
 import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.OrderNotFoundException;
-import com.epam.esm.exceptions.WrongEnteredDataException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
-import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.util.OrderValidator;
 import com.epam.esm.util.PaginationValidator;
 import com.epam.esm.util.UserValidator;
@@ -27,25 +23,20 @@ import java.util.stream.Collectors;
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderDao orderDao;
-    private final UserDao userDao;
-    private final CertificateDao certificateDao;
     private final OrderValidator orderValidator;
     private final UserValidator userValidator;
     private final PaginationValidator paginationValidator;
-    private final OffsetCalculator offsetCalculator;
     private final UserService userService;
     private final CertificateService certificateService;
+
     private static Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    public OrderServiceImpl(OrderDao orderDao, UserDao userDao, CertificateDao certificateDao, OrderValidator orderValidator, UserValidator userValidator, PaginationValidator paginationValidator, OffsetCalculator offsetCalculator, UserService userService, CertificateService certificateService) {
+    public OrderServiceImpl(OrderDao orderDao, OrderValidator orderValidator, UserValidator userValidator, PaginationValidator paginationValidator, UserService userService, CertificateService certificateService) {
         this.orderDao = orderDao;
-        this.userDao = userDao;
-        this.certificateDao = certificateDao;
         this.orderValidator = orderValidator;
         this.userValidator = userValidator;
         this.paginationValidator = paginationValidator;
-        this.offsetCalculator = offsetCalculator;
         this.userService = userService;
         this.certificateService = certificateService;
     }
@@ -54,24 +45,19 @@ public class OrderServiceImpl implements OrderService {
     public Order getOrderById(Long idOrder) {
         log.debug(String.format("Service: search order by id %d", idOrder));
         orderValidator.validateOrderId(idOrder);
-        Optional<Order> order = orderDao.getOrderById(idOrder);
-        if (order.isPresent()) {
-            return order.get();
-        } else {
-            throw new OrderNotFoundException("message.wrong_order_id");
-        }
+        Optional<Order> optionalOrder = orderDao.getOrderById(idOrder);
+        return optionalOrder.orElseThrow(() -> new OrderNotFoundException("message.wrong_order_id"));
     }
 
     @Override
     public List<Order> getOrders(Integer pageNumber, Integer pageSize) {
         log.debug("Service: search all orders.");
         paginationValidator.validatePagination(pageNumber, pageSize);
-        Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
-        List<Order> orders = orderDao.getOrders(offset, pageSize);
-        if(orders.isEmpty()){
-            throw new WrongEnteredDataException("message.invalid_entered_data");
+        if (pageNumber != null && pageSize != null) {
+            Integer offset = calculateOffset(pageNumber, pageSize);
+            return orderDao.getOrders(offset, pageSize);
         } else {
-            return orders;
+            return orderDao.getOrders();
         }
     }
 
@@ -80,12 +66,11 @@ public class OrderServiceImpl implements OrderService {
         log.debug("Service: search all users.");
         userValidator.validateUserId(idUser);
         paginationValidator.validatePagination(pageNumber, pageSize);
-        Integer offset = offsetCalculator.calculateOffset(pageNumber, pageSize);
-        List<Order> orders = orderDao.getOrdersByUserId(idUser, offset, pageSize);
-        if(orders.isEmpty()){
-            throw new WrongEnteredDataException("message.invalid_entered_data");
+        if (pageNumber != null && pageSize != null) {
+            Integer offset = calculateOffset(pageNumber, pageSize);
+            return orderDao.getOrdersByUserId(idUser, offset, pageSize);
         } else {
-            return orders;
+            return orderDao.getOrdersByUserId(idUser);
         }
     }
 
@@ -95,12 +80,8 @@ public class OrderServiceImpl implements OrderService {
         orderValidator.validateOrderId(idOrder);
         userValidator.validateUserId(idUser);
         userService.getUserById(idUser);
-        Optional<Order> order = orderDao.getOrderDataByUserId(idUser, idOrder);
-        if (order.isPresent()) {
-            return order.get();
-        } else {
-            throw new OrderNotFoundException("message.wrong_order_id");
-        }
+        Optional<Order> optionalOrder = orderDao.getOrderDataByUserId(idUser, idOrder);
+        return optionalOrder.orElseThrow(() -> new OrderNotFoundException("message.wrong_order_id"));
     }
 
     @Override

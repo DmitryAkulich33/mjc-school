@@ -10,7 +10,6 @@ import com.epam.esm.exceptions.CertificateValidatorException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.CertificateValidator;
-import com.epam.esm.util.OffsetCalculator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,37 +25,36 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CertificateServiceImplTest {
-    private static final Long CERTIFICATE_ID = 1L;
-    private static final String TAG_NAME = "tag";
-    private static final String CERTIFICATE_SEARCH = "search";
-    private static final String CERTIFICATE_SORT = "createDate_asc";
-    private static final Integer PAGE_NUMBER = 1;
-    private static final Integer PAGE_SIZE = 10;
-    private static final Integer OFFSET = 0;
-    private static final Boolean SORT_ASC = true;
-    private static final String CREATE_DATE = "createDate";
-
-    @Mock
-    private List<Certificate> mockCertificates;
-    @Mock
-    private TagDao mockTagDao;
-    @Mock
-    private CertificateDao mockCertificateDao;
-    @Mock
-    private CertificateValidator mockCertificateValidator;
-    @Mock
-    private OffsetCalculator mockOffsetCalculator;
-    @Mock
-    private Certificate mockCertificate;
-    @Mock
-    private List<String> tagNames;
-    @Mock
-    private TagService tagService;
-
-
-    @InjectMocks
-    private CertificateService certificateService;
-
+//    private static final Long CERTIFICATE_ID = 1L;
+//    private static final String TAG_NAME = "tag";
+//    private static final String CERTIFICATE_SEARCH = "search";
+//    private static final String CERTIFICATE_SORT = "createDate_asc";
+//    private static final Integer PAGE_NUMBER = 1;
+//    private static final Integer PAGE_SIZE = 10;
+//    private static final Integer OFFSET = 0;
+//    private static final Boolean SORT_ASC = true;
+//    private static final String CREATE_DATE = "createDate";
+//
+//    @Mock
+//    private List<Certificate> mockCertificates;
+//    @Mock
+//    private TagDao mockTagDao;
+//    @Mock
+//    private CertificateDao mockCertificateDao;
+//    @Mock
+//    private CertificateValidator mockCertificateValidator;
+//
+//    @Mock
+//    private Certificate mockCertificate;
+//    @Mock
+//    private List<String> tagNames;
+//    @Mock
+//    private TagService tagService;
+//
+//
+//    @InjectMocks
+//    private CertificateService certificateService;
+//
 
 //    @Test
 //    public void testGetCertificateById() {

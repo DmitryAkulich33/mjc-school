@@ -6,6 +6,7 @@ import com.epam.esm.domain.Order;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.OrderDaoException;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,13 +45,11 @@ class OrderDaoImplTest {
     private static final String USER_NAME_2 = "Petr";
     private static final String USER_SURNAME_1 = "Ivanov";
     private static final String USER_SURNAME_2 = "Petrov";
-    private static final String ORDER_DATE_1 = "2020-11-22T10:45:11";
-    private static final String ORDER_DATE_2 = "2020-11-22T12:45:11";
     private static final Double ORDER_TOTAL_1 = 150.0;
     private static final Double ORDER_TOTAL_2 = 50.0;
     private static final Integer LOCK = 0;
     private static final Integer PAGE_SIZE_1 = 1;
-    private static final Integer PAGE_SIZE_10 = 10;
+    private static final Integer PAGE_SIZE_2 = 2;
     private static final Integer OFFSET_0 = 0;
     private static final Integer OFFSET_2 = 2;
     private static final Integer WRONG_OFFSET = -2;
@@ -83,8 +82,8 @@ class OrderDaoImplTest {
         tag3 = new Tag();
         tag3.setName(TAG_NAME_1);
 
-        List<Tag> tags1 = new ArrayList<>(Arrays.asList(tag1, tag2));
-        List<Tag> tags2 = new ArrayList<>(Collections.singletonList(tag1));
+        List<Tag> tags1 = Arrays.asList(tag1, tag2);
+        List<Tag> tags2 = Collections.singletonList(tag1);
 
         certificate1 = new Certificate();
         certificate1.setName(CERTIFICATE_NAME_1);
@@ -100,8 +99,8 @@ class OrderDaoImplTest {
         certificate2.setDuration(CERTIFICATE_DURATION_2);
         certificate2.setTags(tags2);
 
-        List<Certificate> certificates1 = new ArrayList<>(Arrays.asList(certificate1, certificate2));
-        List<Certificate> certificates2 = new ArrayList<>(Collections.singletonList(certificate1));
+        List<Certificate> certificates1 = Arrays.asList(certificate1, certificate2);
+        List<Certificate> certificates2 = Collections.singletonList(certificate1);
 
         user1 = new User();
         user1.setName(USER_NAME_1);
@@ -146,7 +145,6 @@ class OrderDaoImplTest {
         Order actual = orderDao.getOrderById(expected.getId()).get();
 
         assertEquals(expected, actual);
-        assert actual.getId() > 0;
     }
 
     @Test
@@ -159,12 +157,12 @@ class OrderDaoImplTest {
     }
 
     @Test
-    public void testGetTags() {
+    public void testGetOrders() {
         Order expected1 = entityManager.persist(order1);
         Order expected2 = entityManager.persist(order2);
-        List<Order> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
+        List<Order> expected = Arrays.asList(expected1, expected2);
 
-        List<Order> actual = orderDao.getOrders(OFFSET_0, PAGE_SIZE_10);
+        List<Order> actual = orderDao.getOrders();
 
         Assertions.assertEquals(expected, actual);
         assert !actual.isEmpty();
@@ -174,54 +172,48 @@ class OrderDaoImplTest {
     public void testGetOrders_Pagination() {
         Order expected1 = entityManager.persist(order1);
         Order expected2 = entityManager.persist(order2);
-        List<Order> expected = new ArrayList<>(Collections.singletonList(expected1));
+        List<Order> expected = Collections.singletonList(expected1);
 
         List<Order> actual = orderDao.getOrders(OFFSET_0, PAGE_SIZE_1);
 
         Assertions.assertEquals(expected, actual);
-        assert !actual.isEmpty();
-        assert !actual.contains(expected2);
-        assert actual.size() == PAGE_SIZE_1;
     }
 
     @Test
-    public void testGetOrders_Pagination_NotFound() {
+    public void testGetOrders_Pagination_WrongEnteredDataException() {
         entityManager.persist(order1);
         entityManager.persist(order2);
 
-        List<Order> actual = orderDao.getOrders(OFFSET_2, PAGE_SIZE_10);
-
-        assert actual.isEmpty();
+        assertThrows(WrongEnteredDataException.class, () -> {
+            orderDao.getOrders(OFFSET_2, PAGE_SIZE_2);
+        });
     }
 
     @Test
     public void testGetOrders_OrderDaoException() {
         assertThrows(OrderDaoException.class, () -> {
-            orderDao.getOrders(WRONG_OFFSET, PAGE_SIZE_10);
+            orderDao.getOrders(WRONG_OFFSET, PAGE_SIZE_2);
         });
     }
 
     @Test
     public void testGetOrderByUserId() {
         Order order = entityManager.persist(order1);
-        List<Order> expected = new ArrayList<>(Collections.singletonList(order));
+        List<Order> expected = Collections.singletonList(order);
 
-        List<Order> actual = orderDao.getOrdersByUserId(order.getUser().getId(), OFFSET_0, PAGE_SIZE_10);
+        List<Order> actual = orderDao.getOrdersByUserId(order.getUser().getId(), OFFSET_0, PAGE_SIZE_2);
 
         assertEquals(expected, actual);
-        assert actual.get(0).getId().equals(expected.get(0).getId());
-        assert actual.get(0).getUser().equals(expected.get(0).getUser());
     }
 
     @Test
     public void testGetOrderByUserId_NotFound() {
-        Order order = entityManager.persist(order1);
+        entityManager.persist(order1);
         List<Order> expected = new ArrayList<>();
 
-        List<Order> actual = orderDao.getOrdersByUserId(ID_2, OFFSET_0, PAGE_SIZE_10);
+        List<Order> actual = orderDao.getOrdersByUserId(ID_2, OFFSET_0, PAGE_SIZE_2);
 
         assertEquals(expected, actual);
-        assert !actual.contains(order);
     }
 
     @Test
@@ -233,10 +225,6 @@ class OrderDaoImplTest {
         Order actual = orderDao.getOrderDataByUserId(idUser, idOrder).get();
 
         assertEquals(expected, actual);
-        assert actual.getUser().getId().equals(idUser);
-        assert actual.getId().equals(idOrder);
-        assert actual.getPurchaseDate().equals(expected.getPurchaseDate());
-        assert actual.getTotal().equals(expected.getTotal());
     }
 
     @Test

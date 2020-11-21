@@ -82,7 +82,7 @@ public class OrderController {
     }
 
     @JsonView(OrderView.Views.V1.class)
-    @PostMapping(path = "/toOrder/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderView> makeOrder(@PathVariable @NonNull Long id,
                                                @RequestBody @JsonView(CertificateForOrderView.Views.V1.class) List<CertificateForOrderView> certificates) {
         List<Certificate> certificatesToUpdate = CertificateForOrderView.createListForm(certificates);

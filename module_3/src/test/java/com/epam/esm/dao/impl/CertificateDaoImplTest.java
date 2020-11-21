@@ -5,6 +5,7 @@ import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.exceptions.CertificateDuplicateException;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +17,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -43,13 +44,12 @@ class CertificateDaoImplTest {
     private static final Integer CERTIFICATE_DURATION_2 = 100;
     private static final Integer LOCK = 0;
     private static final Integer PAGE_SIZE_1 = 1;
-    private static final Integer PAGE_SIZE_10 = 10;
+    private static final Integer PAGE_SIZE_2 = 2;
     private static final Integer OFFSET_0 = 0;
     private static final Integer OFFSET_2 = 2;
     private static final Integer WRONG_OFFSET = -2;
     private static final String SORT_CREATE_DATE = "createDate";
     private static final String SORT_NAME = "name";
-    private static final String WRONG_SORT_NAME = "wrongName";
     private static final String SEARCH_1 = "shop";
     private static final String SEARCH_2 = "Certificate";
 
@@ -115,8 +115,8 @@ class CertificateDaoImplTest {
         updateCertificate.setDuration(CERTIFICATE_DURATION_2);
         updateCertificate.setTags(tags2);
 
-        tagNames = new ArrayList<>(Arrays.asList(TAG_NAME_1, TAG_NAME_2));
-        wrongTagNames = new ArrayList<>(Arrays.asList(TAG_NAME_1, TAG_NAME_2, WRONG_TAG_NAME_3));
+        tagNames = Arrays.asList(TAG_NAME_1, TAG_NAME_2);
+        wrongTagNames = Arrays.asList(TAG_NAME_1, TAG_NAME_2, WRONG_TAG_NAME_3);
     }
 
     @Test
@@ -126,8 +126,6 @@ class CertificateDaoImplTest {
         Certificate actual = certificateDao.getCertificateById(expected.getId()).get();
 
         assertEquals(expected, actual);
-        assert actual.getId() > 0;
-        assert !actual.getTags().isEmpty();
     }
 
     @Test
@@ -143,39 +141,31 @@ class CertificateDaoImplTest {
     public void testGetCertificates_WithoutParams() {
         Certificate expected1 = entityManager.persist(certificate1);
         Certificate expected2 = entityManager.persist(certificate2);
-        List<Certificate> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
+        List<Certificate> expected = Arrays.asList(expected1, expected2);
 
-        List<Certificate> actual = certificateDao.getCertificates(null, null, null, null, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(null, null, null, null);
 
         Assertions.assertEquals(expected, actual);
-        assert !actual.get(0).getTags().isEmpty();
-        assert !actual.get(1).getTags().isEmpty();
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
     }
 
     @Test
     public void testGetCertificates_WithoutParams_Pagination() {
         Certificate expected1 = entityManager.persist(certificate1);
-        Certificate expected2 = entityManager.persist(certificate2);
-        List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
+        entityManager.persist(certificate2);
+        List<Certificate> expected = Collections.singletonList(expected1);
 
         List<Certificate> actual = certificateDao.getCertificates(null, null, null, null, OFFSET_0, PAGE_SIZE_1);
 
         Assertions.assertEquals(expected, actual);
-        assert !actual.get(0).getTags().isEmpty();
-        assert !actual.contains(expected2);
-        assert actual.size() == PAGE_SIZE_1;
     }
 
     @Test
-    public void testGetCertificates_WithoutParams_Pagination_NotFound() {
+    public void testGetCertificates_WrongEnteredDataException() {
         entityManager.persist(certificate1);
         entityManager.persist(certificate2);
-
-        List<Certificate> actual = certificateDao.getCertificates(null, null, null, null, OFFSET_2, PAGE_SIZE_10);
-
-        assert actual.isEmpty();
+        assertThrows(WrongEnteredDataException.class, () -> {
+            certificateDao.getCertificates(null, null, null, null, OFFSET_2, PAGE_SIZE_2);
+        });
     }
 
     @Test
@@ -183,17 +173,11 @@ class CertificateDaoImplTest {
         Certificate expected1 = entityManager.persist(certificate1);
         Thread.sleep(100);
         Certificate expected2 = entityManager.persist(certificate2);
-        List<Certificate> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
+        List<Certificate> expected = Arrays.asList(expected1, expected2);
 
-        List<Certificate> actual = certificateDao.getCertificates(null, null, true, SORT_CREATE_DATE, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(null, null, true, SORT_CREATE_DATE, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        ;
-        assert actual.get(0).getCreateDate().isBefore(actual.get(1).getCreateDate());
-        assert !actual.get(0).getTags().isEmpty();
-        assert !actual.get(1).getTags().isEmpty();
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
 
     }
 
@@ -204,14 +188,9 @@ class CertificateDaoImplTest {
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Arrays.asList(expected2, expected1));
 
-        List<Certificate> actual = certificateDao.getCertificates(null, null, false, SORT_CREATE_DATE, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(null, null, false, SORT_CREATE_DATE, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert actual.get(0).getCreateDate().isAfter(actual.get(1).getCreateDate());
-        assert !actual.get(0).getTags().isEmpty();
-        assert !actual.get(1).getTags().isEmpty();
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
     }
 
     @Test
@@ -220,28 +199,20 @@ class CertificateDaoImplTest {
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Arrays.asList(expected2, expected1));
 
-        List<Certificate> actual = certificateDao.getCertificates(null, null, true, SORT_NAME, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(null, null, true, SORT_NAME, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert !actual.get(0).getTags().isEmpty();
-        assert !actual.get(1).getTags().isEmpty();
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
     }
 
     @Test
     public void testGetCertificates_SortCreateNameDesc() {
         Certificate expected1 = entityManager.persist(certificate1);
         Certificate expected2 = entityManager.persist(certificate2);
-        List<Certificate> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
+        List<Certificate> expected = Arrays.asList(expected1, expected2);
 
-        List<Certificate> actual = certificateDao.getCertificates(null, null, false, SORT_NAME, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(null, null, false, SORT_NAME, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert !actual.get(0).getTags().isEmpty();
-        assert !actual.get(1).getTags().isEmpty();
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
     }
 
     @Test
@@ -250,13 +221,9 @@ class CertificateDaoImplTest {
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
 
-        List<Certificate> actual = certificateDao.getCertificates(TAG_NAME_2, null, false, SORT_CREATE_DATE, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(TAG_NAME_2, null, false, SORT_CREATE_DATE, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
-        assert actual.get(0).getTags().get(1).getName().equals(TAG_NAME_2);
-        assert actual.size() == 1;
     }
 
     @Test
@@ -265,14 +232,9 @@ class CertificateDaoImplTest {
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
 
-        List<Certificate> actual = certificateDao.getCertificates(TAG_NAME_1, null, null, null, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(TAG_NAME_1, null, null, null, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
-        assert actual.get(0).getTags().get(0).getName().equals(TAG_NAME_1);
-        assert actual.get(1).getTags().get(0).getName().equals(TAG_NAME_1);
-        assert actual.size() == 2;
     }
 
     @Test
@@ -280,7 +242,7 @@ class CertificateDaoImplTest {
         entityManager.persist(certificate1);
         entityManager.persist(certificate2);
 
-        List<Certificate> actual = certificateDao.getCertificates(WRONG_TAG_NAME_3, null, null, null, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(WRONG_TAG_NAME_3, null, null, null, OFFSET_0, PAGE_SIZE_2);
 
         assert actual.isEmpty();
     }
@@ -291,13 +253,9 @@ class CertificateDaoImplTest {
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
 
-        List<Certificate> actual = certificateDao.getCertificates(TAG_NAME_2, SEARCH_1, false, SORT_CREATE_DATE, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(TAG_NAME_2, SEARCH_1, false, SORT_CREATE_DATE, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
-        assert actual.get(0).getTags().get(1).getName().equals(TAG_NAME_2);
-        assert actual.size() == 1;
     }
 
     @Test
@@ -306,12 +264,9 @@ class CertificateDaoImplTest {
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
 
-        List<Certificate> actual = certificateDao.getCertificates(null, SEARCH_1, null, null, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(null, SEARCH_1, null, null, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
-        assert actual.size() == 1;
     }
 
     @Test
@@ -320,12 +275,9 @@ class CertificateDaoImplTest {
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
 
-        List<Certificate> actual = certificateDao.getCertificates(null, SEARCH_2, null, null, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(null, SEARCH_2, null, null, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
-        assert actual.size() == 2;
     }
 
     @Test
@@ -334,22 +286,17 @@ class CertificateDaoImplTest {
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
 
-        List<Certificate> actual = certificateDao.getCertificates(TAG_NAME_2, SEARCH_1, null, null, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificates(TAG_NAME_2, SEARCH_1, null, null, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
-        assert actual.get(0).getTags().get(1).getName().equals(TAG_NAME_2);
-        assert actual.size() == 1;
     }
 
     @Test
     public void testGetCertificates_CertificateDaoException() {
         assertThrows(CertificateDaoException.class, () -> {
-            certificateDao.getCertificates(null, null, true, WRONG_SORT_NAME, OFFSET_0, PAGE_SIZE_10);
+            certificateDao.getCertificates(null, null, null, null, WRONG_OFFSET, PAGE_SIZE_2);
         });
     }
-
 
     @Test
     public void testGetCertificatesByTags() {
@@ -357,12 +304,9 @@ class CertificateDaoImplTest {
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
 
-        List<Certificate> actual = certificateDao.getCertificatesByTags(tagNames, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificatesByTags(tagNames, OFFSET_0, PAGE_SIZE_2);
 
         Assertions.assertEquals(expected, actual);
-        assert actual.size() <= PAGE_SIZE_10;
-        assert actual.size() >= OFFSET_0;
-        assert actual.size() == 1;
     }
 
     @Test
@@ -370,7 +314,7 @@ class CertificateDaoImplTest {
         entityManager.persist(certificate1);
         entityManager.persist(certificate2);
 
-        List<Certificate> actual = certificateDao.getCertificatesByTags(wrongTagNames, OFFSET_0, PAGE_SIZE_10);
+        List<Certificate> actual = certificateDao.getCertificatesByTags(wrongTagNames, OFFSET_0, PAGE_SIZE_2);
 
         assert actual.isEmpty();
     }
@@ -378,7 +322,7 @@ class CertificateDaoImplTest {
     @Test
     public void testGetCertificatesByTags_CertificateDaoException() {
         assertThrows(CertificateDaoException.class, () -> {
-            certificateDao.getCertificatesByTags(tagNames, WRONG_OFFSET, PAGE_SIZE_10);
+            certificateDao.getCertificatesByTags(tagNames, WRONG_OFFSET, PAGE_SIZE_2);
         });
     }
 
@@ -417,32 +361,22 @@ class CertificateDaoImplTest {
 
     @Test
     public void testDeleteCertificate_GetCertificates() {
-        List<Certificate> expected = new ArrayList<>();
+        entityManager.persist(certificate1);
 
-        Certificate certificate = entityManager.persist(certificate1);
-        certificateDao.deleteCertificate(certificate.getId());
+        certificateDao.deleteCertificate(certificate1.getId());
 
-        List<Certificate> actual = certificateDao.getCertificates(null, null, null, null, OFFSET_0, PAGE_SIZE_10);
+        TypedQuery<Certificate> query = entityManager.getEntityManager().createQuery(
+                "SELECT c FROM certificate c WHERE c.id=?1 AND c.lock=0", Certificate.class);
+        Certificate actual = query.setParameter(1, certificate1.getId()).getResultStream().findAny().orElse(null);
 
-        assertEquals(expected, actual);
-        assert actual.isEmpty();
-    }
-
-    @Test
-    public void testDeleteCertificate_GetCertificateById() {
-        Optional<Certificate> expected = Optional.empty();
-
-        Certificate certificate = entityManager.persist(certificate1);
-        certificateDao.deleteCertificate(certificate.getId());
-
-        Optional<Certificate> actual = certificateDao.getCertificateById(certificate.getId());
-
-        assertEquals(expected, actual);
+        assertNull(actual);
     }
 
     @Test
     public void testUpdateCertificate() {
         Certificate expected = entityManager.persist(certificate1);
+        System.out.println(expected);
+        System.out.println(updateCertificate);
 
         Certificate actual = certificateDao.updateCertificate(updateCertificate);
 

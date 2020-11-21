@@ -32,6 +32,15 @@ public class CertificateValidator {
         validateCertificateTags(certificate.getTags());
     }
 
+    public void validateCertificateWithId(Long id, Certificate certificate) {
+        validateCertificateId(id);
+        validateCertificateName(certificate.getName());
+        validateCertificateDescription(certificate.getDescription());
+        validateCertificatePrice(certificate.getPrice());
+        validateCertificateDuration(certificate.getDuration());
+        validateCertificateTags(certificate.getTags());
+    }
+
     private void validateCertificateDescription(String description) {
         if (isBlank(description)) {
             throw new CertificateValidatorException("message.invalid_certificate_description");

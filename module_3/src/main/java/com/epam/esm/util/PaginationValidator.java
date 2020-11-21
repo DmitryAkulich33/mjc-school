@@ -7,19 +7,27 @@ import org.springframework.stereotype.Component;
 public class PaginationValidator {
 
     public void validatePagination(Integer pageNumber, Integer pageSize) {
-        validatePageNumber(pageNumber);
-        validatePageSize(pageSize);
+        validatePageNumber(pageNumber, pageSize);
+        validatePageSize(pageNumber, pageSize);
     }
 
-    private void validatePageNumber(Integer pageNumber) {
-        if (pageNumber == null || pageNumber <= 0) {
-            throw new PaginationValidatorException("message.invalid_page_number");
+    private void validatePageNumber(Integer pageNumber, Integer pageSize) {
+        if(pageNumber != null) {
+            if (pageSize == null) {
+                throw new PaginationValidatorException("message.invalid_page_number");
+            } else if (pageNumber <= 0){
+                throw new PaginationValidatorException("message.invalid_page_number");
+            }
         }
     }
 
-    private void validatePageSize(Integer pageSize) {
-        if (pageSize == null || pageSize <= 0) {
-            throw new PaginationValidatorException("message.invalid_page_size");
+    private void validatePageSize(Integer pageNumber, Integer pageSize) {
+        if(pageSize != null) {
+            if (pageNumber == null) {
+                throw new PaginationValidatorException("message.invalid_page_number");
+            } else if (pageSize <= 0){
+                throw new PaginationValidatorException("message.invalid_page_number");
+            }
         }
     }
 }

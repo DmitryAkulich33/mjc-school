@@ -8,6 +8,7 @@ import com.epam.esm.domain.Tag_;
 import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.exceptions.CertificateDuplicateException;
 import com.epam.esm.exceptions.CertificateNotFoundException;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,6 @@ public class CertificateDaoImpl implements CertificateDao {
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
 
-    @PrePersist
     @Override
     public Certificate createCertificate(Certificate certificate) {
         try {
@@ -64,14 +64,15 @@ public class CertificateDaoImpl implements CertificateDao {
                 criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
 
         try {
-            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+            return Optional.of(entityManager.createQuery(criteriaQuery).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
         } catch (IllegalArgumentException | PersistenceException e) {
             throw new CertificateDaoException("message.wrong_data", e);
         }
     }
 
     @Transactional
-    @PreUpdate
     @Override
     public Certificate updateCertificate(Certificate certificate) {
         try {
@@ -85,6 +86,7 @@ public class CertificateDaoImpl implements CertificateDao {
     public List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField,
                                              Integer offset, Integer pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        checkPagination(offset, criteriaBuilder);
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
         List<Predicate> conditions = getPredicatesForFilter(name, search, root, criteriaBuilder);
@@ -96,6 +98,29 @@ public class CertificateDaoImpl implements CertificateDao {
                     .getResultList();
         } catch (IllegalArgumentException | PersistenceException e) {
             throw new CertificateDaoException("message.wrong_data", e);
+        }
+    }
+
+    @Override
+    public List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
+        Root<Certificate> root = criteriaQuery.from(Certificate.class);
+        List<Predicate> conditions = getPredicatesForFilter(name, search, root, criteriaBuilder);
+
+        try {
+            return entityManager.createQuery(getCertificateCriteriaQuery(conditions, criteriaQuery, root, criteriaBuilder, sortField, sortAsc))
+                    .getResultList();
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        }
+    }
+
+    private void checkPagination(Integer offset, CriteriaBuilder criteriaBuilder) {
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        Long count = entityManager.createQuery(countQuery.select(criteriaBuilder.count(countQuery.from(Certificate.class)))).getSingleResult();
+        if (count <= offset) {
+            throw new WrongEnteredDataException("message.invalid_entered_data");
         }
     }
 
@@ -167,10 +192,30 @@ public class CertificateDaoImpl implements CertificateDao {
         criteriaQuery.select(root).distinct(true).where(criteriaBuilder.and(conditions.toArray(new Predicate[0])),
                 criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
 
+
         try {
             return entityManager.createQuery(criteriaQuery)
                     .setFirstResult(offset)
                     .setMaxResults(pageSize)
+                    .getResultList();
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        }
+    }
+
+    @Override
+    public List<Certificate> getCertificatesByTags(List<String> tagNames) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
+        Root<Certificate> root = criteriaQuery.from(Certificate.class);
+
+        List<Predicate> conditions = getPredicatesForSearchByTags(tagNames, root, criteriaBuilder);
+
+        criteriaQuery.select(root).distinct(true).where(criteriaBuilder.and(conditions.toArray(new Predicate[0])),
+                criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
+
+        try {
+            return entityManager.createQuery(criteriaQuery)
                     .getResultList();
         } catch (IllegalArgumentException | PersistenceException e) {
             throw new CertificateDaoException("message.wrong_data", e);

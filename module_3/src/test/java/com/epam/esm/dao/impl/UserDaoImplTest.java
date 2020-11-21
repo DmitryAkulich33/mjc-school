@@ -3,6 +3,7 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.UserDaoException;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,7 +35,7 @@ class UserDaoImplTest {
     private static final String SURNAME_2 = "Petrov";
     private static final Integer LOCK = 0;
     private static final Integer PAGE_SIZE_1 = 1;
-    private static final Integer PAGE_SIZE_10 = 10;
+    private static final Integer PAGE_SIZE_2 = 2;
     private static final Integer OFFSET_0 = 0;
     private static final Integer OFFSET_2 = 2;
     private static final Integer WRONG_OFFSET = -2;
@@ -65,7 +69,6 @@ class UserDaoImplTest {
         User actual = userDao.getUserById(expected.getId()).get();
 
         assertEquals(expected, actual);
-        assert actual.getId() > 0;
     }
 
     @Test
@@ -81,42 +84,39 @@ class UserDaoImplTest {
     public void testGetUsers() {
         User expected1 = entityManager.persist(user1);
         User expected2 = entityManager.persist(user2);
-        List<User> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
+        List<User> expected = Arrays.asList(expected1, expected2);
 
-        List<User> actual = userDao.getUsers(OFFSET_0, PAGE_SIZE_10);
+        List<User> actual = userDao.getUsers();
 
-        Assertions.assertEquals(expected, actual);
-        assert !actual.isEmpty();
+        assertEquals(expected, actual);
     }
 
     @Test
     public void testGetUsers_Pagination() {
         User expected1 = entityManager.persist(user1);
-        User expected2 = entityManager.persist(user2);
-        List<User> expected = new ArrayList<>(Collections.singletonList(expected1));
+        entityManager.persist(user2);
+        List<User> expected = Collections.singletonList(expected1);
 
         List<User> actual = userDao.getUsers(OFFSET_0, PAGE_SIZE_1);
 
         Assertions.assertEquals(expected, actual);
-        assert !actual.isEmpty();
-        assert !actual.contains(expected2);
-        assert actual.size() == PAGE_SIZE_1;
     }
 
     @Test
-    public void testGetTags_Pagination_NotFound() {
+    public void testGetTags_Pagination_WrongEnteredDataException() {
         entityManager.persist(user1);
         entityManager.persist(user2);
 
-        List<User> actual = userDao.getUsers(OFFSET_2, PAGE_SIZE_10);
+        assertThrows(WrongEnteredDataException.class, () -> {
+            userDao.getUsers(OFFSET_2, PAGE_SIZE_2);
+        });
 
-        assert actual.isEmpty();
     }
 
     @Test
     public void testGetUsers_UserDaoException() {
         assertThrows(UserDaoException.class, () -> {
-            userDao.getUsers(WRONG_OFFSET, PAGE_SIZE_10);
+            userDao.getUsers(WRONG_OFFSET, PAGE_SIZE_2);
         });
     }
 }

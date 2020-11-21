@@ -4,9 +4,11 @@ import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.User;
 import com.epam.esm.domain.User_;
 import com.epam.esm.exceptions.UserDaoException;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -29,7 +31,9 @@ public class UserDaoImpl implements UserDao {
         Root<User> root = criteriaQuery.from(User.class);
         criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(User_.id), idUser));
         try {
-            return entityManager.createQuery(criteriaQuery).getResultList().stream().findFirst();
+            return Optional.of(entityManager.createQuery(criteriaQuery).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
         } catch (IllegalArgumentException | PersistenceException e) {
             throw new UserDaoException("message.wrong_data", e);
         }
@@ -38,6 +42,8 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getUsers(Integer offset, Integer pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        checkPagination(offset, criteriaBuilder);
+
         CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
         criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(User_.lock), LOCK_VALUE_0));
@@ -49,6 +55,28 @@ public class UserDaoImpl implements UserDao {
                     .getResultList();
         } catch (IllegalArgumentException e) {
             throw new UserDaoException("message.wrong_data", e);
+        }
+    }
+
+    @Override
+    public List<User> getUsers() {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(User_.lock), LOCK_VALUE_0));
+
+        try {
+            return entityManager.createQuery(criteriaQuery).getResultList();
+        } catch (IllegalArgumentException e) {
+            throw new UserDaoException("message.wrong_data", e);
+        }
+    }
+
+    private void checkPagination(Integer offset, CriteriaBuilder criteriaBuilder) {
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        Long count = entityManager.createQuery(countQuery.select(criteriaBuilder.count(countQuery.from(User.class)))).getSingleResult();
+        if (count <= offset) {
+            throw new WrongEnteredDataException("message.invalid_entered_data");
         }
     }
 }

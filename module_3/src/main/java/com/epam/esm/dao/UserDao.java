@@ -9,4 +9,6 @@ public interface UserDao {
     Optional<User> getUserById(Long idUser);
 
     List<User> getUsers(Integer offset, Integer pageSize);
+
+    List<User> getUsers();
 }

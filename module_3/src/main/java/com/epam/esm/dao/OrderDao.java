@@ -10,7 +10,11 @@ public interface OrderDao {
 
     List<Order> getOrders(Integer offset, Integer pageSize);
 
+    List<Order> getOrders();
+
     List<Order> getOrdersByUserId(Long idUser, Integer offset, Integer pageSize);
+
+    List<Order> getOrdersByUserId(Long idUser);
 
     Optional<Order> getOrderDataByUserId(Long idUser, Long idOrder);
 

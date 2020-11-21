@@ -4,7 +4,7 @@ import com.epam.esm.domain.Certificate;
 
 import java.util.List;
 
-public interface CertificateService {
+public interface CertificateService extends OffsetCalculator {
     Certificate createCertificate(Certificate certificate);
 
     Certificate updatePartCertificate(Certificate certificate, Long idCertificate);
