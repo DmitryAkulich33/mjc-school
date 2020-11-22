@@ -70,15 +70,17 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
         log.debug(String.format("Service: update certificate with id %d", idCertificate));
-        Certificate certificateFromDb = getCertificateById(idCertificate);
+        Certificate certificateToUpdate = getCertificateById(idCertificate);
+
         List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags());
 
-        certificate.setId(certificateFromDb.getId());
-        certificate.setCreateDate(certificateFromDb.getCreateDate());
-        certificate.setTags(tagsAfterUpdate);
-        certificate.setLock(certificateFromDb.getLock());
+        certificateToUpdate.setName(certificate.getName());
+        certificateToUpdate.setDescription(certificate.getDescription());
+        certificateToUpdate.setDuration(certificate.getDuration());
+        certificateToUpdate.setPrice(certificate.getPrice());
+        certificateToUpdate.setTags(tagsAfterUpdate);
 
-        return certificateDao.updateCertificate(certificate);
+        return certificateDao.updateCertificate(certificateToUpdate);
     }
 
     private String composeCertificateName(Certificate certificateFromQuery, Certificate certificateToUpdate) {

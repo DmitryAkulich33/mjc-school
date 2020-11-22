@@ -192,7 +192,6 @@ public class CertificateDaoImpl implements CertificateDao {
         criteriaQuery.select(root).distinct(true).where(criteriaBuilder.and(conditions.toArray(new Predicate[0])),
                 criteriaBuilder.equal(root.get(Certificate_.lock), LOCK_VALUE_0));
 
-
         try {
             return entityManager.createQuery(criteriaQuery)
                     .setFirstResult(offset)

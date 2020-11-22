@@ -105,9 +105,9 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(WrongEnteredDataException.class)
     public ResponseEntity<Object> handleWrongEnteredDataException(WrongEnteredDataException exception) {
-        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
+        String errorCode = String.format("%s%s%s", HttpStatus.NOT_FOUND.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
                 ErrorCode.DATA_ERROR_CODE.getErrorCode());
-        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+        return getResponseEntity(exception, errorCode, HttpStatus.NOT_FOUND);
     }
 
     @Override
