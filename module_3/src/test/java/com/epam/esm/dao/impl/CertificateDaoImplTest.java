@@ -58,11 +58,6 @@ class CertificateDaoImplTest {
     private Certificate createCertificate;
     private Certificate updateCertificate;
 
-    private Tag tag1;
-    private Tag tag2;
-
-    private List<Tag> tags1;
-    private List<Tag> tags2;
     private List<String> tagNames;
     private List<String> wrongTagNames;
 
@@ -74,17 +69,17 @@ class CertificateDaoImplTest {
 
     @BeforeEach
     public void setUp() {
-        tag1 = new Tag();
+        Tag tag1 = new Tag();
         tag1.setName(TAG_NAME_1);
 
-        tag2 = new Tag();
+        Tag tag2 = new Tag();
         tag2.setName(TAG_NAME_2);
 
         entityManager.persist(tag1);
         entityManager.persist(tag2);
 
-        tags1 = new ArrayList<>(Arrays.asList(tag1, tag2));
-        tags2 = new ArrayList<>(Collections.singletonList(tag1));
+        List<Tag> tags1 = new ArrayList<>(Arrays.asList(tag1, tag2));
+        List<Tag> tags2 = new ArrayList<>(Collections.singletonList(tag1));
 
         certificate1 = new Certificate();
         certificate1.setName(CERTIFICATE_NAME_1);

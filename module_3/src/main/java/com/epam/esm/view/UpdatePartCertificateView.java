@@ -6,20 +6,25 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import org.springframework.lang.NonNull;
 
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 public class UpdatePartCertificateView {
+    @Null
     @JsonView(Views.V1.class)
     private Long id;
 
+    @Pattern(regexp = "^([A-Z].+)$")
     @JsonView(Views.V1.class)
     private String name;
 
+    @Pattern(regexp = "^([A-Z].+)$")
     @JsonView(Views.V1.class)
     private String description;
 
+    @Positive
     @JsonView(Views.V1.class)
     private Double price;
 
@@ -31,6 +36,7 @@ public class UpdatePartCertificateView {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdateDate;
 
+    @Positive
     @JsonView(Views.V1.class)
     private Integer duration;
 

@@ -13,20 +13,25 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Validated
 @RestController
 @RequestMapping(value = "/api/v1/certificates")
 public class CertificateController {
     private final CertificateService certificateService;
-    private static final String PAGE_NUMBER_DEFAULT = "1";
-    private static final String PAGE_SIZE_DEFAULT = "10";
 
     @Autowired
     public CertificateController(CertificateService certificateService) {
@@ -34,7 +39,7 @@ public class CertificateController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Certificate> deleteCertificate(@PathVariable Long id) {
+    public ResponseEntity<Certificate> deleteCertificate(@PathVariable @NotNull @Positive Long id) {
         certificateService.deleteCertificate(id);
 
         return ResponseEntity.ok().build();
@@ -42,20 +47,20 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CertificateView> createCertificate(@RequestBody @JsonView(CreateCertificateView.Views.V1.class)
-                                                                     CreateCertificateView createCertificateView) {
+    public ResponseEntity<CertificateView> createCertificate(@Valid @RequestBody @JsonView(CreateCertificateView.Views.V1.class)
+                                                                         CreateCertificateView createCertificateView, BindingResult result) {
         Certificate certificate = CreateCertificateView.createForm(createCertificateView);
         Certificate createdCertificate = certificateService.createCertificate(certificate);
         CertificateView certificateView = CertificateView.createForm(createdCertificate);
 
-        certificateView.add(linkTo(methodOn(CertificateController.class).createCertificate(createCertificateView)).withSelfRel());
+        certificateView.add(linkTo(methodOn(CertificateController.class).createCertificate(createCertificateView, null)).withSelfRel());
 
         return new ResponseEntity<>(certificateView, HttpStatus.CREATED);
     }
 
     @JsonView(CertificateView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CertificateView> getCertificateById(@PathVariable Long id) {
+    public ResponseEntity<CertificateView> getCertificateById(@PathVariable @NotNull @Positive Long id) {
         Certificate certificate = certificateService.getCertificateById(id);
         CertificateView certificateView = CertificateView.createForm(certificate);
 
@@ -66,9 +71,9 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @PatchMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CertificateView> updatePartCertificate(@RequestBody @JsonView(UpdatePartCertificateView.Views.V1.class)
+    public ResponseEntity<CertificateView> updatePartCertificate(@Valid @RequestBody @JsonView(UpdatePartCertificateView.Views.V1.class)
                                                                          UpdatePartCertificateView updatePartCertificateView,
-                                                                 @PathVariable Long id) {
+                                                                 @PathVariable @NotNull @Positive Long id) {
         Certificate certificateFromQuery = UpdatePartCertificateView.createForm(updatePartCertificateView);
         Certificate certificateToUpdate = certificateService.updatePartCertificate(certificateFromQuery, id);
         CertificateView certificateView = CertificateView.createForm(certificateToUpdate);
@@ -80,8 +85,8 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CertificateView> updateCertificate(@RequestBody @JsonView(UpdateCertificateView.Views.V1.class) UpdateCertificateView updateCertificateView,
-                                                             @PathVariable Long id) {
+    public ResponseEntity<CertificateView> updateCertificate(@Valid @RequestBody @JsonView(UpdateCertificateView.Views.V1.class) UpdateCertificateView updateCertificateView,
+                                                             @PathVariable @NotNull @Positive Long id) {
         Certificate certificateFromQuery = UpdateCertificateView.createForm(updateCertificateView);
         Certificate certificateToUpdate = certificateService.updateCertificate(certificateFromQuery, id);
         CertificateView certificateView = CertificateView.createForm(certificateToUpdate);
@@ -96,8 +101,8 @@ public class CertificateController {
     public ResponseEntity<CollectionModel<CertificateView>> getCertificates(@RequestParam(required = false) String tag,
                                                                             @RequestParam(required = false) String search,
                                                                             @RequestParam(required = false) String sort,
-                                                                            @RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
-                                                                            @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+                                                                            @RequestParam(required = false) @Positive Integer pageNumber,
+                                                                            @RequestParam(required = false) @Positive Integer pageSize) {
         List<Certificate> certificates = certificateService.getCertificates(tag, search, sort, pageNumber, pageSize);
         List<CertificateView> certificateView = CertificateView.createListForm(certificates);
 
@@ -108,9 +113,9 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionModel<CertificateView>> getCertificatesByTags(@RequestParam List<String> names,
-                                                                                  @RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
-                                                                                  @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+    public ResponseEntity<CollectionModel<CertificateView>> getCertificatesByTags(@RequestParam @NotNull @NotEmpty List<String> names,
+                                                                                  @RequestParam(required = false) @Positive Integer pageNumber,
+                                                                                  @RequestParam(required = false) @Positive Integer pageSize) {
         List<Certificate> certificates = certificateService.getCertificatesByTags(names, pageNumber, pageSize);
         List<CertificateView> certificateView = CertificateView.createListForm(certificates);
 

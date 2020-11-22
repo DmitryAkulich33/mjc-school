@@ -8,8 +8,6 @@ import com.epam.esm.exceptions.OrderNotFoundException;
 import com.epam.esm.exceptions.OrderValidatorException;
 import com.epam.esm.exceptions.UserValidatorException;
 import com.epam.esm.service.UserService;
-import com.epam.esm.util.OrderValidator;
-import com.epam.esm.util.UserValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

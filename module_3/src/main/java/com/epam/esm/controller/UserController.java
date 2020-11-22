@@ -11,19 +11,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Validated
 @RestController
 @RequestMapping(value = "/api/v1/users")
 public class UserController {
     private final UserService userService;
-    private static final String PAGE_NUMBER_DEFAULT = "1";
-    private static final String PAGE_SIZE_DEFAULT = "10";
 
     @Autowired
     public UserController(UserService userService) {
@@ -32,7 +34,7 @@ public class UserController {
 
     @JsonView(UserView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserView> getUserById(@PathVariable @NonNull Long id) {
+    public ResponseEntity<UserView> getUserById(@PathVariable @NotNull @Positive Long id) {
         User user = userService.getUserById(id);
         UserView userView = UserView.createForm(user);
 
@@ -43,8 +45,8 @@ public class UserController {
 
     @JsonView(UserView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionModel<UserView>> getUsers(@RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
-                                                              @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+    public ResponseEntity<CollectionModel<UserView>> getUsers(@RequestParam(required = false) @Positive Integer pageNumber,
+                                                              @RequestParam(required = false) @Positive Integer pageSize) {
         List<User> users = userService.getUsers(pageNumber, pageSize);
         List<UserView> usersView = UserView.createListForm(users);
 

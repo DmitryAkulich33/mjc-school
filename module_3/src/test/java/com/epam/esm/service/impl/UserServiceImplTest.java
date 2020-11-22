@@ -5,7 +5,6 @@ import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.UserDaoException;
 import com.epam.esm.exceptions.UserNotFoundException;
 import com.epam.esm.exceptions.UserValidatorException;
-import com.epam.esm.util.UserValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

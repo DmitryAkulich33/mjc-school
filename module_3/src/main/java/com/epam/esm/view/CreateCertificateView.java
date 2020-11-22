@@ -4,25 +4,31 @@ import com.epam.esm.domain.Certificate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 public class CreateCertificateView {
+    @Null
     @JsonView(Views.V1.class)
     private Long id;
 
-    @NotNull
+    @NotBlank()
+    @Pattern(regexp = "^([A-Z].+)$")
     @JsonView(Views.V1.class)
     private String name;
 
-    @NotNull
+    @NotBlank()
+    @Pattern(regexp = "^([A-Z].+)$")
     @JsonView(Views.V1.class)
     private String description;
 
     @NotNull
+    @Positive
     @JsonView(Views.V1.class)
     private Double price;
 
@@ -35,10 +41,12 @@ public class CreateCertificateView {
     private LocalDateTime lastUpdateDate;
 
     @NotNull
+    @Positive
     @JsonView(Views.V1.class)
     private Integer duration;
 
     @NotNull
+    @NotEmpty
     @JsonView(Views.V1.class)
     private List<TagView> tags;
 

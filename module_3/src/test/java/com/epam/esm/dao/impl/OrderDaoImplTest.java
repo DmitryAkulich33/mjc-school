@@ -54,16 +54,6 @@ class OrderDaoImplTest {
     private static final Integer OFFSET_2 = 2;
     private static final Integer WRONG_OFFSET = -2;
 
-    private Tag tag1;
-    private Tag tag2;
-    private Tag tag3;
-
-    private Certificate certificate1;
-    private Certificate certificate2;
-
-    private User user1;
-    private User user2;
-
     private Order order1;
     private Order order2;
     private Order createOrder;
@@ -73,26 +63,26 @@ class OrderDaoImplTest {
 
     @BeforeEach
     void setUp() {
-        tag1 = new Tag();
+        Tag tag1 = new Tag();
         tag1.setName(TAG_NAME_1);
 
-        tag2 = new Tag();
+        Tag tag2 = new Tag();
         tag2.setName(TAG_NAME_2);
 
-        tag3 = new Tag();
+        Tag tag3 = new Tag();
         tag3.setName(TAG_NAME_1);
 
         List<Tag> tags1 = Arrays.asList(tag1, tag2);
         List<Tag> tags2 = Collections.singletonList(tag1);
 
-        certificate1 = new Certificate();
+        Certificate certificate1 = new Certificate();
         certificate1.setName(CERTIFICATE_NAME_1);
         certificate1.setDescription(CERTIFICATE_DESCRIPTION_1);
         certificate1.setPrice(CERTIFICATE_PRICE_1);
         certificate1.setDuration(CERTIFICATE_DURATION_1);
         certificate1.setTags(tags1);
 
-        certificate2 = new Certificate();
+        Certificate certificate2 = new Certificate();
         certificate2.setName(CERTIFICATE_NAME_2);
         certificate2.setDescription(CERTIFICATE_DESCRIPTION_2);
         certificate2.setPrice(CERTIFICATE_PRICE_2);
@@ -102,12 +92,12 @@ class OrderDaoImplTest {
         List<Certificate> certificates1 = Arrays.asList(certificate1, certificate2);
         List<Certificate> certificates2 = Collections.singletonList(certificate1);
 
-        user1 = new User();
+        User user1 = new User();
         user1.setName(USER_NAME_1);
         user1.setSurname(USER_SURNAME_1);
         user1.setLock(LOCK);
 
-        user2 = new User();
+        User user2 = new User();
         user2.setName(USER_NAME_2);
         user2.setSurname(USER_SURNAME_2);
         user2.setLock(LOCK);

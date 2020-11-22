@@ -4,10 +4,9 @@ import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.CertificateNotFoundException;
+import com.epam.esm.exceptions.WrongEnteredDataException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
-import com.epam.esm.util.CertificateValidator;
-import com.epam.esm.util.PaginationValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,9 +22,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Service
 public class CertificateServiceImpl implements CertificateService {
     private final CertificateDao certificateDao;
-    private final CertificateValidator certificateValidator;
-    private final PaginationValidator paginationValidator;
     private final TagService tagService;
+
     private static Logger log = LogManager.getLogger(CertificateServiceImpl.class);
 
     private static final String UNDERSCORES = "_";
@@ -33,11 +31,8 @@ public class CertificateServiceImpl implements CertificateService {
     private static final String DESC = "DESC";
 
     @Autowired
-    public CertificateServiceImpl(CertificateDao certificateDao, CertificateValidator certificateValidator,
-                                  PaginationValidator paginationValidator, TagService tagService) {
+    public CertificateServiceImpl(CertificateDao certificateDao, TagService tagService) {
         this.certificateDao = certificateDao;
-        this.certificateValidator = certificateValidator;
-        this.paginationValidator = paginationValidator;
         this.tagService = tagService;
     }
 
@@ -45,7 +40,6 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate createCertificate(Certificate certificate) {
         log.debug("Service: creation certificate.");
-        certificateValidator.validateCertificate(certificate);
         List<Tag> tagsForCertificate = tagService.updateTags(certificate.getTags());
         certificate.setTags(tagsForCertificate);
 
@@ -56,8 +50,6 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate updatePartCertificate(Certificate certificate, Long idCertificate) {
         log.debug(String.format("Service: update part certificate with id %d", idCertificate));
-        certificateValidator.validateCertificateId(idCertificate);
-
         Certificate certificateToUpdate = getCertificateById(idCertificate);
         String name = composeCertificateName(certificate, certificateToUpdate);
         String description = composeCertificateDescription(certificate, certificateToUpdate);
@@ -78,10 +70,9 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate updateCertificate(Certificate certificate, Long idCertificate) {
         log.debug(String.format("Service: update certificate with id %d", idCertificate));
-        certificateValidator.validateCertificateWithId(idCertificate, certificate);
         Certificate certificateFromDb = getCertificateById(idCertificate);
-
         List<Tag> tagsAfterUpdate = tagService.updateTags(certificate.getTags());
+
         certificate.setId(certificateFromDb.getId());
         certificate.setCreateDate(certificateFromDb.getCreateDate());
         certificate.setTags(tagsAfterUpdate);
@@ -133,7 +124,6 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Certificate getCertificateById(Long idCertificate) {
         log.debug(String.format("Service: search certificate by id %d", idCertificate));
-        certificateValidator.validateCertificateId(idCertificate);
         Optional<Certificate> optionalCertificate = certificateDao.getCertificateById(idCertificate);
         return optionalCertificate.orElseThrow(() -> new CertificateNotFoundException("message.wrong_certificate_id"));
     }
@@ -144,24 +134,26 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug("Service: search certificates.");
         Boolean sortAsc = isSortAsc(sort);
         String sortField = getSortField(sort);
-        paginationValidator.validatePagination(pageNumber, pageSize);
         if (pageNumber != null && pageSize != null) {
             Integer offset = calculateOffset(pageNumber, pageSize);
             return certificateDao.getCertificates(name, search, sortAsc, sortField, offset, pageSize);
-        } else {
+        } else if (pageNumber == null && pageSize == null) {
             return certificateDao.getCertificates(name, search, sortAsc, sortField);
+        } else {
+            throw new WrongEnteredDataException("message.invalid_entered_data");
         }
     }
 
     @Override
     public List<Certificate> getCertificatesByTags(List<String> tagNames, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates by tags' names.");
-        paginationValidator.validatePagination(pageNumber, pageSize);
         if (pageNumber != null && pageSize != null) {
             Integer offset = calculateOffset(pageNumber, pageSize);
             return certificateDao.getCertificatesByTags(tagNames, offset, pageSize);
-        } else {
+        } else if (pageNumber == null && pageSize == null) {
             return certificateDao.getCertificatesByTags(tagNames);
+        } else {
+            throw new WrongEnteredDataException("message.invalid_entered_data");
         }
     }
 

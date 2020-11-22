@@ -7,7 +7,6 @@ import com.epam.esm.exceptions.TagDuplicateException;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.exceptions.TagValidatorException;
 
-import com.epam.esm.util.TagValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

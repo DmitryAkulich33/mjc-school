@@ -9,7 +9,6 @@ import com.epam.esm.exceptions.CertificateNotFoundException;
 import com.epam.esm.exceptions.CertificateValidatorException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
-import com.epam.esm.util.CertificateValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

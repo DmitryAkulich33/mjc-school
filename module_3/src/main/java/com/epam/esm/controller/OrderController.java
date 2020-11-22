@@ -14,19 +14,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Validated
 @RestController
 @RequestMapping(value = "/api/v1/orders")
 public class OrderController {
     private final OrderService orderService;
-    private static final String PAGE_NUMBER_DEFAULT = "1";
-    private static final String PAGE_SIZE_DEFAULT = "10";
 
     @Autowired
     public OrderController(OrderService orderService) {
@@ -46,8 +48,8 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionModel<OrderView>> getOrders(@RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
-                                                                @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+    public ResponseEntity<CollectionModel<OrderView>> getOrders(@RequestParam(required = false) @Positive Integer pageNumber,
+                                                                @RequestParam(required = false) @Positive Integer pageSize) {
         List<Order> orders = orderService.getOrders(pageNumber, pageSize);
         List<OrderView> ordersView = OrderView.createListForm(orders);
 
@@ -59,8 +61,8 @@ public class OrderController {
     @JsonView(OrderView.Views.V1.class)
     @GetMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CollectionModel<OrderView>> getOrdersByUserId(@PathVariable @NonNull Long id,
-                                                                        @RequestParam(required = false, defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber,
-                                                                        @RequestParam(required = false, defaultValue = PAGE_SIZE_DEFAULT) Integer pageSize) {
+                                                                        @RequestParam(required = false) @Positive Integer pageNumber,
+                                                                        @RequestParam(required = false) @Positive Integer pageSize) {
         List<Order> orders = orderService.getOrdersByUserId(id, pageNumber, pageSize);
         List<OrderView> ordersView = OrderView.createListForm(orders);
 
@@ -71,8 +73,8 @@ public class OrderController {
 
     @JsonView(OrderDataView.Views.V1.class)
     @GetMapping(path = "/{idOrder}/users/{idUser}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OrderDataView> getDataByUserId(@PathVariable @NonNull Long idUser,
-                                                         @PathVariable @NonNull Long idOrder) {
+    public ResponseEntity<OrderDataView> getDataByUserId(@PathVariable @NotNull @Positive Long idUser,
+                                                         @PathVariable @NotNull @Positive Long idOrder) {
         Order order = orderService.getOrderDataByUserId(idUser, idOrder);
         OrderDataView orderDataView = OrderDataView.createForm(order);
 
@@ -83,7 +85,7 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @PostMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OrderView> makeOrder(@PathVariable @NonNull Long id,
+    public ResponseEntity<OrderView> makeOrder(@PathVariable @NotNull @Positive Long id,
                                                @RequestBody @JsonView(CertificateForOrderView.Views.V1.class) List<CertificateForOrderView> certificates) {
         List<Certificate> certificatesToUpdate = CertificateForOrderView.createListForm(certificates);
         Order order = orderService.makeOrder(id, certificatesToUpdate);
