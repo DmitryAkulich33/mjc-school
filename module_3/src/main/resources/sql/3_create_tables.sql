@@ -38,8 +38,8 @@ create table tag_certificate
 create table user
 (
     id_user BIGINT NOT NULL AUTO_INCREMENT,
-    name_user VARCHAR(70) NOT NULL UNIQUE,
-    surname VARCHAR(70) NOT NULL UNIQUE,
+    name_user VARCHAR(70) NOT NULL,
+    surname VARCHAR(70) NOT NULL,
     lock_user INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT pk_user PRIMARY KEY (id_user)
@@ -60,10 +60,11 @@ create table orders
 
 create table certificate_order
 (
+    id BIGINT NOT NULL AUTO_INCREMENT,
     order_id BIGINT NOT NULL,
     certificate_id BIGINT NOT NULL,
 
-    CONSTRAINT pk_certificate_order PRIMARY KEY (order_id, certificate_id),
+    CONSTRAINT pk_certificate_order PRIMARY KEY (id),
     CONSTRAINT fk_certificate_order_order_id FOREIGN KEY (order_id)
         REFERENCES orders (id_order) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_certificate_order_certificate_id FOREIGN KEY (certificate_id)

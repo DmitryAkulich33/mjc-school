@@ -5,7 +5,9 @@ import com.epam.esm.domain.User;
 import com.epam.esm.domain.User_;
 import com.epam.esm.exceptions.UserDaoException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -21,6 +23,9 @@ import java.util.Optional;
 public class UserDaoImpl implements UserDao {
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int batchSize;
 
     private static final Integer LOCK_VALUE_0 = 0;
 
@@ -70,6 +75,36 @@ public class UserDaoImpl implements UserDao {
         } catch (IllegalArgumentException e) {
             throw new UserDaoException("message.wrong_data", e);
         }
+    }
+
+    @Transactional
+    @Override
+    public User createUser(User user) {
+        try {
+            entityManager.persist(user);
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new UserDaoException("message.wrong_data", e);
+        }
+        return user;
+    }
+
+    @Transactional
+    @Override
+    public List<User> createUsers(List<User> users) {
+        int i = 0;
+        try {
+            for (User user : users) {
+                entityManager.persist(user);
+                i++;
+                if (i % batchSize == 0) {
+                    entityManager.flush();
+                    entityManager.clear();
+                }
+            }
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new UserDaoException("message.wrong_data", e);
+        }
+        return users;
     }
 
     private void checkPagination(Integer offset, CriteriaBuilder criteriaBuilder) {

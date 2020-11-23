@@ -11,4 +11,8 @@ public interface UserDao {
     List<User> getUsers(Integer offset, Integer pageSize);
 
     List<User> getUsers();
+
+    User createUser(User user);
+
+    List<User> createUsers(List<User> users);
 }

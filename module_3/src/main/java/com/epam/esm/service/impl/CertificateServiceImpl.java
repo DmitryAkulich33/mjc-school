@@ -159,6 +159,11 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
+    @Override
+    public List<Certificate> createCertificates(List<Certificate> certificates) {
+        return certificateDao.createCertificates(certificates);
+    }
+
     private Boolean isSortAsc(String sort) {
         if (isNotBlank(sort)) {
             String[] fields = sort.trim().split(UNDERSCORES);

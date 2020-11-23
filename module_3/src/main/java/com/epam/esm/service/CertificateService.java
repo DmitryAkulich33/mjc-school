@@ -18,4 +18,6 @@ public interface CertificateService extends OffsetCalculator {
     List<Certificate> getCertificates(String name, String search, String sort, Integer pageNumber, Integer pageSize);
 
     List<Certificate> getCertificatesByTags(List<String> tagNames, Integer pageNumber, Integer pageSize);
+
+    List<Certificate> createCertificates(List<Certificate> certificates);
 }

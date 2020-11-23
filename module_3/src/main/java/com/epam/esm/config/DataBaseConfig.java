@@ -1,6 +1,5 @@
 package com.epam.esm.config;
 
-import com.epam.esm.ControllerExceptionHandler;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +8,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import javax.sql.DataSource;
 

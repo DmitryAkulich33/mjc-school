@@ -6,6 +6,7 @@ import com.epam.esm.domain.Tag_;
 import com.epam.esm.exceptions.TagDaoException;
 import com.epam.esm.exceptions.TagDuplicateException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,9 @@ public class TagDaoImpl implements TagDao {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int batchSize;
 
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
@@ -142,5 +146,24 @@ public class TagDaoImpl implements TagDao {
     @Override
     public Tag getTheMostUsedTag() {
         return (Tag) entityManager.createNativeQuery(GET_THE_MOST_USED_TAG, Tag.class).getSingleResult();
+    }
+
+    @Transactional
+    @Override
+    public List<Tag> createTags(List<Tag> tags) {
+        int i = 0;
+        try {
+            for (Tag tag : tags) {
+                entityManager.persist(tag);
+                i++;
+                if (i % batchSize == 0) {
+                    entityManager.flush();
+                    entityManager.clear();
+                }
+            }
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new TagDaoException("message.wrong_data", e);
+        }
+        return tags;
     }
 }

@@ -14,5 +14,4 @@ public class AuditOrderListener {
         order.setPurchaseDate(purchaseDate);
         order.setLock(LOCK);
     }
-
 }

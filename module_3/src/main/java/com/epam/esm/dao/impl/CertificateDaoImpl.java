@@ -9,10 +9,14 @@ import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.exceptions.CertificateDuplicateException;
 import com.epam.esm.exceptions.CertificateNotFoundException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +26,9 @@ import java.util.Optional;
 public class CertificateDaoImpl implements CertificateDao {
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int batchSize;
 
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
@@ -230,6 +237,25 @@ public class CertificateDaoImpl implements CertificateDao {
             }
         }
         return conditions;
+    }
+
+    @Transactional
+    @Override
+    public List<Certificate> createCertificates(List<Certificate> certificates) {
+        int i = 0;
+        try {
+            for (Certificate certificate : certificates) {
+                entityManager.persist(certificate);
+                i++;
+                if (i % batchSize == 0) {
+                    entityManager.flush();
+                    entityManager.clear();
+                }
+            }
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new CertificateDaoException("message.wrong_data", e);
+        }
+        return certificates;
     }
 }
 

@@ -16,4 +16,6 @@ public interface TagService extends OffsetCalculator {
     List<Tag> updateTags(List<Tag> tags);
 
     Tag getTheMostUsedTag();
+
+    List<Tag> createTags(List<Tag> tags);
 }

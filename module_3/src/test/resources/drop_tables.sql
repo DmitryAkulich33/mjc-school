@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS tag, certificate, tag_certificate, orders, user, certificate_order

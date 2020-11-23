@@ -22,4 +22,5 @@ public interface CertificateDao {
 
     List<Certificate> getCertificatesByTags(List<String> tagNames);
 
+    List<Certificate> createCertificates(List<Certificate> certificates);
 }

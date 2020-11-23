@@ -3,8 +3,6 @@ package com.epam.esm.domain;
 import com.epam.esm.dao.audit.AuditOrderListener;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

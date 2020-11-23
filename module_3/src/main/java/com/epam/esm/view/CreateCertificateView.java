@@ -13,7 +13,6 @@ import java.util.List;
 
 @Data
 public class CreateCertificateView {
-    @Null
     @JsonView(Views.V1.class)
     private Long id;
 

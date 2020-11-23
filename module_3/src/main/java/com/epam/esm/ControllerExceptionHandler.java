@@ -124,6 +124,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return getResponseEntityForStandardException(exception, errorCode, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(OpenFileException.class)
+    public ResponseEntity<Object> handleOpenFileException(OpenFileException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private ResponseEntity<Object> getResponseEntity(Exception exception, String errorCode, HttpStatus httpStatus) {
         String message = labels.getString(exception.getMessage());
         log.error(message, exception);

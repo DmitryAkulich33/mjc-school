@@ -5,7 +5,7 @@ import com.epam.esm.domain.Order;
 
 import java.util.List;
 
-public interface OrderService extends OffsetCalculator{
+public interface OrderService extends OffsetCalculator {
     Order getOrderById(Long idOrder);
 
     List<Order> getOrders(Integer pageNumber, Integer pageSize);

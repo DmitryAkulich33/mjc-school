@@ -8,4 +8,8 @@ public interface UserService extends OffsetCalculator {
     User getUserById(Long idUser);
 
     List<User> getUsers(Integer pageNumber, Integer pageSize);
+
+    User createUser(User user);
+
+    List<User> createUsers(List<User> users);
 }

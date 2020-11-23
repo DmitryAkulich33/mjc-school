@@ -1,5 +1,6 @@
 package com.epam.esm.domain;
 
+import com.epam.esm.dao.audit.AuditUserListener;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -8,6 +9,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Data
+@EntityListeners(AuditUserListener.class)
 @ToString(exclude = "orders")
 @EqualsAndHashCode(exclude = "orders")
 @Entity(name = "user")
