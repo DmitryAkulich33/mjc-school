@@ -1,8 +1,16 @@
-plugins {
-    id 'org.springframework.boot' version '2.3.5.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-    id 'java'
+buildscript{
+    repositories {
+        jcenter()
+    }
+    dependencies{
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.3.5.RELEASE")
+    }
 }
+
+apply plugin : 'java'
+apply plugin : 'org.springframework.boot'
+apply plugin : 'io.spring.dependency-management'
+
 
 repositories {
     jcenter()
@@ -40,14 +48,12 @@ test {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile) {
-    options.annotationProcessorGeneratedSourcesDirectory = file("src/generated/java")
-}
+//tasks.withType(JavaCompile) {
+//    options.annotationProcessorGeneratedSourcesDirectory = file("src/generated/java")
+//}
 
-sourceSets {
-    generated {
-        java {
-            srcDirs = ['src/generated/java']
-        }
+sourceSets.configureEach { sourceSet ->
+    tasks.named (sourceSet.compileJavaTaskName).configure{
+        options.annotationProcessorGeneratedSourcesDirectory = file("$buildDir/generated/sources/java")
     }
 }

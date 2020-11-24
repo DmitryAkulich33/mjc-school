@@ -3,6 +3,7 @@ package com.epam.esm.util.generator;
 import com.epam.esm.domain.User;
 import com.epam.esm.service.UserService;
 import org.apache.commons.lang3.RandomUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class UserGenerate {
     private static final int COUNT_LINES = 700;
     private final UserService userService;
 
+    @Autowired
     public UserGenerate(UserService userService) {
         this.userService = userService;
     }
