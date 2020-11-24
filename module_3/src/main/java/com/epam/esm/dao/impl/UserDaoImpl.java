@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -21,6 +18,9 @@ import java.util.Optional;
 
 @Repository
 public class UserDaoImpl implements UserDao {
+    private static final String FIND_USER_WITH_THE_LARGEST_ORDER_TOTALS =
+            "select o.user from orders o join o.user u group by o.user order by sum(o.total) desc";
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -105,6 +105,16 @@ public class UserDaoImpl implements UserDao {
             throw new UserDaoException("message.wrong_data", e);
         }
         return users;
+    }
+
+    @Override
+    public User getUserWithTheLargeSumOrders() {
+        Query query = entityManager.createQuery(FIND_USER_WITH_THE_LARGEST_ORDER_TOTALS);
+        try {
+            return (User) query.getResultList().stream().findFirst().get();
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new UserDaoException("message.wrong_data", e);
+        }
     }
 
     private void checkPagination(Integer offset, CriteriaBuilder criteriaBuilder) {

@@ -23,17 +23,6 @@ import java.util.Optional;
 
 @Repository
 public class TagDaoImpl implements TagDao {
-    private static final String GET_THE_MOST_USED_TAG = "select tag.id_tag, tag.name_tag, tag.lock_tag FROM tag JOIN" +
-            "(select tag_id,count(tag_id) as max_val FROM " +
-            "(select tag_id FROM tag_certificate JOIN" +
-            "(select certificate_id from certificate_order where order_id IN  " +
-            "(select id_order from orders where id_user = " +
-            "(select id_user from " +
-            "(select id_user, sum(total) as totals from orders group by id_user order by sum(total) desc) as st where st.totals = " +
-            "(select sum(total) from orders group by id_user order by sum(total) desc limit 1)))) AS t " +
-            "ON tag_certificate.certificate_id=t.certificate_id) AS t_v " +
-            "group by t_v.tag_id order by max_val desc limit 1) as t ON t.tag_id=tag.id_tag";
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -141,11 +130,6 @@ public class TagDaoImpl implements TagDao {
         } catch (IllegalArgumentException e) {
             throw new TagDaoException("message.wrong_data", e);
         }
-    }
-
-    @Override
-    public Tag getTheMostUsedTag() {
-        return (Tag) entityManager.createNativeQuery(GET_THE_MOST_USED_TAG, Tag.class).getSingleResult();
     }
 
     @Transactional

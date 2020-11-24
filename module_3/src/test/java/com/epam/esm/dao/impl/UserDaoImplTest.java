@@ -119,4 +119,21 @@ class UserDaoImplTest {
             userDao.getUsers(WRONG_OFFSET, PAGE_SIZE_2);
         });
     }
+
+//    @Test
+//    public void getTheMostUsedTag() {
+//        entityManager.persist(tag1);
+//        entityManager.persist(tag2);
+//        entityManager.persist(certificate1);
+//        entityManager.persist(certificate2);
+//        entityManager.persist(user1);
+//        entityManager.persist(user2);
+//        entityManager.persist(order1);
+//        entityManager.persist(order2);
+//        Tag expected = tag1;
+//
+//        Tag actual = tagDao.getTheMostUsedTag();
+//
+//        assertEquals(expected, actual);
+//    }
 }

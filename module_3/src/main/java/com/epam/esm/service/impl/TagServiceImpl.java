@@ -1,7 +1,11 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
+import com.epam.esm.dao.UserDao;
+import com.epam.esm.domain.Certificate;
+import com.epam.esm.domain.Order;
 import com.epam.esm.domain.Tag;
+import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
 import com.epam.esm.service.TagService;
@@ -11,21 +15,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 
 @Service
 public class TagServiceImpl implements TagService {
     private final TagDao tagDao;
+    private final UserDao userDao;
 
     private static Logger log = LogManager.getLogger(TagServiceImpl.class);
 
     @Autowired
-    public TagServiceImpl(TagDao tagDao) {
+    public TagServiceImpl(TagDao tagDao, UserDao userDao) {
         this.tagDao = tagDao;
+        this.userDao = userDao;
     }
 
     @Transactional
@@ -86,7 +93,27 @@ public class TagServiceImpl implements TagService {
     @Override
     public Tag getTheMostUsedTag() {
         log.debug("Service: search the most used Tag");
-        return tagDao.getTheMostUsedTag();
+        User user = userDao.getUserWithTheLargeSumOrders();
+        List<Certificate> userCertificates = getCertificatesFromUserOrders(user.getOrders());
+        List<Tag> userTags = getTagsFromUserCertificate(userCertificates);
+
+        return userTags.stream()
+                .collect(groupingBy(x -> x, counting()))
+                .entrySet().stream()
+                .max(comparingByValue())
+                .get().getKey();
+    }
+
+    private List<Certificate> getCertificatesFromUserOrders (List<Order> orders){
+        List<Certificate> certificates = new ArrayList<>();
+        orders.forEach(s -> certificates.addAll(s.getCertificates()));
+        return certificates;
+    }
+
+    private List<Tag> getTagsFromUserCertificate (List<Certificate> certificates){
+        List<Tag> tags = new ArrayList<>();
+        certificates.forEach(s -> tags.addAll(s.getTags()));
+        return tags;
     }
 
     @Override

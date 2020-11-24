@@ -1,6 +1,7 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
+import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.TagDaoException;
 import com.epam.esm.exceptions.TagDuplicateException;
@@ -29,6 +30,8 @@ class TagServiceImplTest {
 
     @Mock
     private TagDao mockTagDao;
+    @Mock
+    private UserDao userDao;
 
     @InjectMocks
     private TagServiceImpl tagService;
@@ -197,24 +200,24 @@ class TagServiceImplTest {
             tagService.deleteTag(TAG_ID);
         });
     }
-
-    @Test
-    public void testGetTheMostUsedTag() {
-        Tag expected = new Tag();
-
-        when(mockTagDao.getTheMostUsedTag()).thenReturn(expected);
-
-        Tag actual = tagService.getTheMostUsedTag();
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testGetTheMostUsedTag_TagDaoException() {
-        when(mockTagDao.getTheMostUsedTag()).thenThrow(new TagDaoException());
-
-        assertThrows(TagDaoException.class, () -> {
-            tagService.getTheMostUsedTag();
-        });
-    }
+//
+//    @Test
+//    public void testGetTheMostUsedTag() {
+//        Tag expected = new Tag();
+//
+//        when(mockTagDao.getTheMostUsedTag()).thenReturn(expected);
+//
+//        Tag actual = tagService.getTheMostUsedTag();
+//
+//        assertEquals(expected, actual);
+//    }
+//
+//    @Test
+//    public void testGetTheMostUsedTag_TagDaoException() {
+//        when(mockTagDao.getTheMostUsedTag()).thenThrow(new TagDaoException());
+//
+//        assertThrows(TagDaoException.class, () -> {
+//            tagService.getTheMostUsedTag();
+//        });
+//    }
 }

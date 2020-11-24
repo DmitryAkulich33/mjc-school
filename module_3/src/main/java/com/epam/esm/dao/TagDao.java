@@ -18,7 +18,5 @@ public interface TagDao {
 
     List<Tag> getTags();
 
-    Tag getTheMostUsedTag();
-
     List<Tag> createTags(List<Tag> tags);
 }
