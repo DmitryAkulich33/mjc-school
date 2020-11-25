@@ -1,8 +1,10 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.OrderDao;
-import com.epam.esm.domain.*;
+import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Order;
+import com.epam.esm.domain.Tag;
+import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.OrderDaoException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
 import org.junit.jupiter.api.Assertions;
@@ -16,10 +18,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -251,47 +249,4 @@ class OrderDaoImplTest {
             orderDao.createOrder(createOrder);
         });
     }
-
-//    @Test
-//    public void test() {
-//        Order order3 = new Order();
-//        order3.setTotal(120.0);
-//        User user2 = new User();
-//        user2.setId(2L);
-//        user2.setName(USER_NAME_2);
-//        user2.setSurname(USER_SURNAME_2);
-//        user2.setLock(LOCK);
-//        order3.setUser(user2);
-//        Certificate certificate1 = new Certificate();
-//        certificate1.setName(CERTIFICATE_NAME_1);
-//        certificate1.setDescription(CERTIFICATE_DESCRIPTION_1);
-//        certificate1.setPrice(CERTIFICATE_PRICE_1);
-//        certificate1.setDuration(CERTIFICATE_DURATION_1);
-//        Tag tag1 = new Tag();
-//        tag1.setName(TAG_NAME_1);
-//
-//        Tag tag2 = new Tag();
-//        tag2.setName(TAG_NAME_2);
-//
-//        List<Tag> tags1 = Arrays.asList(tag1, tag2);
-//        certificate1.setTags(tags1);
-//        List<Certificate> certificates2 = Collections.singletonList(certificate1);
-//        order2.setCertificates(certificates2);
-//
-//        Order expected1 = entityManager.persist(order1);
-//        Order expected2 = entityManager.persist(order2);
-//        Order expected3 = entityManager.persist(order3);
-//
-//        System.out.println(expected1.getTotal());
-//        System.out.println(expected2.getTotal());
-//        System.out.println(expected3.getTotal());
-//
-//        Query query = entityManager.getEntityManager().createQuery(
-////                "select o.user from orders o join o.user u group by o.user order by sum(o.total) desc"
-//                "select t from tag t join o.user from orders o join o.user u group by o.user order by sum(o.total) desc"
-//        );
-//
-//        List<Tag> actual = query.getResultList();
-//        System.out.println("-------" + actual);
-//    }
 }

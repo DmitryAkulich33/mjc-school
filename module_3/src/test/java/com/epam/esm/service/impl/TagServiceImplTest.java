@@ -3,10 +3,7 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.exceptions.TagDaoException;
-import com.epam.esm.exceptions.TagDuplicateException;
-import com.epam.esm.exceptions.TagNotFoundException;
-import com.epam.esm.exceptions.WrongEnteredDataException;
+import com.epam.esm.exceptions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +28,7 @@ class TagServiceImplTest {
     @Mock
     private TagDao mockTagDao;
     @Mock
-    private UserDao userDao;
+    private UserDao mockUserDao;
 
     @InjectMocks
     private TagServiceImpl tagService;
@@ -200,24 +197,13 @@ class TagServiceImplTest {
             tagService.deleteTag(TAG_ID);
         });
     }
-//
-//    @Test
-//    public void testGetTheMostUsedTag() {
-//        Tag expected = new Tag();
-//
-//        when(mockTagDao.getTheMostUsedTag()).thenReturn(expected);
-//
-//        Tag actual = tagService.getTheMostUsedTag();
-//
-//        assertEquals(expected, actual);
-//    }
-//
-//    @Test
-//    public void testGetTheMostUsedTag_TagDaoException() {
-//        when(mockTagDao.getTheMostUsedTag()).thenThrow(new TagDaoException());
-//
-//        assertThrows(TagDaoException.class, () -> {
-//            tagService.getTheMostUsedTag();
-//        });
-//    }
+
+    @Test
+    public void testGetTheMostUsedTag_UserDaoException() {
+        when(mockUserDao.getUserWithTheLargeSumOrders()).thenThrow(new UserDaoException());
+
+        assertThrows(UserDaoException.class, () -> {
+            tagService.getTheMostUsedTag();
+        });
+    }
 }

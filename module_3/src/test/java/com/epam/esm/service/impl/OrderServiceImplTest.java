@@ -1,7 +1,6 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.OrderDao;
-import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Order;
 import com.epam.esm.domain.User;
@@ -35,8 +34,6 @@ class OrderServiceImplTest {
 
     @Mock
     private OrderDao mockOrderDao;
-    @Mock
-    private UserDao mockUserDao;
     @Mock
     private UserService mockUserService;
 

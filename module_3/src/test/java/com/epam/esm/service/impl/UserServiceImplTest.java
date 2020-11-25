@@ -115,4 +115,13 @@ class UserServiceImplTest {
             userService.getUsers(PAGE_NUMBER, null);
         });
     }
+
+    @Test
+    public void getUserWithTheLargeSumOrders() {
+        when(mockUserDao.getUserById(USER_ID)).thenThrow(new UserDaoException());
+
+        assertThrows(UserDaoException.class, () -> {
+            userService.getUserById(USER_ID);
+        });
+    }
 }

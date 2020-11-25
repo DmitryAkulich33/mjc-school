@@ -49,7 +49,6 @@ public class UserServiceImpl implements UserService {
         return userDao.createUser(user);
     }
 
-    @Transactional
     @Override
     public List<User> createUsers(List<User> users) {
         return userDao.createUsers(users);
