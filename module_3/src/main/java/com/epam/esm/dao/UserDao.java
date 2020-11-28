@@ -12,8 +12,6 @@ public interface UserDao {
 
     List<User> getUsers();
 
-    User createUser(User user);
-
     List<User> createUsers(List<User> users);
 
     User getUserWithTheLargeSumOrders();

@@ -15,14 +15,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDataView extends RepresentationModel<OrderDataView> {
-    private String content;
-    private static final String ORDERS = "orders";
-
-    @JsonCreator
-    public OrderDataView(@JsonProperty("content") String content) {
-        this.content = content;
-    }
-
     @JsonView(Views.V1.class)
     private LocalDateTime purchaseDate;
 
@@ -35,7 +27,7 @@ public class OrderDataView extends RepresentationModel<OrderDataView> {
     }
 
     public static OrderDataView createForm(Order order) {
-        OrderDataView orderDataView = new OrderDataView(ORDERS);
+        OrderDataView orderDataView = new OrderDataView();
         orderDataView.setPurchaseDate(order.getPurchaseDate());
         orderDataView.setTotal(order.getTotal());
 

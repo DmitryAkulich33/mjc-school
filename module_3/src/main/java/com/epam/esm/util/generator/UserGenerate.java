@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class UserGenerate {
@@ -20,11 +22,7 @@ public class UserGenerate {
     }
 
     private List<String> getWordsToCreate(int countUsers, List<String> allWords) {
-        List<String> userName = new ArrayList<>();
-        for (int i = 0; i < countUsers; i++) {
-            int random = RandomUtils.nextInt(1, allWords.size());
-            userName.add(allWords.get(random - 1));
-        }
+        List<String> userName = IntStream.range(0, countUsers).map(i -> RandomUtils.nextInt(1, allWords.size())).mapToObj(random -> allWords.get(random - 1)).collect(Collectors.toList());
         return userName;
     }
 
@@ -32,14 +30,13 @@ public class UserGenerate {
         List<String> userNames = getWordsToCreate(countUsers, names);
         List<String> userSurnames = getWordsToCreate(COUNT_LINES, surnames);
         List<User> users = new ArrayList<>();
-        for (int i = 0; i < countUsers; i++) {
-            int randomName = RandomUtils.nextInt(1, countUsers - 1);
+        IntStream.range(0, countUsers).map(i -> RandomUtils.nextInt(1, countUsers - 1)).forEach(randomName -> {
             int randomSurname = RandomUtils.nextInt(1, COUNT_LINES - 1);
             User user = new User();
             user.setName(userNames.get(randomName));
             user.setSurname(userSurnames.get(randomSurname));
             users.add(user);
-        }
+        });
         return userService.createUsers(users);
     }
 }

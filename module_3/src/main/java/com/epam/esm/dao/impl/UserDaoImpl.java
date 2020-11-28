@@ -44,6 +44,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<User> getUsers(Integer offset, Integer pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -75,17 +76,6 @@ public class UserDaoImpl implements UserDao {
         } catch (IllegalArgumentException e) {
             throw new UserDaoException("message.wrong_data", e);
         }
-    }
-
-    @Transactional
-    @Override
-    public User createUser(User user) {
-        try {
-            entityManager.persist(user);
-        } catch (IllegalArgumentException | PersistenceException e) {
-            throw new UserDaoException("message.wrong_data", e);
-        }
-        return user;
     }
 
     @Transactional

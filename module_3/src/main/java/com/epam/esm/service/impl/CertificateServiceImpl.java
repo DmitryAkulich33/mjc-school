@@ -36,7 +36,6 @@ public class CertificateServiceImpl implements CertificateService {
         this.tagService = tagService;
     }
 
-    @Transactional
     @Override
     public Certificate createCertificate(Certificate certificate) {
         log.debug("Service: creation certificate.");
@@ -122,7 +121,6 @@ public class CertificateServiceImpl implements CertificateService {
         certificateDao.deleteCertificate(idCertificate);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Certificate getCertificateById(Long idCertificate) {
         log.debug(String.format("Service: search certificate by id %d", idCertificate));
@@ -130,7 +128,6 @@ public class CertificateServiceImpl implements CertificateService {
         return optionalCertificate.orElseThrow(() -> new CertificateNotFoundException("message.wrong_certificate_id"));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Certificate> getCertificates(String name, String search, String sort, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates.");

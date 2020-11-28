@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,11 +41,6 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new WrongEnteredDataException("message.invalid_entered_data");
         }
-    }
-
-    @Override
-    public User createUser(User user) {
-        return userDao.createUser(user);
     }
 
     @Override

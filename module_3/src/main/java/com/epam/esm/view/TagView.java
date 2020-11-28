@@ -16,14 +16,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TagView extends RepresentationModel<TagView> {
-    private String content;
-    private static final String TAGS = "tags";
-
-    @JsonCreator
-    public TagView(@JsonProperty("content") String content) {
-        this.content = content;
-    }
-
     @JsonView({TagView.Views.V1.class, CertificateView.Views.V1.class, OrderView.Views.V1.class})
     private Long id;
 
@@ -41,7 +33,7 @@ public class TagView extends RepresentationModel<TagView> {
     }
 
     public static TagView createForm(Tag tag) {
-        TagView view = new TagView(TAGS);
+        TagView view = new TagView();
         view.setId(tag.getId());
         view.setName(tag.getName());
         return view;

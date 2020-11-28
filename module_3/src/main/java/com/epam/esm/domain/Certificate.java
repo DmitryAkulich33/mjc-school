@@ -18,7 +18,7 @@ import java.util.List;
 public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_certificate")
+    @Column(name = "id_certificate", updatable = false, nullable = false)
     private Long id;
 
     @Column(name = "name_certificate", unique = true)

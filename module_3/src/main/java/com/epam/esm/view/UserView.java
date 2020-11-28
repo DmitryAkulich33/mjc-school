@@ -15,15 +15,7 @@ import java.util.stream.Collectors;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserView  extends RepresentationModel<UserView> {
-    private String content;
-    private static final String USERS = "users";
-
-    @JsonCreator
-    public UserView(@JsonProperty("content") String content) {
-        this.content = content;
-    }
-
+public class UserView extends RepresentationModel<UserView> {
     @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private Long id;
 
@@ -39,7 +31,7 @@ public class UserView  extends RepresentationModel<UserView> {
     }
 
     public static UserView createForm(User user) {
-        UserView userView = new UserView(USERS);
+        UserView userView = new UserView();
         userView.setId(user.getId());
         userView.setName(user.getName());
         userView.setSurname(user.getSurname());

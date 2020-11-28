@@ -33,6 +33,7 @@ public class CertificateDaoImpl implements CertificateDao {
     private static final Integer LOCK_VALUE_0 = 0;
     private static final Integer LOCK_VALUE_1 = 1;
 
+    @Transactional
     @Override
     public Certificate createCertificate(Certificate certificate) {
         try {
@@ -89,6 +90,7 @@ public class CertificateDaoImpl implements CertificateDao {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Certificate> getCertificates(String name, String search, Boolean sortAsc, String sortField,
                                              Integer offset, Integer pageSize) {

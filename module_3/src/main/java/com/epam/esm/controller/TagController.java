@@ -76,7 +76,7 @@ public class TagController {
     }
 
     @JsonView(TagView.Views.V1.class)
-    @GetMapping(path = "/tags", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/tag", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TagView> getTheMostUsedTag() {
         Tag tag = tagService.getTheMostUsedTag();
         TagView tagView = TagView.createForm(tag);

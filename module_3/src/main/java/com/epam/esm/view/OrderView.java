@@ -17,14 +17,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderView extends RepresentationModel<OrderView> {
-    private String content;
-    private static final String ORDERS = "orders";
-
-    @JsonCreator
-    public OrderView(@JsonProperty("content") String content) {
-        this.content = content;
-    }
-
     @JsonView(Views.V1.class)
     private Long id;
 
@@ -46,7 +38,7 @@ public class OrderView extends RepresentationModel<OrderView> {
     }
 
     public static OrderView createForm(Order order) {
-        OrderView orderView = new OrderView(ORDERS);
+        OrderView orderView = new OrderView();
         orderView.setId(order.getId());
         orderView.setPurchaseDate(order.getPurchaseDate());
         orderView.setTotal(order.getTotal());

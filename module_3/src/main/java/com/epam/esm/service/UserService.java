@@ -9,7 +9,5 @@ public interface UserService extends OffsetCalculator {
 
     List<User> getUsers(Integer pageNumber, Integer pageSize);
 
-    User createUser(User user);
-
     List<User> createUsers(List<User> users);
 }

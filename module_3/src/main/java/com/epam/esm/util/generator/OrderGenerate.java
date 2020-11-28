@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class OrderGenerate {
@@ -25,12 +27,9 @@ public class OrderGenerate {
         int usersSize = users.size();
         int certificatesSize = certificates.size();
         for (int i = 0; i < countOrders; i++) {
-            List<Certificate> certificatesToCreate = new ArrayList<>();
+            List<Certificate> certificatesToCreate;
             int countCertificatesToOrder = RandomUtils.nextInt(MIN_COUNT_ORDER, MAX_COUNT_ORDER);
-            for (int j = 0; j < countCertificatesToOrder; j++) {
-                int randomCertificate = RandomUtils.nextInt(0, certificatesSize - 1);
-                certificatesToCreate.add(certificates.get(randomCertificate));
-            }
+            certificatesToCreate = IntStream.range(0, countCertificatesToOrder).map(j -> RandomUtils.nextInt(0, certificatesSize - 1)).mapToObj(certificates::get).collect(Collectors.toList());
             Long randomUser = RandomUtils.nextLong(1, usersSize - 1);
             orderService.makeOrder(randomUser, certificatesToCreate);
         }

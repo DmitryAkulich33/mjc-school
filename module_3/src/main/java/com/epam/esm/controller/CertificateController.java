@@ -17,7 +17,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -48,7 +47,7 @@ public class CertificateController {
     @JsonView(CertificateView.Views.V1.class)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CertificateView> createCertificate(@Valid @RequestBody @JsonView(CreateCertificateView.Views.V1.class)
-                                                                         CreateCertificateView createCertificateView, BindingResult result) {
+                                                                     CreateCertificateView createCertificateView, BindingResult result) {
         Certificate certificate = CreateCertificateView.createForm(createCertificateView);
         Certificate createdCertificate = certificateService.createCertificate(certificate);
         CertificateView certificateView = CertificateView.createForm(createdCertificate);

@@ -42,11 +42,12 @@ public class CommonGenerate {
 
     public void execute() {
         boolean isGenerate = environment.getRequiredProperty("isGenerate", Boolean.class);
-        int tagAmount = environment.getRequiredProperty("tag.amount", Integer.class);
-        int userAmount = environment.getRequiredProperty("user.amount", Integer.class);
-        int certificateAmount = environment.getRequiredProperty("certificate.amount", Integer.class);
-        int orderAmount = environment.getRequiredProperty("order.amount", Integer.class);
-        if(isGenerate){
+        if (isGenerate) {
+            int tagAmount = environment.getRequiredProperty("tag.amount", Integer.class);
+            int userAmount = environment.getRequiredProperty("user.amount", Integer.class);
+            int certificateAmount = environment.getRequiredProperty("certificate.amount", Integer.class);
+            int orderAmount = environment.getRequiredProperty("order.amount", Integer.class);
+
             tags = tagGenerate.generateTags(tagAmount, getWords(PATH_SIMPLE_WORDS));
             users = userGenerate.generateUsers(userAmount, getWords(PATH_NAMES_WORDS), getWords(PATH_SURNAMES_WORDS));
             certificates = certificateGenerate.generateCertificates(certificateAmount,

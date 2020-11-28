@@ -35,7 +35,6 @@ public class TagServiceImpl implements TagService {
         this.userDao = userDao;
     }
 
-    @Transactional
     @Override
     public Tag createTag(Tag tag) {
         log.debug("Service: creation tag.");
@@ -104,13 +103,13 @@ public class TagServiceImpl implements TagService {
                 .get().getKey();
     }
 
-    private List<Certificate> getCertificatesFromUserOrders (List<Order> orders){
+    private List<Certificate> getCertificatesFromUserOrders(List<Order> orders) {
         List<Certificate> certificates = new ArrayList<>();
         orders.forEach(s -> certificates.addAll(s.getCertificates()));
         return certificates;
     }
 
-    private List<Tag> getTagsFromUserCertificate (List<Certificate> certificates){
+    private List<Tag> getTagsFromUserCertificate(List<Certificate> certificates) {
         List<Tag> tags = new ArrayList<>();
         certificates.forEach(s -> tags.addAll(s.getTags()));
         return tags;

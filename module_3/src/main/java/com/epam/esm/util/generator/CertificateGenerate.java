@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 public class CertificateGenerate {
@@ -29,11 +30,10 @@ public class CertificateGenerate {
 
     private List<String> getWordsToCreate(int countCertificates, List<String> allWords) {
         List<String> certificateNames = new ArrayList<>();
-        for (int i = 0; i < countCertificates; i++) {
-            int random = RandomUtils.nextInt(1, allWords.size());
+        IntStream.range(0, countCertificates).map(i -> RandomUtils.nextInt(1, allWords.size())).forEach(random -> {
             certificateNames.add(allWords.get(random - 1));
             allWords.remove(random - 1);
-        }
+        });
         return certificateNames;
     }
 
@@ -55,19 +55,24 @@ public class CertificateGenerate {
             int randomDuration = RandomUtils.nextInt(MIN_DURATION, MAX_DURATION);
             certificate.setDuration(randomDuration);
 
-            List<Tag> certificateTags = new ArrayList<>();
-            int randomTagCount = RandomUtils.nextInt(MIN_TAG_COUNT, MAX_TAG_COUNT);
-            int tagsSize = tags.size();
-            int randomTag = RandomUtils.nextInt(0, tagsSize - randomTagCount - 1);
-            for (int j = 0; j < randomTagCount; j++) {
-                Tag tag = tags.get(randomTag);
-                randomTag++;
-                certificateTags.add(tag);
-            }
+            List<Tag> certificateTags = getTags(tags);
             certificate.setTags(certificateTags);
 
             certificates.add(certificate);
         }
         return certificateService.createCertificates(certificates);
+    }
+
+    private List<Tag> getTags(List<Tag> tags) {
+        List<Tag> certificateTags = new ArrayList<>();
+        int randomTagCount = RandomUtils.nextInt(MIN_TAG_COUNT, MAX_TAG_COUNT);
+        int tagsSize = tags.size();
+        int randomTag = RandomUtils.nextInt(0, tagsSize - randomTagCount - 1);
+        for (int j = 0; j < randomTagCount; j++) {
+            Tag tag = tags.get(randomTag);
+            randomTag++;
+            certificateTags.add(tag);
+        }
+        return certificateTags;
     }
 }

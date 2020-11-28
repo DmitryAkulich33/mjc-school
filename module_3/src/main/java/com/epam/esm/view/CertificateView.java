@@ -18,14 +18,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CertificateView extends RepresentationModel<CertificateView> {
-    private String content;
-    private static final String CERTIFICATES = "certificates";
-
-    @JsonCreator
-    public CertificateView(@JsonProperty("content") String content) {
-        this.content = content;
-    }
-
     @JsonView({Views.V1.class, OrderView.Views.V1.class})
     private Long id;
 
@@ -58,7 +50,7 @@ public class CertificateView extends RepresentationModel<CertificateView> {
     }
 
     public static CertificateView createForm(Certificate certificate) {
-        CertificateView certificateView = new CertificateView(CERTIFICATES);
+        CertificateView certificateView = new CertificateView();
         certificateView.setId(certificate.getId());
         certificateView.setName(certificate.getName());
         certificateView.setDescription(certificate.getDescription());
