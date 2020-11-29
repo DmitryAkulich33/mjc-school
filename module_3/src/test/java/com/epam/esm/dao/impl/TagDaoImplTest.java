@@ -1,10 +1,14 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.TagDao;
+import com.epam.esm.domain.Certificate;
+import com.epam.esm.domain.Order;
 import com.epam.esm.domain.Tag;
+import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.TagDaoException;
 import com.epam.esm.exceptions.TagDuplicateException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
+import com.github.javafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,11 +20,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.persistence.TypedQuery;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -37,6 +41,8 @@ class TagDaoImplTest {
     private static final Integer OFFSET_0 = 0;
     private static final Integer OFFSET_2 = 2;
     private static final Integer WRONG_OFFSET = -2;
+
+    private Faker faker = new Faker();
 
     private Tag tag1;
     private Tag tag2;
@@ -112,7 +118,7 @@ class TagDaoImplTest {
     public void testGetTags_Pagination() {
         Tag expected1 = entityManager.persist(tag1);
         entityManager.persist(tag2);
-        List<Tag> expected = Collections.singletonList(expected1);
+        List<Tag> expected = singletonList(expected1);
 
         List<Tag> actual = tagDao.getTags(OFFSET_0, PAGE_SIZE_1);
 
@@ -163,5 +169,70 @@ class TagDaoImplTest {
         assertThrows(TagDuplicateException.class, () -> {
             tagDao.createTag(tag3);
         });
+    }
+
+    @Test
+    void testGetMostWidelyUsedTagsOfUsersWithHighestCostOfOrders() {
+        Tag tag1 = createTag();
+        Tag tag2 = createTag();
+        Tag tag3 = createTag();
+        Tag tag4 = createTag();
+        Certificate certificate1 = createCertificate(singletonList(tag1), 40.0);
+        Certificate certificate2 = createCertificate(singletonList(tag2), 25.0);
+        Certificate certificate3 = createCertificate(singletonList(tag3), 10.0);
+        Certificate certificate4 = createCertificate(singletonList(tag4), 10.0);
+        User user1 = createUser();
+        User user2 = createUser();
+        User user3 = createUser();
+        createOrder(certificate1, user1);
+        createOrder(certificate2, user1);
+        createOrder(certificate3, user1);
+
+        createOrder(certificate2, user2);
+
+        createOrder(certificate1, user3);
+        createOrder(certificate2, user3);
+        createOrder(certificate4, user3);
+
+        List<Tag> expected = Arrays.asList(tag1, tag2);
+
+        List<Tag> actual = tagDao.getMostWidelyUsedTagsOfUsersWithHighestCostOfOrders().get();
+
+        actual.sort(Comparator.comparing(Tag::getId));
+        assertEquals(expected, actual);
+    }
+
+    private void createOrder(Certificate certificate, User user) {
+        Order order = new Order();
+        order.setTotal(Stream.of(certificate).mapToDouble(Certificate::getPrice).sum());
+        order.setUser(user);
+        order.setCertificates(Stream.of(certificate).collect(Collectors.toList()));
+        entityManager.persist(order);
+    }
+
+    private User createUser() {
+        User user = new User();
+        user.setName(faker.name().firstName());
+        user.setSurname(faker.name().lastName());
+        entityManager.persist(user);
+        return user;
+    }
+
+    private Certificate createCertificate(List<Tag> tags, Double price) {
+        Certificate certificate = new Certificate();
+        certificate.setName(faker.book().title());
+        certificate.setDescription(faker.shakespeare().romeoAndJulietQuote());
+        certificate.setPrice(price);
+        certificate.setDuration(faker.random().nextInt(100));
+        certificate.setTags(tags);
+        entityManager.persist(certificate);
+        return certificate;
+    }
+
+    private Tag createTag() {
+        Tag tag = new Tag();
+        tag.setName(faker.food().ingredient());
+        entityManager.persist(tag);
+        return tag;
     }
 }

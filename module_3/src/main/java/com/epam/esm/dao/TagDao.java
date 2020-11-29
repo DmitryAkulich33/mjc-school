@@ -19,4 +19,6 @@ public interface TagDao {
     List<Tag> getTags();
 
     List<Tag> createTags(List<Tag> tags);
+
+    Optional<List<Tag>> getMostWidelyUsedTagsOfUsersWithHighestCostOfOrders();
 }
