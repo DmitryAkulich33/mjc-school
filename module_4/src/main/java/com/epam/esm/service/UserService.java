@@ -7,6 +7,8 @@ import java.util.List;
 public interface UserService extends OffsetCalculator {
     User getUserById(Long idUser);
 
+    User getUserByLogin(String login);
+
     List<User> getUsers(Integer pageNumber, Integer pageSize);
 
     List<User> createUsers(List<User> users);

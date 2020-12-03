@@ -44,6 +44,21 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    @Override
+    public Optional<User> getUserByLogin(String login) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(User_.login), login));
+        try {
+            return Optional.of(entityManager.createQuery(criteriaQuery).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        } catch (IllegalArgumentException | PersistenceException e) {
+            throw new UserDaoException("message.wrong_data", e);
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<User> getUsers(Integer offset, Integer pageSize) {

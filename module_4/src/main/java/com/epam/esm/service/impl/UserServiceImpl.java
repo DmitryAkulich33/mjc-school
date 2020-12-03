@@ -31,6 +31,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserByLogin(String login) {
+        log.debug(String.format("Service: search user by login %s", login));
+        Optional<User> optionalUser = userDao.getUserByLogin(login);
+        return optionalUser.orElseThrow(() -> new UserNotFoundException("message.wrong_user_id")); // message
+    }
+
+    @Override
     public List<User> getUsers(Integer pageNumber, Integer pageSize) {
         log.debug("Service: search all users.");
         if (pageNumber != null && pageSize != null) {
