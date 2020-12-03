@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.domain.Tag;
+import com.epam.esm.security.annotation.IsAdmin;
 import com.epam.esm.service.TagService;
 import com.epam.esm.view.CreateTagView;
 import com.epam.esm.view.TagView;
@@ -65,6 +66,7 @@ public class TagController {
 
     @JsonView(TagView.Views.V1.class)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @IsAdmin
     public ResponseEntity<TagView> createTag(@Valid @RequestBody @JsonView(CreateTagView.Views.V1.class) CreateTagView tagView) {
         Tag tag = CreateTagView.createForm(tagView);
         Tag createdTag = tagService.createTag(tag);
