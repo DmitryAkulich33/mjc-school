@@ -8,6 +8,8 @@ import com.epam.esm.domain.Tag;
 import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.TagNotFoundException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
+import com.epam.esm.security.annotation.IsAdmin;
+import com.epam.esm.security.annotation.IsUser;
 import com.epam.esm.service.TagService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

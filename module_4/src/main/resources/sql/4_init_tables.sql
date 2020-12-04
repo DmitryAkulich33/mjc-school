@@ -50,7 +50,7 @@ VALUES ("ROLE_ADMIN"),
 
 INSERT INTO user
 (login, password, name_user, surname, id_role)
-VALUES ("user1", "$2y$12$Ai31B/yBMCiGjfdtF67bmeH6uup3Xa8Nd7BtPIH1IYD9NOY4g1ad2", "Ivan", "Ivanov", 2),
+VALUES ("user1", "user1", "Ivan", "Ivanov", 2),
        ("user2", "$2y$12$Bmd8.FFt9sargRBpvPUM3uTKpo1kZMp0CLosnE7AhFLsOP0FM3Ekm", "Petr", "Petrov", 2),
        ("user3", "$2y$12$ViIVE3mdEl2/jGyWchUgaeUca2wjjq1dCBdNLZI3tgQOFLFo3W8ji ","Denis", "Denisov", 2),
        ("admin", "$2y$12$wVmKD8nb6UjEYIYRWq3NNOm2C3TwIPfyIOjRhqdgAPQ1pAUhOuGbK","Dmitry", "Dmitriev", 1);

@@ -3,6 +3,7 @@ package com.epam.esm.security;
 import com.epam.esm.domain.Role;
 import com.epam.esm.exceptions.JwtAuthenticationException;
 import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ public class JwtTokenProvider {
     @Value("${jwt.token.expired}")
     private long validityMilliseconds;
 
+    @Autowired
     public JwtTokenProvider(JwtUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }

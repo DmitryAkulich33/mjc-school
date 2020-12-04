@@ -29,7 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()     // потому что они включены по умолчанию если мы унаследуемся от WebSecurityConfigurerAdapter.
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Так как я буду авторизировать пользователя по токену, мне не нужно создавать и хранить для него сессию. Поэтому я указал STATELESS.
                 .and()
-                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // нужно чтобы спринг как-то увидел пользователя в системе. Для этого я указываю ему фильтр, который будет срабатывать при каждом запросе (addFilterBefore). В этом фильтре я сделаю логику, которая будет доставать данные из токена, получать юзера из базы данных и ложить данные пользователя и его роли в Spring Security, чтобы спринг мог дальше выполнять свою работу и определять доступен ли определенный адрес для пользователя.
+                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // нужно чтобы спринг как-то увидел пользователя в системе. Для этого я указываю ему фильтр, который будет срабатывать при каждом запросе (addFilterBefore). В этом фильтре я буду доставать данные из токена, получать юзера из базы данных и ложить данные пользователя и его роли в Spring Security, чтобы спринг мог дальше выполнять свою работу и определять доступен ли определенный адрес для пользователя.
     }
 
     @Bean

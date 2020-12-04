@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     private final ResourceBundle labels = ResourceBundle.getBundle("messages");
 
-    private static Logger log = LogManager.getLogger(CertificateServiceImpl.class);
+    private static Logger log = LogManager.getLogger(ControllerExceptionHandler.class);
 
     @ExceptionHandler(TagNotFoundException.class)
     public ResponseEntity<Object> handleTagNotFoundException(TagNotFoundException exception) {
