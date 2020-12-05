@@ -27,12 +27,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public String login(String username, String password) {
         try {
-//            System.out.println(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password)));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             User user = userService.getUserByLogin(username);
 
-            return jwtTokenProvider.createToken(username, user.getRole());
+            return jwtTokenProvider.createToken(username, user.getRoles());
         } catch (AuthenticationException e) {
-            throw new AuthenticationDataException("Invalid username or password");
+            throw new AuthenticationDataException("message.invalid_login_password");
         }
     }
 }

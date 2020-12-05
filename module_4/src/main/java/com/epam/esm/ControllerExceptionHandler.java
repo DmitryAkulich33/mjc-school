@@ -1,12 +1,12 @@
 package com.epam.esm;
 
 import com.epam.esm.exceptions.*;
-import com.epam.esm.service.impl.CertificateServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -103,6 +103,17 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.FORBIDDEN.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
+                ErrorCode.DATA_ERROR_CODE.getErrorCode());
+        String message = exception.getMessage();
+        String localeMessage = labels.getString("message.forbidden_access");
+        ExceptionResponse error = new ExceptionResponse(localeMessage, errorCode);
+        log.error(message, exception);
+        return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(WrongEnteredDataException.class)
     public ResponseEntity<Object> handleWrongEnteredDataException(WrongEnteredDataException exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.NOT_FOUND.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
@@ -129,6 +140,20 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         String errorCode = String.format("%s%s%s", HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
                 ErrorCode.DAO_ERROR_CODE.getErrorCode());
         return getResponseEntity(exception, errorCode, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ResponseEntity<Object> handleJwtAuthenticationException(JwtAuthenticationException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
+                ErrorCode.DATA_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthenticationDataException.class)
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationDataException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
+                ErrorCode.DATA_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<Object> getResponseEntity(Exception exception, String errorCode, HttpStatus httpStatus) {

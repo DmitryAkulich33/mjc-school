@@ -10,9 +10,10 @@ public enum ErrorCode {
     CERTIFICATE_ERROR_CODE("02"),
     ORDER_ERROR_CODE("03"),
     USER_ERROR_CODE("04"),
-    DATA_ERROR_CODE("04"),
+    DATA_ERROR_CODE("05"),
     VALIDATE_ERROR_CODE("01"),
-    DAO_ERROR_CODE("02");
+    DAO_ERROR_CODE("02"),
+    AUTH_ERROR_CODE("03");
 
     private final String errorCode;
 }

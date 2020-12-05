@@ -13,6 +13,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ public class CertificateController {
     }
 
     @DeleteMapping(path = "/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Certificate> deleteCertificate(@PathVariable @NotNull @Positive Long id) {
         certificateService.deleteCertificate(id);
 
@@ -46,6 +48,7 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CertificateView> createCertificate(@Valid @RequestBody @JsonView(CreateCertificateView.Views.V1.class)
                                                                      CreateCertificateView createCertificateView, BindingResult result) {
         Certificate certificate = CreateCertificateView.createForm(createCertificateView);
@@ -59,6 +62,7 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CertificateView> getCertificateById(@PathVariable @NotNull @Positive Long id) {
         Certificate certificate = certificateService.getCertificateById(id);
         CertificateView certificateView = CertificateView.createForm(certificate);
@@ -70,6 +74,7 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @PatchMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CertificateView> updatePartCertificate(@Valid @RequestBody @JsonView(UpdatePartCertificateView.Views.V1.class)
                                                                          UpdatePartCertificateView updatePartCertificateView,
                                                                  @PathVariable @NotNull @Positive Long id) {
@@ -84,6 +89,7 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CertificateView> updateCertificate(@Valid @RequestBody @JsonView(UpdateCertificateView.Views.V1.class) UpdateCertificateView updateCertificateView,
                                                              @PathVariable @NotNull @Positive Long id) {
         Certificate certificateFromQuery = UpdateCertificateView.createForm(updateCertificateView);

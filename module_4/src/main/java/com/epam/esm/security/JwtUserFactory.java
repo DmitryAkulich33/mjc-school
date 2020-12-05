@@ -6,8 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUserFactory {
@@ -15,17 +15,17 @@ public class JwtUserFactory {
     public JwtUserFactory() {
     }
 
-    public JwtUser create(User user){
+    public JwtUser create(User user) {
         return new JwtUser(
                 user.getLogin(),
                 user.getPassword(),
-                convertToGrantedAuthorities(user.getRole())
+                convertToGrantedAuthorities(user.getRoles())
         );
     }
 
-    private List<GrantedAuthority> convertToGrantedAuthorities (Role role){
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(role.getName()));
-        return authorities;
+    private List<GrantedAuthority> convertToGrantedAuthorities(List<Role> roles) {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
     }
 }

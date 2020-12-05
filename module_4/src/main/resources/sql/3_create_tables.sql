@@ -51,10 +51,19 @@ create table user
     name_user VARCHAR(70) NOT NULL,
     surname VARCHAR(70) NOT NULL,
     lock_user INTEGER NOT NULL DEFAULT 0,
-    id_role BIGINT NOT NULL,
 
-    CONSTRAINT pk_user PRIMARY KEY (id_user),
-    CONSTRAINT fk_users_id_roles FOREIGN KEY (id_role)
+    CONSTRAINT pk_user PRIMARY KEY (id_user)
+);
+
+create table user_role
+(
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+
+    CONSTRAINT pk_user_role PRIMARY KEY (user_id, role_id),
+    CONSTRAINT fk_user_role_user_id FOREIGN KEY (user_id)
+        REFERENCES user (id_user) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT fk_user_role_role_id FOREIGN KEY (role_id)
         REFERENCES role (id_role) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 

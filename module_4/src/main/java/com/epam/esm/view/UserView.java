@@ -26,7 +26,7 @@ public class UserView extends RepresentationModel<UserView> {
     private String surname;
 
     @JsonView({Views.V1.class, OrderView.Views.V1.class})
-    private RoleView role;
+    private List<RoleView> roles;
 
     public class Views {
         public class V1 {
@@ -38,7 +38,7 @@ public class UserView extends RepresentationModel<UserView> {
         userView.setId(user.getId());
         userView.setName(user.getName());
         userView.setSurname(user.getSurname());
-        userView.setRole(RoleView.createForm(user.getRole()));
+        userView.setRoles(RoleView.createListForm(user.getRoles()));
 
         return userView;
     }

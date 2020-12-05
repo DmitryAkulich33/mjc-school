@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +38,7 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<OrderView> getOrderById(@PathVariable @NonNull Long id) {
         Order order = orderService.getOrderById(id);
         OrderView orderView = OrderView.createForm(order);
@@ -48,6 +50,7 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CollectionModel<OrderView>> getOrders(@RequestParam(required = false) @Positive Integer pageNumber,
                                                                 @RequestParam(required = false) @Positive Integer pageSize) {
         List<Order> orders = orderService.getOrders(pageNumber, pageSize);
@@ -60,6 +63,7 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @GetMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CollectionModel<OrderView>> getOrdersByUserId(@PathVariable @NonNull Long id,
                                                                         @RequestParam(required = false) @Positive Integer pageNumber,
                                                                         @RequestParam(required = false) @Positive Integer pageSize) {
@@ -73,6 +77,7 @@ public class OrderController {
 
     @JsonView(OrderDataView.Views.V1.class)
     @GetMapping(path = "/{idOrder}/users/{idUser}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<OrderDataView> getDataByUserId(@PathVariable @NotNull @Positive Long idUser,
                                                          @PathVariable @NotNull @Positive Long idOrder) {
         Order order = orderService.getOrderDataByUserId(idUser, idOrder);
@@ -85,6 +90,7 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @PostMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<OrderView> makeOrder(@PathVariable @NotNull @Positive Long id,
                                                @RequestBody @JsonView(CertificateForOrderView.Views.V1.class) List<CertificateForOrderView> certificates) {
         List<Certificate> certificatesToUpdate = CertificateForOrderView.createListForm(certificates);

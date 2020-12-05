@@ -26,5 +26,5 @@ public class Tag {
     private Integer lock;
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
-    List<Certificate> certificates;
+    private List<Certificate> certificates;
 }

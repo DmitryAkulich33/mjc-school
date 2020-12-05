@@ -20,7 +20,7 @@ public class Role {
     @Column(name = "name_role", unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private List<User> users;
 }
 

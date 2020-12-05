@@ -1,8 +1,6 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.domain.Tag;
-import com.epam.esm.security.annotation.IsAdmin;
-import com.epam.esm.security.annotation.IsUser;
 import com.epam.esm.service.TagService;
 import com.epam.esm.view.CreateTagView;
 import com.epam.esm.view.TagView;
@@ -13,6 +11,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +58,7 @@ public class TagController {
     }
 
     @DeleteMapping(path = "/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Tag> deleteTag(@PathVariable @NotNull @Positive Long id) {
         tagService.deleteTag(id);
 
@@ -67,8 +67,7 @@ public class TagController {
 
     @JsonView(TagView.Views.V1.class)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @IsAdmin
-    @IsUser
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<TagView> createTag(@Valid @RequestBody @JsonView(CreateTagView.Views.V1.class) CreateTagView tagView) {
         Tag tag = CreateTagView.createForm(tagView);
         Tag createdTag = tagService.createTag(tag);

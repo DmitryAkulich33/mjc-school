@@ -10,6 +10,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,7 @@ public class UserController {
 
     @JsonView(UserView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserView> getUserById(@PathVariable @NotNull @Positive Long id) {
         User user = userService.getUserById(id);
         UserView userView = UserView.createForm(user);
@@ -44,6 +46,7 @@ public class UserController {
 
     @JsonView(UserView.Views.V1.class)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CollectionModel<UserView>> getUsers(@RequestParam(required = false) @Positive Integer pageNumber,
                                                               @RequestParam(required = false) @Positive Integer pageSize) {
         List<User> users = userService.getUsers(pageNumber, pageSize);
