@@ -144,16 +144,16 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(JwtAuthenticationException.class)
     public ResponseEntity<Object> handleJwtAuthenticationException(JwtAuthenticationException exception) {
-        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
+        String errorCode = String.format("%s%s%s", HttpStatus.UNAUTHORIZED.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
                 ErrorCode.DATA_ERROR_CODE.getErrorCode());
-        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+        return getResponseEntity(exception, errorCode, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(AuthenticationDataException.class)
     public ResponseEntity<Object> handleAuthenticationException(AuthenticationDataException exception) {
-        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
+        String errorCode = String.format("%s%s%s", HttpStatus.UNAUTHORIZED.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
                 ErrorCode.DATA_ERROR_CODE.getErrorCode());
-        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+        return getResponseEntity(exception, errorCode, HttpStatus.UNAUTHORIZED);
     }
 
     private ResponseEntity<Object> getResponseEntity(Exception exception, String errorCode, HttpStatus httpStatus) {
