@@ -5,10 +5,10 @@ import com.epam.esm.domain.User;
 import javax.persistence.PrePersist;
 
 public class AuditUserListener {
-    private static final Integer LOCK = 0;
+    private static final Boolean DELETED = false;
 
     @PrePersist
     public void createUser(User user) {
-        user.setLock(LOCK);
+        user.setDeleted(DELETED);
     }
 }

@@ -7,12 +7,12 @@ import javax.persistence.PreUpdate;
 import java.time.LocalDateTime;
 
 public class AuditCertificateListener {
-    private static final Integer LOCK = 0;
+    private static final Boolean DELETED = false;
 
     @PrePersist
     public void createCertificate(Certificate certificate) {
         setCreateDate(certificate);
-        certificate.setLock(LOCK);
+        certificate.setDeleted(DELETED);
     }
 
     @PreUpdate

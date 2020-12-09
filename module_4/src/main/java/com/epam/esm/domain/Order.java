@@ -14,7 +14,7 @@ import java.util.List;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_order", updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false)
     private Long id;
 
     @Column(name = "purchase_date")
@@ -24,8 +24,8 @@ public class Order {
     @Column
     private Double total;
 
-    @Column(name = "lock_order")
-    private Integer lock;
+    @Column
+    private Boolean deleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
@@ -33,7 +33,7 @@ public class Order {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "certificate_order",
-            joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id_order")},
-            inverseJoinColumns = {@JoinColumn(name = "certificate_id", referencedColumnName = "id_certificate")})
+            joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "certificate_id", referencedColumnName = "id")})
     private List<Certificate> certificates;
 }

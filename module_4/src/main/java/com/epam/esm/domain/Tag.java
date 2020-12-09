@@ -16,14 +16,14 @@ import java.util.List;
 public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_tag", updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false)
     private Long id;
 
     @Column(name = "name_tag", unique = true)
     private String name;
 
-    @Column(name = "lock_tag")
-    private Integer lock;
+    @Column
+    private Boolean deleted;
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     private List<Certificate> certificates;

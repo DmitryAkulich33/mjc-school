@@ -5,10 +5,10 @@ import com.epam.esm.domain.Tag;
 import javax.persistence.PrePersist;
 
 public class AuditTagListener {
-    private static final Integer LOCK = 0;
+    private static final Boolean DELETED = false;
 
     @PrePersist
     public void createTag(Tag tag) {
-        tag.setLock(LOCK);
+        tag.setDeleted(DELETED);
     }
 }

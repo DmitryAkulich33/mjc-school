@@ -16,7 +16,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_user", updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false)
     private Long id;
 
     @Column(nullable = false, unique = true, updatable = false)
@@ -31,16 +31,16 @@ public class User {
     @Column(nullable = false)
     private String surname;
 
-    @Column(name = "lock_user")
-    private Integer lock;
+    @Column
+    private Boolean deleted;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Order> orders;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id_user")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id_role")})
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private List<Role> roles;
 }
 
