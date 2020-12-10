@@ -1,6 +1,5 @@
 package com.epam.esm.dao.impl;
 
-import com.epam.esm.dao.OrderDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Order;
 import com.epam.esm.domain.Tag;

@@ -1,6 +1,5 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.exceptions.*;
 import org.junit.jupiter.api.Test;

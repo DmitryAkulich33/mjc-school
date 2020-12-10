@@ -1,6 +1,5 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.UserDao;
 import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.UserDaoException;
 import com.epam.esm.exceptions.UserNotFoundException;

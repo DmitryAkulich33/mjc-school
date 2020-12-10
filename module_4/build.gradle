@@ -45,6 +45,7 @@ dependencies {
     testImplementation 'com.h2database:h2:1.4.200'
 
     compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+    compile group: 'org.keycloak', name: 'keycloak-spring-boot-starter', version: '11.0.3'
 }
 
 test {
@@ -54,5 +55,10 @@ test {
 sourceSets.configureEach { sourceSet ->
     tasks.named(sourceSet.compileJavaTaskName).configure {
         options.annotationProcessorGeneratedSourcesDirectory = file("$buildDir/generated/sources/java")
+    }
+}
+dependencyManagement {
+    imports {
+        mavenBom "org.keycloak.bom:keycloak-adapter-bom:11.0.3"
     }
 }

@@ -1,6 +1,5 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.exceptions.CertificateDaoException;
 import com.epam.esm.exceptions.CertificateDuplicateException;
