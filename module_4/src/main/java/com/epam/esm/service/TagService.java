@@ -4,7 +4,7 @@ import com.epam.esm.domain.Tag;
 
 import java.util.List;
 
-public interface TagService extends OffsetCalculator {
+public interface TagService{
     Tag createTag(Tag tag);
 
     void deleteTag(Long idTag);

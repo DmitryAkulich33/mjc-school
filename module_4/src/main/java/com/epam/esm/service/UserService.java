@@ -4,7 +4,7 @@ import com.epam.esm.domain.User;
 
 import java.util.List;
 
-public interface UserService extends OffsetCalculator {
+public interface UserService {
     User getUserById(Long idUser);
 
     User getUserByLogin(String login);

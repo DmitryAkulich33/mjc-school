@@ -1,6 +1,7 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.UserRepository;
+import com.epam.esm.domain.Role;
 import com.epam.esm.domain.User;
 import com.epam.esm.exceptions.UserNotFoundException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
@@ -14,10 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+
     private static Logger log = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
