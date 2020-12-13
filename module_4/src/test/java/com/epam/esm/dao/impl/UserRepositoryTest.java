@@ -1,10 +1,7 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.UserRepository;
-import com.epam.esm.domain.Certificate;
-import com.epam.esm.domain.Order;
-import com.epam.esm.domain.Tag;
-import com.epam.esm.domain.User;
+import com.epam.esm.domain.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,10 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DataJpaTest
 @ComponentScan(basePackages = {"com.epam.esm.dao", "com.epam.esm.domain"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class UserDaoImplTest {
+class UserRepositoryTest {
     private static final Long ID_1 = 1L;
     private static final String NAME_1 = "Ivan";
     private static final String NAME_2 = "Petr";
@@ -52,6 +46,7 @@ class UserDaoImplTest {
     private static final Integer CERTIFICATE_DURATION_2 = 100;
     private static final Double ORDER_TOTAL_1 = 150.0;
     private static final Double ORDER_TOTAL_2 = 50.0;
+    private static final String ROLE_NAME = "ROLE_USER";
 
     @Autowired
     private UserRepository userRepository;
@@ -62,19 +57,28 @@ class UserDaoImplTest {
     private User user1;
     private User user2;
 
+    private Role role;
+
     @BeforeEach
     public void setUp() {
+        role = new Role();
+        role.setName(ROLE_NAME);
+
+        List<Role> roles = new ArrayList<>(Collections.singletonList(role));
+
         user1 = new User();
         user1.setName(NAME_1);
         user1.setSurname(SURNAME_1);
         user1.setLogin(LOGIN_1);
         user1.setPassword(PASSWORD_1);
+        user1.setRoles(roles);
 
         user2 = new User();
         user2.setName(NAME_2);
         user2.setSurname(SURNAME_2);
         user2.setLogin(LOGIN_2);
         user2.setPassword(PASSWORD_2);
+        user2.setRoles(roles);
     }
 
     @Test
@@ -177,6 +181,7 @@ class UserDaoImplTest {
         entityManager.persist(tag2);
         entityManager.persist(certificate1);
         entityManager.persist(certificate2);
+        entityManager.persist(role);
         entityManager.persist(user1);
         entityManager.persist(user2);
         entityManager.persist(order1);
