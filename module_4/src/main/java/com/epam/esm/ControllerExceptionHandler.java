@@ -57,6 +57,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(RoleDuplicateException.class)
+    public ResponseEntity<Object> handleRoleDuplicateException(RoleDuplicateException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.DATA_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(CertificateDuplicateException.class)
     public ResponseEntity<Object> handleCertificateDuplicateException(CertificateDuplicateException exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.CERTIFICATE_ERROR_CODE.getErrorCode(),
