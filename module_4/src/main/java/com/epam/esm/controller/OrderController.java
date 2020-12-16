@@ -64,7 +64,7 @@ public class OrderController {
 
     @JsonView(OrderView.Views.V1.class)
     @GetMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or authentication.principal.id == #id")
+    @PreAuthorize(value = "isAuthenticated() and (hasAuthority('ROLE_ADMIN') or authentication.principal.id == #id)")
     public ResponseEntity<CollectionModel<OrderView>> getOrdersByUserId(@PathVariable @NonNull Long id,
                                                                         @RequestParam(required = false) @Positive Integer pageNumber,
                                                                         @RequestParam(required = false) @Positive Integer pageSize) {
@@ -77,7 +77,7 @@ public class OrderController {
 
     @JsonView(OrderDataView.Views.V1.class)
     @GetMapping(path = "/{idOrder}/users/{idUser}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or authentication.principal.id == #idUser")
+    @PreAuthorize(value = "isAuthenticated() and (hasAuthority('ROLE_ADMIN') or authentication.principal.id == #idUser)")
     public ResponseEntity<OrderDataView> getDataByUserId(@PathVariable @NotNull @Positive Long idUser,
                                                          @PathVariable @NotNull @Positive Long idOrder) {
         Order order = orderService.getOrderDataByUserId(idUser, idOrder);
