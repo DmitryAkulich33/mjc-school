@@ -3,30 +3,37 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.UserRepository;
 import com.epam.esm.domain.Role;
 import com.epam.esm.domain.User;
+import com.epam.esm.exceptions.UserDuplicateException;
 import com.epam.esm.exceptions.UserNotFoundException;
 import com.epam.esm.exceptions.WrongEnteredDataException;
+import com.epam.esm.service.RoleService;
 import com.epam.esm.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private final String ROLE_USER = "ROLE_USER";
     private final UserRepository userRepository;
-    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private final RoleService roleService;
 
     private static Logger log = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleService roleService) {
         this.userRepository = userRepository;
+        this.roleService = roleService;
     }
 
     @Override
@@ -69,5 +76,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> createUsers(List<User> users) {
         return (List<User>) userRepository.saveAll(users);
+    }
+
+    @Transactional
+    @Override
+    public User createUser(User user) {
+        Role role = roleService.getRoleByName(ROLE_USER);
+        user.setRoles(new ArrayList<>(Collections.singletonList(role)));
+        user.setPassword(encode(user.getPassword()));
+        try {
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new UserDuplicateException("message.user.exists", e);
+        }
+    }
+
+    private String encode(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.encode(password);
     }
 }

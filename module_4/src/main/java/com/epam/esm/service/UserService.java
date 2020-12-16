@@ -12,4 +12,6 @@ public interface UserService {
     List<User> getUsers(Integer pageNumber, Integer pageSize);
 
     List<User> createUsers(List<User> users);
+
+    User createUser(User user);
 }

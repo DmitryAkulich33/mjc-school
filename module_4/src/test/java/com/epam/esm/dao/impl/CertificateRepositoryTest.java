@@ -31,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class CertificateRepositoryTest {
     private static final Long ID_1 = 1L;
-    private static final Long ID_2 = 2L;
     private static final String TAG_NAME_1 = "food";
     private static final String TAG_NAME_2 = "delivery";
     private static final String WRONG_TAG_NAME_3 = "spa";
@@ -43,12 +42,9 @@ class CertificateRepositoryTest {
     private static final Double CERTIFICATE_PRICE_2 = 100.0;
     private static final Integer CERTIFICATE_DURATION_1 = 365;
     private static final Integer CERTIFICATE_DURATION_2 = 100;
-    private static final Integer LOCK = 0;
     private static final Integer PAGE_SIZE_1 = 1;
     private static final Integer PAGE_SIZE_2 = 2;
     private static final Integer PAGE_NUMBER_1 = 0;
-    private static final Integer PAGE_NUMBER_2 = 1;
-    private static final Integer WRONG_OFFSET = -2;
     private static final String SORT_CREATE_DATE = "createDate";
     private static final String SORT_NAME = "name";
     private static final String SEARCH_1 = "shop";
@@ -64,6 +60,8 @@ class CertificateRepositoryTest {
 
     @Autowired
     private CertificateRepository certificateRepository;
+    @Autowired
+    private CertificateSpecification certificateSpecification;
 
     @Autowired
     private TestEntityManager entityManager;
@@ -138,7 +136,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = Arrays.asList(expected1, expected2);
-        Specification<Certificate> specification = CertificateSpecification.filter(null, null);
+        Specification<Certificate> specification = certificateSpecification.filter(null, null);
         Sort sort = Sort.unsorted();
 
         List<Certificate> actual = certificateRepository.findAll(specification, sort);
@@ -151,7 +149,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         entityManager.persist(certificate2);
         List<Certificate> expected = Collections.singletonList(expected1);
-        Specification<Certificate> specification = CertificateSpecification.filter(null, null);
+        Specification<Certificate> specification = certificateSpecification.filter(null, null);
         Sort sort = Sort.unsorted();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_1, sort)).getContent();
@@ -165,7 +163,7 @@ class CertificateRepositoryTest {
         Thread.sleep(100);
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = Arrays.asList(expected1, expected2);
-        Specification<Certificate> specification = CertificateSpecification.filter(null, null);
+        Specification<Certificate> specification = certificateSpecification.filter(null, null);
         Sort sort = Sort.by(SORT_CREATE_DATE).ascending();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -179,7 +177,7 @@ class CertificateRepositoryTest {
         Thread.sleep(100);
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Arrays.asList(expected2, expected1));
-        Specification<Certificate> specification = CertificateSpecification.filter(null, null);
+        Specification<Certificate> specification = certificateSpecification.filter(null, null);
         Sort sort = Sort.by(SORT_CREATE_DATE).descending();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -192,7 +190,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Arrays.asList(expected2, expected1));
-        Specification<Certificate> specification = CertificateSpecification.filter(null, null);
+        Specification<Certificate> specification = certificateSpecification.filter(null, null);
         Sort sort = Sort.by(SORT_NAME).ascending();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -205,7 +203,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = Arrays.asList(expected1, expected2);
-        Specification<Certificate> specification = CertificateSpecification.filter(null, null);
+        Specification<Certificate> specification = certificateSpecification.filter(null, null);
         Sort sort = Sort.by(SORT_NAME).descending();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -218,7 +216,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
-        Specification<Certificate> specification = CertificateSpecification.filter(null, TAG_NAME_2);
+        Specification<Certificate> specification = certificateSpecification.filter(null, TAG_NAME_2);
         Sort sort = Sort.by(SORT_CREATE_DATE).descending();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -231,7 +229,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
-        Specification<Certificate> specification = CertificateSpecification.filter(null, TAG_NAME_1);
+        Specification<Certificate> specification = certificateSpecification.filter(null, TAG_NAME_1);
         Sort sort = Sort.unsorted();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -243,7 +241,7 @@ class CertificateRepositoryTest {
     public void testGetCertificates_TagName_EmptyResult() {
         entityManager.persist(certificate1);
         entityManager.persist(certificate2);
-        Specification<Certificate> specification = CertificateSpecification.filter(null, WRONG_TAG_NAME_3);
+        Specification<Certificate> specification = certificateSpecification.filter(null, WRONG_TAG_NAME_3);
         Sort sort = Sort.unsorted();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -256,7 +254,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
-        Specification<Certificate> specification = CertificateSpecification.filter(SEARCH_1, TAG_NAME_2);
+        Specification<Certificate> specification = certificateSpecification.filter(SEARCH_1, TAG_NAME_2);
         Sort sort = Sort.by(SORT_CREATE_DATE).descending();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -269,7 +267,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
-        Specification<Certificate> specification = CertificateSpecification.filter(SEARCH_1, null);
+        Specification<Certificate> specification = certificateSpecification.filter(SEARCH_1, null);
         Sort sort = Sort.unsorted();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -282,7 +280,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         Certificate expected2 = entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Arrays.asList(expected1, expected2));
-        Specification<Certificate> specification = CertificateSpecification.filter(SEARCH_2, null);
+        Specification<Certificate> specification = certificateSpecification.filter(SEARCH_2, null);
         Sort sort = Sort.unsorted();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -295,7 +293,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
-        Specification<Certificate> specification = CertificateSpecification.filter(SEARCH_1, TAG_NAME_2);
+        Specification<Certificate> specification = certificateSpecification.filter(SEARCH_1, TAG_NAME_2);
         Sort sort = Sort.unsorted();
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2, sort)).getContent();
@@ -308,7 +306,7 @@ class CertificateRepositoryTest {
         Certificate expected1 = entityManager.persist(certificate1);
         entityManager.persist(certificate2);
         List<Certificate> expected = new ArrayList<>(Collections.singletonList(expected1));
-        Specification<Certificate> specification = CertificateSpecification.tagNames(tagNames);
+        Specification<Certificate> specification = certificateSpecification.tagNames(tagNames);
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2)).getContent();
 
@@ -319,7 +317,7 @@ class CertificateRepositoryTest {
     public void testGetCertificatesByTags_EmptyResult() {
         entityManager.persist(certificate1);
         entityManager.persist(certificate2);
-        Specification<Certificate> specification = CertificateSpecification.tagNames(wrongTagNames);
+        Specification<Certificate> specification = certificateSpecification.tagNames(wrongTagNames);
 
         List<Certificate> actual = certificateRepository.findAll(specification, PageRequest.of(PAGE_NUMBER_1, PAGE_SIZE_2)).getContent();
 

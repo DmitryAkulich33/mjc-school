@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @NoRepositoryBean
-public interface ParentEntityRepository<T> extends CrudRepository<T, Long> {
+public interface CommonEntityRepository<T> extends CrudRepository<T, Long> {
 
     @Query("select t from #{#entityName} t where t.deleted = ?1")
     List<T> getEntities(Boolean deleted, Pageable pageable);

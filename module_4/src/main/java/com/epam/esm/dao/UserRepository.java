@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends ParentEntityRepository<User> {
+public interface UserRepository extends CommonEntityRepository<User> {
     Optional<User> findByLogin(String login);
 
     @Query("select o.user from orders o join o.user u group by o.user order by sum(o.total) desc")

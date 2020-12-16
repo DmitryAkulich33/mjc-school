@@ -27,7 +27,7 @@ public class JwtTokenProvider {
     private static final String AUTHORIZATION_BEARER = "Bearer ";
 
     @Value("${jwt.token.secret}")
-    private String secret;              // кодовое слово, которое потом потребуется для расшифровки
+    private String secret;
     @Value("${jwt.token.expired}")
     private long validityMilliseconds;
 
@@ -38,33 +38,33 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        secret = Base64.getEncoder().encodeToString(secret.getBytes()); // переводим в спец формат
+        secret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
     public String createToken(String login, List<Role> roles) {
 
-        Claims claims = Jwts.claims().setSubject(login); // создаем заявку токена
+        Claims claims = Jwts.claims().setSubject(login);
         claims.put("roles", getRoleNames(roles));
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityMilliseconds);
 
-        return Jwts.builder()                     // создаем токен
-                .setClaims(claims)                // добавил логин пользователя, чтобы потом его оттуда забрать в фильтре, когда пользователь будет делать запрос
-                .setIssuedAt(now)                 // время создания токена
-                .setExpiration(validity)          // истечение срока
-                .signWith(SignatureAlgorithm.HS256, secret) // принимает на вход алгоритм подписи и кодовое слово, которое потом потребуется для расшифровки
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
 
     public Authentication getAuthentication(String token) {
-        String username = getUsername(token);                   // создаем объект для аутентификации
+        String username = getUsername(token);
         UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(username);
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    private String getUsername(String token) { // информация о логине пользователя
+    private String getUsername(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }
 

@@ -115,7 +115,7 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
-    private double getTotal(List<Certificate> certificates) {
+    double getTotal(List<Certificate> certificates) {
         return certificates.stream().mapToDouble(Certificate::getPrice).sum();
     }
 }

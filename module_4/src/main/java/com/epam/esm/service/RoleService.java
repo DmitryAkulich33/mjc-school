@@ -4,4 +4,6 @@ import com.epam.esm.domain.Role;
 
 public interface RoleService {
     Role createRole(Role role);
+
+    Role getRoleByName(String name);
 }

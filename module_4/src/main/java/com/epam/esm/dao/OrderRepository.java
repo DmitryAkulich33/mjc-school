@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends ParentEntityRepository<Order> {
+public interface OrderRepository extends CommonEntityRepository<Order> {
     List<Order> findByUserId(Long id, Pageable pageable);
 
     List<Order> findByUserId(Long id);

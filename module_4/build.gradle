@@ -32,6 +32,7 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.16'
     implementation 'org.hibernate:hibernate-jpamodelgen:6.0.0.Alpha6'
     implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.hibernate:hibernate-jpamodelgen:6.0.0.Alpha6'
@@ -43,8 +44,6 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:3.6.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.6.0'
     testImplementation 'com.h2database:h2:1.4.200'
-
-    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 }
 
 test {

@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface TagRepository extends ParentEntityRepository<Tag> {
+public interface TagRepository extends CommonEntityRepository<Tag> {
     Optional<Tag> findByName(String name);
 }

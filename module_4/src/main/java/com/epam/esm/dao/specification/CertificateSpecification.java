@@ -15,12 +15,12 @@ import java.util.List;
 
 @Repository
 public class CertificateSpecification {
-    public static Specification<Certificate> filter(String searchField, String tagName) {
+    public Specification<Certificate> filter(String searchField, String tagName) {
         return Specification.where(partNameOrDescription(searchField))
                 .and(tagName(tagName));
     }
 
-    public static Specification<Certificate> partNameOrDescription(String searchField) {
+    public Specification<Certificate> partNameOrDescription(String searchField) {
         return (r, cq, cb) -> {
             if (searchField != null) {
                 return cb.or(cb.like(r.get(Certificate_.description), "%" + searchField + "%"),
@@ -31,7 +31,7 @@ public class CertificateSpecification {
         };
     }
 
-    public static Specification<Certificate> tagNames(List<String> tagNames) {
+    public Specification<Certificate> tagNames(List<String> tagNames) {
         return (r, cq, cb) -> {
             if (tagNames != null && !tagNames.isEmpty()) {
                 List<Predicate> predicates = new ArrayList<>();
@@ -46,7 +46,7 @@ public class CertificateSpecification {
         };
     }
 
-    public static Specification<Certificate> tagName(String tagName) {
+    public Specification<Certificate> tagName(String tagName) {
         return (r, cq, cb) -> {
             if (tagName != null) {
                 Join<Certificate, Tag> join = r.join(Certificate_.tags, JoinType.INNER);

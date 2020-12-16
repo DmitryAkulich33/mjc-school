@@ -71,6 +71,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserDuplicateException.class)
+    public ResponseEntity<Object> handleUserDuplicateException(UserDuplicateException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.BAD_REQUEST.value(), ErrorCode.USER_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<Object> handleOrderNotFoundException(OrderNotFoundException exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.NOT_FOUND.value(), ErrorCode.ORDER_ERROR_CODE.getErrorCode(),
@@ -87,6 +94,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.NOT_FOUND.value(), ErrorCode.USER_ERROR_CODE.getErrorCode(),
+                ErrorCode.DAO_ERROR_CODE.getErrorCode());
+        return getResponseEntity(exception, errorCode, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<Object> handleRoleNotFoundException(RoleNotFoundException exception) {
         String errorCode = String.format("%s%s%s", HttpStatus.NOT_FOUND.value(), ErrorCode.USER_ERROR_CODE.getErrorCode(),
                 ErrorCode.DAO_ERROR_CODE.getErrorCode());
         return getResponseEntity(exception, errorCode, HttpStatus.NOT_FOUND);

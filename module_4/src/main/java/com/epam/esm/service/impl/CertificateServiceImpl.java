@@ -29,6 +29,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class CertificateServiceImpl implements CertificateService {
     private final CertificateRepository certificateRepository;
     private final TagService tagService;
+    private final CertificateSpecification certificateSpecification;
 
     private static Logger log = LogManager.getLogger(CertificateServiceImpl.class);
 
@@ -37,9 +38,10 @@ public class CertificateServiceImpl implements CertificateService {
     private static final String DESC = "DESC";
 
     @Autowired
-    public CertificateServiceImpl(CertificateRepository certificateRepository, TagService tagService) {
+    public CertificateServiceImpl(CertificateRepository certificateRepository, TagService tagService, CertificateSpecification certificateSpecification) {
         this.certificateRepository = certificateRepository;
         this.tagService = tagService;
+        this.certificateSpecification = certificateSpecification;
     }
 
     @Transactional
@@ -142,7 +144,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<Certificate> getCertificates(String tagName, String searchField, String sortData, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates.");
-        Specification<Certificate> specification = CertificateSpecification.filter(searchField, tagName);
+        Specification<Certificate> specification = certificateSpecification.filter(searchField, tagName);
         Sort sort = getSort(sortData);
         if (pageNumber != null && pageSize != null) {
             checkPaginationGetCertificates(specification, pageNumber, pageSize);
@@ -175,7 +177,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<Certificate> getCertificatesByTags(List<String> tagNames, Integer pageNumber, Integer pageSize) {
         log.debug("Service: search certificates by tags' names.");
-        Specification<Certificate> specification = CertificateSpecification.tagNames(tagNames);
+        Specification<Certificate> specification = certificateSpecification.tagNames(tagNames);
         if (pageNumber != null && pageSize != null) {
             checkPaginationGetCertificatesByTags(specification, pageNumber, pageSize);
             return certificateRepository.findAll(specification, PageRequest.of(pageNumber - 1, pageSize)).getContent();
