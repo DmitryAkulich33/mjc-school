@@ -36,7 +36,7 @@ public class UserController {
 
     @JsonView(UserView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or authentication.principal.id == #id")
     public ResponseEntity<UserView> getUserById(@PathVariable @NotNull @Positive Long id) {
         User user = userService.getUserById(id);
         UserView userView = UserView.createForm(user);
