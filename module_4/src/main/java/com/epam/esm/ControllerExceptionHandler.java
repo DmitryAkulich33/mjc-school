@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -165,9 +166,9 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(JwtAuthenticationException.class)
     public ResponseEntity<Object> handleJwtAuthenticationException(JwtAuthenticationException exception) {
-        String errorCode = String.format("%s%s%s", HttpStatus.UNAUTHORIZED.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
+        String errorCode = String.format("%s%s%s", HttpStatus.FORBIDDEN.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
                 ErrorCode.DATA_ERROR_CODE.getErrorCode());
-        return getResponseEntity(exception, errorCode, HttpStatus.UNAUTHORIZED);
+        return getResponseEntity(exception, errorCode, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(AuthenticationDataException.class)
@@ -175,6 +176,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         String errorCode = String.format("%s%s%s", HttpStatus.UNAUTHORIZED.value(), ErrorCode.AUTH_ERROR_CODE.getErrorCode(),
                 ErrorCode.DATA_ERROR_CODE.getErrorCode());
         return getResponseEntity(exception, errorCode, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    public ResponseEntity<Object> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException exception) {
+        String errorCode = String.format("%s%s%s", HttpStatus.UNAUTHORIZED.value(), ErrorCode.VALIDATE_ERROR_CODE.getErrorCode(),
+                ErrorCode.DATA_ERROR_CODE.getErrorCode());
+        return getResponseEntityForStandardException(exception, errorCode, HttpStatus.UNAUTHORIZED);
     }
 
     private ResponseEntity<Object> getResponseEntity(Exception exception, String errorCode, HttpStatus httpStatus) {
