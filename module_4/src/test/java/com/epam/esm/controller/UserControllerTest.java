@@ -1,0 +1,61 @@
+package com.epam.esm.controller;
+
+import com.epam.esm.Application;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = Application.class)
+class UserControllerTest {
+    private final static String BASE_URL = "/api/v1/users";
+
+    @Autowired
+    private WebApplicationContext context;
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
+
+    @Test
+    @WithMockUser(authorities = {"ROLE_ADMIN"})
+    public void getUsers() throws Exception {
+        mockMvc
+                .perform(get(BASE_URL))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    public void getUsers_AccessDeniedException() throws Exception {
+        mockMvc
+                .perform(get(BASE_URL))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void getUsers_AuthenticationCredentialsNotFoundException() throws Exception {
+        mockMvc
+                .perform(get(BASE_URL))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getUserById_AuthenticationCredentialsNotFoundException() throws Exception {
+        mockMvc
+                .perform(get(String.format("%s/1", BASE_URL)))
+                .andExpect(status().isUnauthorized());
+    }
+}

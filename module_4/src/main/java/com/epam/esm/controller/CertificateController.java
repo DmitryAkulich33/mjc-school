@@ -62,7 +62,6 @@ public class CertificateController {
 
     @JsonView(CertificateView.Views.V1.class)
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CertificateView> getCertificateById(@PathVariable @NotNull @Positive Long id) {
         Certificate certificate = certificateService.getCertificateById(id);
         CertificateView certificateView = CertificateView.createForm(certificate);

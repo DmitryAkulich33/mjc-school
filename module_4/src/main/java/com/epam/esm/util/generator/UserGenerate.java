@@ -19,12 +19,10 @@ public class UserGenerate {
     private final UserService userService;
     private final String USER = "user";
     private final String ADMIN = "admin";
-    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserGenerate(UserService userService, BCryptPasswordEncoder passwordEncoder) {
+    public UserGenerate(UserService userService) {
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     private List<String> getWordsToCreate(int countUsers, List<String> allWords) {
@@ -52,7 +50,7 @@ public class UserGenerate {
         User user = new User();
         user.setRoles(roles);
         user.setLogin(ADMIN);
-        user.setPassword(passwordEncoder.encode(ADMIN));
+        user.setPassword(encode(ADMIN));
         user.setName(ADMIN);
         user.setSurname(ADMIN);
         return user;
@@ -67,10 +65,15 @@ public class UserGenerate {
             user.setName(userNames.get(randomName));
             user.setSurname(userSurnames.get(randomSurname));
             user.setLogin(String.format("%s%d", USER, i + 1));
-            user.setPassword(passwordEncoder.encode(String.format("%s%d", USER, i + 1)));
+            user.setPassword(encode(String.format("%s%d", USER, i + 1)));
             user.setRoles(getUserRoles(roles));
             users.add(user);
         });
         return users;
+    }
+
+    private String encode(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.encode(password);
     }
 }
