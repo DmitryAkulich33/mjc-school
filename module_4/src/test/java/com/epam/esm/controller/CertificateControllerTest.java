@@ -1,22 +1,18 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.Application;
 import com.epam.esm.domain.Certificate;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.service.impl.CertificateServiceImpl;
+import com.epam.esm.service.CertificateService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collections;
 
@@ -24,24 +20,24 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = Application.class)
+
+@SpringBootTest
+@AutoConfigureMockMvc
 class CertificateControllerTest {
     private final static String BASE_URL = "/api/v1/certificates";
 
     @Autowired
-    private WebApplicationContext context;
-    @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
     private MockMvc mockMvc;
     private Certificate certificate;
 
     @MockBean
-    private CertificateServiceImpl mockCertificateService;
+    private CertificateService mockCertificateService;
 
     @BeforeEach
     public void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
         Tag tag = new Tag();
         tag.setName("pick");
         certificate = new Certificate();

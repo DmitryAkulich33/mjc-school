@@ -1,20 +1,15 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.Application;
 import com.epam.esm.domain.Role;
 import com.epam.esm.domain.User;
-import com.epam.esm.service.impl.UserServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
+import com.epam.esm.service.UserService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collections;
 
@@ -22,24 +17,16 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class UserControllerTest {
     private final static String BASE_URL = "/api/v1/users";
 
     @Autowired
-    private WebApplicationContext context;
-
     private MockMvc mockMvc;
 
     @MockBean
-    private UserServiceImpl mockUserService;
-
-
-    @BeforeEach
-    public void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-    }
+    private UserService mockUserService;
 
     @Test
     @WithMockUser(authorities = {"ROLE_ADMIN"})
