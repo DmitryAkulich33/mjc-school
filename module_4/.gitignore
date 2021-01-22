@@ -1,0 +1,17 @@
+*.class
+
+/test
+*.log
+
+.idea
+out/
+*.iml
+
+.gradle
+/build
+
+gradle-app.setting
+
+!gradle-wrapper.jar
+
+.gradletasknamecache
